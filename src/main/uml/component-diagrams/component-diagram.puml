@@ -1,0 +1,21 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+[Job Manager]
+
+retrieveComplianceModel -left- [Modeling]
+
+findIssues -- [Checking]
+
+reconstructArchitecture -- [Production System Manager]
+
+fixIssue -- [Production System Manager]
+
+[Job Manager] -left-> retrieveComplianceModel
+
+[Job Manager] --> findIssues
+
+[Job Manager] --> reconstructArchitecture
+[Job Manager] --> fixIssue
+
+@enduml

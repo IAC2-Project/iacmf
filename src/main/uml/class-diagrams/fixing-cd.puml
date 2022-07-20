@@ -1,0 +1,24 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package org.iac2.productionsystem {
+    abstract class FixingPlugin {
+    + Boolean fixIssue(ComplianceIssue, SystemModel, ProductionSystem)
+    }
+    class ProductionSystem
+    class FixingStrategy
+}
+
+package org.iac2.common {
+    class SystemModel
+    class ComplianceIssue
+}
+
+
+ComplianceIssue <-- FixingPlugin : fixes
+SystemModel <-- FixingPlugin : gets info from
+ProductionSystem <-- FixingPlugin : applies to
+FixingStrategy o-- "*" FixingPlugin
+
+
+@enduml

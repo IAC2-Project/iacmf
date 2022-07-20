@@ -1,0 +1,31 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package org.iac2.common {
+    class SystemModel
+    class ComplianceIssue
+}
+package org.iac2.productionsystem {
+    class ProductionSystemManager
+    class ProductionSystem {
+        id
+    }
+    abstract class ModelGenerationPlugin
+    abstract class ModelEnhancementStrategy
+    class FixingStrategy
+}
+
+class ProductionSystemManager {
++ SystemModel reconstructArchitecture()
++ Boolean fixIssue(ComplianceIssue, SystemModel)
+}
+
+SystemModel "*" <-- ProductionSystemManager : generates
+ProductionSystem --o ProductionSystemManager
+ModelEnhancementStrategy "*" <-- ProductionSystemManager : executes
+ModelGenerationPlugin --o ProductionSystemManager
+ComplianceIssue "*" <-- ProductionSystemManager: fixes
+FixingStrategy "*" <-- ProductionSystemManager: executes
+
+
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+'https://plantuml.com/class-diagram
+package org.iac2.productionsystem {
+    abstract ArchitecturalReconstructionPlugin {
+    }
+    abstract class ModelGenerationPlugin {
+    +SystemModel constructSystemModel(ProductionSystem)
+    }
+    abstract class ModelEnhancementPlugin {
+    +void enhanceSystemModel(SystemModel, ProductionSystem)
+    }
+
+    class CustomScriptPlugin
+    class HarzenetterApproachPlugin
+    class OpenToscaContainerPlugin
+    class ProductionSystem
+    class ModelEnhancementStrategy
+}
+
+package org.iac2.common {
+class SystemModel
+
+}
+
+
+
+ModelGenerationPlugin -up-> ProductionSystem: crawls
+ModelGenerationPlugin -up-> SystemModel: generates
+ModelEnhancementPlugin -up-> SystemModel: enhanceSystemModel
+ModelEnhancementPlugin -up-> ProductionSystem: crawls
+ArchitecturalReconstructionPlugin <|-- ModelGenerationPlugin
+ArchitecturalReconstructionPlugin <|-- ModelEnhancementPlugin
+ModelEnhancementPlugin <|-- HarzenetterApproachPlugin
+ModelEnhancementPlugin <|-- CustomScriptPlugin
+ModelGenerationPlugin <|-- OpenToscaContainerPlugin
+ModelEnhancementStrategy  o-- "*" ModelEnhancementPlugin
+
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/class-diagram
+package org.iac2.common {
+class ComplianceRule
+class SystemModel
+class ComplianceIssue
+}
+
+package org.iac2.checking {
+    abstract class ComplianceIssue {
+    }
+
+    abstract class CheckingPlugin {
+    + Collection<ComplianceIssue> findIssues(ComplianceRule, SystemModel);
+    }
+    CheckingPlugin <|-- SubgraphIsomorphismCheckingPlugin
+    CheckingPlugin <|-- LogicProgrammingCheckingPlugin
+
+}
+
+CheckingPlugin -up-> ComplianceRule
+CheckingPlugin -up-> SystemModel
+CheckingPlugin "1" -up-> "*" ComplianceIssue : produces
+
+
+@enduml

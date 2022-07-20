@@ -1,0 +1,10 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include architectural-reconstruction-cd.puml
+!include checking-cd.puml
+!include common-model-cd.puml
+!include fixing-cd.puml
+!include production-system-manager-cd.puml
+!include compliance-job-management-cd.puml
+@enduml

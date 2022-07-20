@@ -1,0 +1,37 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package org.iac2.common {
+    class ComplianceRule {
+        String id
+        String type
+        Url detector
+        Url evaluator
+    }
+
+    class ComplianceRuleParameter {
+        String name
+        ComplianceRuleParameterType type
+
+    }
+
+    abstract class ComplianceRuleParameterAssignment
+
+    enum ComplianceRuleParameterType {
+        STRING
+        INTEGER
+        DECIMAL
+        BOOLEAN
+        BYTES
+    }
+
+    class SystemModel
+    abstract class ComplianceIssue
+}
+
+ComplianceRule *-- ComplianceRuleParameter
+ComplianceRuleParameter o-- ComplianceRuleParameterType
+ComplianceRuleParameter <-- ComplianceRuleParameterAssignment: assigns value to
+
+
+@enduml

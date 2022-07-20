@@ -1,0 +1,38 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package org.iac2.compliancejob {
+    class ComplianceJobManager {
+    }
+
+    class ComplianceJob {
+
+    }
+
+    abstract class ComplianceJobTrigger
+}
+
+package org.iac2.productionsystem {
+    class ProductionSystem
+    class ModelEnhancementStrategy
+    class FixingStrategy
+    class ProductionSystemManager
+}
+
+package org.iac2.common {
+    class ComplianceRuleParameterAssignment
+}
+
+
+ComplianceJobManager "1" *-- "*" ComplianceJob: manages >
+ComplianceJob "*" o-- "*" ComplianceJobTrigger
+ComplianceJob "1" *-left- "*" ComplianceRuleParameterAssignment
+ComplianceJob --> ProductionSystem : applies to
+ComplianceJob --> ModelEnhancementStrategy : specifies
+ComplianceJob --> FixingStrategy: specifies
+ComplianceJobManager "1" --> "*" ProductionSystemManager
+
+
+
+
+@enduml
