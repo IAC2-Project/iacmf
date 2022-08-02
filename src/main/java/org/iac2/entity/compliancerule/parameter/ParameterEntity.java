@@ -30,6 +30,7 @@ public class ParameterEntity {
     private ComplianceRuleEntity complianceRule;
 
     @Enumerated(EnumType.ORDINAL)
+    @NotNull
     private ParameterType type;
 
     public ParameterEntity(String name, ParameterType type) {

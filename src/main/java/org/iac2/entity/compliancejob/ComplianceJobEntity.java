@@ -18,6 +18,7 @@ import javax.persistence.OneToMany;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.compliancerule.parameter.assignment.ParameterAssignmentEntity;
@@ -50,6 +51,9 @@ public class ComplianceJobEntity {
 
     @OneToMany(mappedBy = "complianceJob")
     private List<ParameterAssignmentEntity> parameterAssignments;
+
+    @OneToMany(mappedBy = "complianceJob")
+    private List<ExecutionEntity> executions;
 
     @ManyToOne
     @JoinColumn(name = "production_system_id", nullable = false)
