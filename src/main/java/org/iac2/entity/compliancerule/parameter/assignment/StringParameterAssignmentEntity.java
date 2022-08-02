@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancerule.parameter.ParameterEntity;
 
 @Entity
@@ -17,8 +18,10 @@ import org.iac2.entity.compliancerule.parameter.ParameterEntity;
 public class StringParameterAssignmentEntity extends ParameterAssignmentEntity {
     private String stringValue;
 
-    public StringParameterAssignmentEntity(ParameterEntity parameter, String value) {
-        this.parameter = parameter;
+    public StringParameterAssignmentEntity(ParameterEntity parameter,
+                                           ComplianceJobEntity complianceJob,
+                                           String value) {
+        super(parameter, complianceJob);
         this.stringValue = value;
     }
 }

@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancerule.parameter.ParameterEntity;
 
 @Data
@@ -27,10 +28,15 @@ public abstract class ParameterAssignmentEntity {
     protected Long id;
 
     @ManyToOne
-    @JoinColumn(nullable=false)
+    @JoinColumn(nullable = false)
     protected ParameterEntity parameter;
 
-    public ParameterAssignmentEntity(ParameterEntity parameter) {
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    protected ComplianceJobEntity complianceJob;
+
+    public ParameterAssignmentEntity(ParameterEntity parameter, ComplianceJobEntity complianceJob) {
         this.parameter = parameter;
+        this.complianceJob = complianceJob;
     }
 }
