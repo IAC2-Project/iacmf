@@ -3,7 +3,7 @@
 
 [Job Manager]
 
-retrieveComplianceModel -left- [Modeling]
+getRuleImplementation -left- [Modeling]
 
 findIssues -- [Checking]
 
@@ -11,7 +11,7 @@ reconstructArchitecture -- [Production System Manager]
 
 fixIssue -- [Production System Manager]
 
-[Job Manager] -left-> retrieveComplianceModel
+[Job Manager] -left-> getRuleImplementation
 
 [Job Manager] --> findIssues
 

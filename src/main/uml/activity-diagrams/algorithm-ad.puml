@@ -1,0 +1,44 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+start
+repeat
+:model=systemManager.reconstructArchitecture();
+:rules=rulesRepo.getAll();
+:issuesFound = false;
+
+while (rules.isEmpty()) is (false)
+:rule=rules.pop();
+:issues=checkingManager.checkRule(rule,model);
+if (issues.isEmpty()) then (false)
+:issue = issues.pop();
+:fixingStrategy=systemManager.getFixingStrategy(issue);
+:issuesFound = true;
+:isFixed = false;
+while (fixingStrategy.isEmpty()) is (false)
+:fixingPlugin = fixingStrategy.pop();
+if (systemManager.fixIssue(fixingPlugin,issue)) then (fixed)
+:isFixed=true;
+break;
+else (not fixed)
+endif
+endwhile
+if (isFixed) then (false)
+:Error("issue " + issue + " was not fixed");
+stop
+else (true)
+endif
+else (true)
+endif
+if (issuesFound) then (true)
+break;
+else (false)
+endif
+endwhile
+
+
+repeat while (!rules.isEmpty() or issuesFound)
+
+stop
+
+@enduml

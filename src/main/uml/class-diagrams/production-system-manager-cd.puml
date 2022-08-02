@@ -1,10 +1,8 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-package org.iac2.common {
-    class SystemModel
-    class ComplianceIssue
-}
+!include common-model-cd.puml
+
 package org.iac2.productionsystem {
     class ProductionSystemManager
     class ProductionSystem {

@@ -1,17 +1,14 @@
 @startuml
 'https://plantuml.com/class-diagram
-package org.iac2.common {
-class ComplianceRule
-class SystemModel
-class ComplianceIssue
-}
+!include common-model-cd.puml
 
 package org.iac2.checking {
     abstract class ComplianceIssue {
     }
 
     abstract class CheckingPlugin {
-    + Collection<ComplianceIssue> findIssues(ComplianceRule, SystemModel);
+    + Collection<ComplianceIssue> findIssues(
+    ComplianceRule, SystemModel, Collection<ComplianceRuleParameterAssignment>);
     }
     CheckingPlugin <|-- SubgraphIsomorphismCheckingPlugin
     CheckingPlugin <|-- LogicProgrammingCheckingPlugin
@@ -20,6 +17,7 @@ package org.iac2.checking {
 
 CheckingPlugin -up-> ComplianceRule
 CheckingPlugin -up-> SystemModel
+CheckingPlugin -up-> ComplianceRuleParameterAssignment
 CheckingPlugin "1" -up-> "*" ComplianceIssue : produces
 
 

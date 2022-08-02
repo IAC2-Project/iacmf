@@ -1,6 +1,7 @@
 @startuml
 'https://plantuml.com/class-diagram
 
+!include common-model-cd.puml
 package org.iac2.productionsystem {
     abstract class FixingPlugin {
     + Boolean fixIssue(ComplianceIssue, SystemModel, ProductionSystem)
@@ -9,10 +10,6 @@ package org.iac2.productionsystem {
     class FixingStrategy
 }
 
-package org.iac2.common {
-    class SystemModel
-    class ComplianceIssue
-}
 
 
 ComplianceIssue <-- FixingPlugin : fixes

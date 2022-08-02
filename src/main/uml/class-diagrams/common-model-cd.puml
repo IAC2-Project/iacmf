@@ -5,8 +5,7 @@ package org.iac2.common {
     class ComplianceRule {
         String id
         String type
-        Url detector
-        Url evaluator
+        Url implementation
     }
 
     class ComplianceRuleParameter {
@@ -32,6 +31,6 @@ package org.iac2.common {
 ComplianceRule *-- ComplianceRuleParameter
 ComplianceRuleParameter o-- ComplianceRuleParameterType
 ComplianceRuleParameter <-- ComplianceRuleParameterAssignment: assigns value to
-
+ComplianceIssue --> ComplianceRule: originated from
 
 @enduml
