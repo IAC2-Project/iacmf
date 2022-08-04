@@ -24,6 +24,9 @@ public class ProductionSystemEntity {
     @NotNull
     private Boolean isDeleted;
 
+    @NotNull
+    private String iacTechnologyName;
+
     private String description;
 
     @OneToMany(mappedBy = "productionSystem")

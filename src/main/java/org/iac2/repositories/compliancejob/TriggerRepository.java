@@ -14,4 +14,6 @@ public interface TriggerRepository extends CrudRepository<TriggerEntity, Long> {
             ON j.id = :jobId
             """)
     List<TriggerEntity> findAllTriggersOfJob(@Param("jobId") Long jobId);
+
+    List<TriggerEntity> findByIsDeleted(Boolean isDeleted);
 }

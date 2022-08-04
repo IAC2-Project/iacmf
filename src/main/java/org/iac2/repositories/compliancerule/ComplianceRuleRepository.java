@@ -7,4 +7,6 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ComplianceRuleRepository extends CrudRepository<ComplianceRuleEntity, Long> {
     List<ComplianceRuleEntity> findByType(String type);
+
+    List<ComplianceRuleEntity> findByIsDeleted(Boolean isDeleted);
 }
