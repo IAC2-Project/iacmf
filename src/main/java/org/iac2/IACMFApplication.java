@@ -1,9 +1,14 @@
 package org.iac2;
 
+import org.iac2.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
+import org.iac2.architecturereconstruction.plugin.manager.implementations.SimpleARPluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 
 @SpringBootApplication
 public class IACMFApplication {
@@ -12,6 +17,12 @@ public class IACMFApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(IACMFApplication.class, args);
+    }
+
+    @Bean
+    @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+    public ArchitectureReconstructionPluginManager theARPluginManager() {
+        return SimpleARPluginManager.getInstance();
     }
 
     /*

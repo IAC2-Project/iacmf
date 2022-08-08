@@ -18,10 +18,11 @@ import javax.persistence.OneToMany;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.ParameterAssignmentEntity;
+import org.iac2.entity.compliancerule.parameter.assignment.ComplianceRuleParameterAssignmentEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 
 @Entity
@@ -50,10 +51,14 @@ public class ComplianceJobEntity {
 
 
     @OneToMany(mappedBy = "complianceJob")
-    private List<ParameterAssignmentEntity> parameterAssignments;
+    private List<ComplianceRuleParameterAssignmentEntity> complianceRuleParameterAssignments;
 
     @OneToMany(mappedBy = "complianceJob")
     private List<ExecutionEntity> executions;
+
+    @ManyToOne
+    @JoinColumn(name="model_enhancement_strategy_id", nullable = false)
+    private ModelEnhancementStrategyEntity modelEnhancementStrategy;
 
     @ManyToOne
     @JoinColumn(name = "production_system_id", nullable = false)

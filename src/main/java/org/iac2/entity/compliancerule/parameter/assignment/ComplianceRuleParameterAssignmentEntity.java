@@ -11,31 +11,30 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.sun.istack.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
-import org.iac2.entity.compliancerule.parameter.ParameterEntity;
+import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterEntity;
 
 @Data
 @NoArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.INTEGER)
-public abstract class ParameterAssignmentEntity {
+public abstract class ComplianceRuleParameterAssignmentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    protected ParameterEntity parameter;
+    protected ComplianceRuleParameterEntity parameter;
 
     @ManyToOne
     @JoinColumn(nullable = false)
     protected ComplianceJobEntity complianceJob;
 
-    public ParameterAssignmentEntity(ParameterEntity parameter, ComplianceJobEntity complianceJob) {
+    public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceJobEntity complianceJob) {
         this.parameter = parameter;
         this.complianceJob = complianceJob;
     }

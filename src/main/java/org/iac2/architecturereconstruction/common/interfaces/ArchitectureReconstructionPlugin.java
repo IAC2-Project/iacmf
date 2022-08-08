@@ -1,4 +1,4 @@
-package org.iac2.architecturereconstruction.plugin.interfaces;
+package org.iac2.architecturereconstruction.common.interfaces;
 
 public interface ArchitectureReconstructionPlugin {
     String getIdentifier();

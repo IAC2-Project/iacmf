@@ -17,7 +17,7 @@ import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 @Data
 @NoArgsConstructor
 @Entity
-public class ParameterEntity {
+public class ComplianceRuleParameterEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
@@ -33,7 +33,7 @@ public class ParameterEntity {
     @NotNull
     private ParameterType type;
 
-    public ParameterEntity(String name, ParameterType type) {
+    public ComplianceRuleParameterEntity(String name, ParameterType type) {
         this.name = name;
         this.type = type;
     }

@@ -15,6 +15,8 @@
     <description>Infrastructure as Code Compliance Management Framework</description>
     <properties>
         <java.version>18</java.version>
+        <maven.compiler.source>18</maven.compiler.source>
+        <maven.compiler.target>18</maven.compiler.target>
     </properties>
 
     <repositories>
@@ -64,8 +66,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.UST-EDMM.edmm</groupId>
-            <artifactId>edmm-core</artifactId>
+            <groupId>com.github.UST-edmm</groupId>
+            <artifactId>edmm</artifactId>
             <version>v1.1.1</version>
         </dependency>
     </dependencies>

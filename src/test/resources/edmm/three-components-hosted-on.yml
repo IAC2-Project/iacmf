@@ -1,0 +1,47 @@
+version: edm_1_0
+
+description: >
+  Very simple example adopted from https://github.com/UST-EDMM/edmm/blob/master/edmm-core/src/test/resources/templates/unit-tests/relations.yml
+  licensed under Apache 2.0 License (removed Depends On relations)
+
+metadata:
+  maintainer: Ghareeb Falazi
+
+properties:
+  foo:
+    type: string
+  bar:
+    type: integer
+
+components:
+  ubuntu:
+    type: compute
+  tomcat:
+    type: software_component
+    relations:
+      - hosted_on: ubuntu
+  db:
+    type: software_component
+    relations:
+      - hosted_on: ubuntu
+
+component_types:
+  base:
+    extends: null
+  compute:
+    extends: base
+    properties:
+      os_family:
+        type: string
+        description: Specifies the type of operating system
+        default_value: linux
+  software_component:
+    extends: base
+
+relation_types:
+  depends_on:
+    extends: null
+  hosted_on:
+    extends: depends_on
+  connects_to:
+    extends: depends_on

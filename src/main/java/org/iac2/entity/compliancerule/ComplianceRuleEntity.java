@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
-import org.iac2.entity.compliancerule.parameter.ParameterEntity;
+import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterEntity;
 
 @Entity
 @Data
@@ -35,7 +35,7 @@ public class ComplianceRuleEntity {
 
 
     @OneToMany(mappedBy = "complianceRule")
-    private List<ParameterEntity> parameters;
+    private List<ComplianceRuleParameterEntity> parameters;
 
 
     @OneToMany(mappedBy = "complianceRule")

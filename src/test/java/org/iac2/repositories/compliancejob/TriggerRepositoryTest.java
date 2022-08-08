@@ -11,13 +11,10 @@ import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.repositories.compliancerule.ComplianceRuleRepository;
 import org.iac2.repositories.productionsystem.ProductionSystemRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestFactory;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
 class TriggerRepositoryTest {
@@ -47,7 +44,8 @@ class TriggerRepositoryTest {
         this.complianceRuleRepository.save(complianceRule1);
         this.complianceRuleRepository.save(complianceRule2);
 
-        ProductionSystemEntity productionSystem = new ProductionSystemEntity("this is the best production system");
+        ProductionSystemEntity productionSystem = new ProductionSystemEntity("this is the best production system",
+                "opentoscacontainer", "opentoscaplugin");
         this.productionSystemRepository.save(productionSystem);
 
         CronTriggerEntity trigger1 = new CronTriggerEntity("Fire at 12:00 PM (noon) every day", "0 0 12 * * ?");

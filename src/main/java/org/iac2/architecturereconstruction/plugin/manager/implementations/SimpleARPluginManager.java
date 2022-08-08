@@ -1,4 +1,4 @@
-package org.iac2.architecturereconstruction.plugin.manager;
+package org.iac2.architecturereconstruction.plugin.manager.implementations;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,9 +9,10 @@ import java.util.stream.Collectors;
 
 import org.iac2.architecturereconstruction.plugin.implementation.manual.ManualModelCreatorPlugin;
 import org.iac2.architecturereconstruction.plugin.implementation.opentoscacontainer.OpenToscaContainerPlugin;
-import org.iac2.architecturereconstruction.plugin.interfaces.ArchitectureReconstructionPlugin;
-import org.iac2.architecturereconstruction.plugin.interfaces.ModelCreationPlugin;
-import org.iac2.architecturereconstruction.plugin.interfaces.ModelEnhancementPlugin;
+import org.iac2.architecturereconstruction.common.interfaces.ArchitectureReconstructionPlugin;
+import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
+import org.iac2.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
+import org.iac2.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 import org.iac2.common.model.ProductionSystem;
 
 public class SimpleARPluginManager implements ArchitectureReconstructionPluginManager {
@@ -31,8 +32,8 @@ public class SimpleARPluginManager implements ArchitectureReconstructionPluginMa
         return instance;
     }
 
-    private Map<String, ModelCreationPlugin> modelCreationPluginMap;
-    private Map<String, ModelEnhancementPlugin> modelEnhancementPluginMap;
+    private final Map<String, ModelCreationPlugin> modelCreationPluginMap;
+    private final Map<String, ModelEnhancementPlugin> modelEnhancementPluginMap;
 
     private void initializePlugins() {
         // here instances of plugins are created.
