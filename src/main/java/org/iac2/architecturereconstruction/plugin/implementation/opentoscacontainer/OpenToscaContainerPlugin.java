@@ -4,6 +4,7 @@ import io.github.edmm.core.parser.Entity;
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
+import io.swagger.client.api.DefaultApi;
 import org.iac2.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.architecturereconstruction.common.exception.ArchitectureReconstructionException;
 import org.iac2.architecturereconstruction.common.exception.IaCTechnologyNotSupportedException;
@@ -16,6 +17,7 @@ import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.Application;
 import org.opentosca.container.client.model.ApplicationInstance;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 
@@ -75,13 +77,19 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
         SystemModel systemModel = new SystemModel();
         EntityGraph entityGraph = new EntityGraph();
 
+        // this whole thing here feels weird, however, contructing yaml just to read it into this again is a little more weird...
         instance.getNodeInstances().forEach(n -> {
             EntityId id = new EntityId(n.getId());
             Entity entity = new OpenToscaContainerEntity(id, entityGraph);
             entityGraph.addEntity(entity);
         });
 
-        // TODO relations
+        instance.getRelationInstances().forEach(r -> {
+            Entity sourceEntity = entityGraph.getEntity(Arrays.asList(r.getSourceId())).get();
+            Entity targetEntity = entityGraph.getEntity(Arrays.asList(r.getTargetId())).get();
+            EntityGraph.Edge edge = new EntityGraph.Edge(r.getId(), sourceEntity, targetEntity);
+            entityGraph.addEdge(sourceEntity, targetEntity, edge);
+        });
 
         DeploymentModel deploymentModel = new DeploymentModel(appId, entityGraph);
         systemModel.setDeploymentModel(deploymentModel);
