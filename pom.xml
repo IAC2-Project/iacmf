@@ -70,6 +70,12 @@
             <artifactId>edmm</artifactId>
             <version>v1.1.1</version>
         </dependency>
+        <!-- OpenTOSCA deps -->
+        <dependency>
+            <groupId>com.github.OpenTOSCA</groupId>
+            <artifactId>container-client</artifactId>
+            <version>8c08c2ab0c</version>
+        </dependency>
     </dependencies>
 
     <build>
