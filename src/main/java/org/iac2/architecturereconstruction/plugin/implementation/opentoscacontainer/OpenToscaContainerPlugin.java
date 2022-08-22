@@ -3,7 +3,9 @@ package org.iac2.architecturereconstruction.plugin.implementation.opentoscaconta
 import io.github.edmm.core.parser.Entity;
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
+import io.github.edmm.core.parser.MappingEntity;
 import io.github.edmm.model.DeploymentModel;
+import io.github.edmm.model.component.RootComponent;
 import io.swagger.client.api.DefaultApi;
 import org.iac2.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.architecturereconstruction.common.exception.ArchitectureReconstructionException;
@@ -12,6 +14,7 @@ import org.iac2.architecturereconstruction.common.exception.InputNotValidExcepti
 import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.SystemModel;
+import org.jgrapht.graph.builder.GraphBuilder;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.Application;
@@ -77,11 +80,17 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
         SystemModel systemModel = new SystemModel();
         EntityGraph entityGraph = new EntityGraph();
 
+        GraphBuilder builder = EntityGraph.createBuilder(() -> {return null;});
+
         // this whole thing here feels weird, however, contructing yaml just to read it into this again is a little more weird...
+
+        // TODO FIXME how do you _actually_ work with EDMM ?
+        /*
         instance.getNodeInstances().forEach(n -> {
             EntityId id = new EntityId(n.getId());
-            Entity entity = new OpenToscaContainerEntity(id, entityGraph);
-            entityGraph.addEntity(entity);
+            MappingEntity mappingEntity = new MappingEntity(id, entityGraph);
+
+            entityGraph.addEntity(mappingEntity);
         });
 
         instance.getRelationInstances().forEach(r -> {
@@ -89,10 +98,11 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
             Entity targetEntity = entityGraph.getEntity(Arrays.asList(r.getTargetId())).get();
             EntityGraph.Edge edge = new EntityGraph.Edge(r.getId(), sourceEntity, targetEntity);
             entityGraph.addEdge(sourceEntity, targetEntity, edge);
-        });
+        }); */
 
-        DeploymentModel deploymentModel = new DeploymentModel(appId, entityGraph);
-        systemModel.setDeploymentModel(deploymentModel);
+
+        //DeploymentModel deploymentModel = new DeploymentModel(appId, entityGraph);
+        //systemModel.setDeploymentModel(deploymentModel);
         return systemModel;
     }
 }
