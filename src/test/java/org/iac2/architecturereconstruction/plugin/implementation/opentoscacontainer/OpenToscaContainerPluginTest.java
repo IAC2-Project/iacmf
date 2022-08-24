@@ -1,6 +1,8 @@
 package org.iac2.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
 import com.google.common.collect.Maps;
+import io.github.edmm.model.component.RootComponent;
+import io.github.edmm.model.relation.RootRelation;
 import io.swagger.client.model.ServiceTemplateInstanceDTO;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
@@ -17,6 +19,8 @@ import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.Application;
 import org.opentosca.container.client.model.ApplicationInstance;
+import org.opentosca.container.client.model.NodeInstance;
+import org.opentosca.container.client.model.RelationInstance;
 
 import javax.xml.namespace.QName;
 import java.io.IOException;
@@ -24,7 +28,9 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +49,7 @@ public class OpenToscaContainerPluginTest {
     private static ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).build();
 
     // set this to true if you want faster execution of this test when you probably need to run it more often
-    private static boolean debugging = false;
+    private static boolean debugging = true;
 
 
     @BeforeAll
@@ -77,6 +83,35 @@ public class OpenToscaContainerPluginTest {
         ProductionSystem productionSystem = new ProductionSystem("opentoscacontainer", "realworldapp-test", prodProps);
 
         SystemModel systemModel = plugin.reconstructInstanceModel(productionSystem);
+        Set<RootComponent> comps = systemModel.getDeploymentModel().getComponents();
+        Set<RootRelation> rels  = systemModel.getDeploymentModel().getRelations();
+
+        ApplicationInstance applicationInstance = this.getInstance();
+
+        assertEquals(applicationInstance.getNodeInstances().size(), comps.size());
+        assertEquals(applicationInstance.getRelationInstances().size(), rels.size());
+
+        ;
+
+        assertEquals(applicationInstance.getNodeInstances().size(), comps.stream().filter(c -> {
+            boolean nodeExists = false;
+            boolean relationsExist = true;
+            for (NodeInstance nodeInstance : applicationInstance.getNodeInstances()) {
+                if (nodeInstance.getId().equals(c.getId())) {
+                    nodeExists = true;
+                }
+            }
+            relationsExist = applicationInstance.getRelationInstances().stream().filter(r -> r.getSourceId().equals(c.getId())).collect(Collectors.toList()).size() == c.getRelations().size();
+            return nodeExists & relationsExist;
+        }).collect(Collectors.toList()).size());
+        assertEquals(applicationInstance.getRelationInstances().size(), rels.stream().filter(r -> {
+            for (RelationInstance relationInstance : applicationInstance.getRelationInstances()) {
+                if (relationInstance.getTargetId().equals(r.getTarget())) {
+                    return true;
+                }
+            }
+            return false;
+        }).collect(Collectors.toList()).size());
     }
 
     private static void uploadApp() {
@@ -117,6 +152,10 @@ public class OpenToscaContainerPluginTest {
         }
 
         Assertions.assertNotNull(instanceId);
+    }
+
+    private ApplicationInstance getInstance() {
+        return client.getApplicationInstances(client.getApplication(appName).get()).get(0);
     }
 
     private static void terminateApp() {

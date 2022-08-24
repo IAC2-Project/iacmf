@@ -5,7 +5,8 @@ import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.core.parser.MappingEntity;
 import io.github.edmm.model.DeploymentModel;
-import io.github.edmm.model.component.RootComponent;
+import io.github.edmm.model.component.*;
+import io.github.edmm.model.support.EdmmYamlBuilder;
 import io.swagger.client.api.DefaultApi;
 import org.iac2.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.architecturereconstruction.common.exception.ArchitectureReconstructionException;
@@ -19,10 +20,14 @@ import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.Application;
 import org.opentosca.container.client.model.ApplicationInstance;
+import org.opentosca.container.client.model.NodeInstance;
+import org.opentosca.container.client.model.RelationInstance;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class OpenToscaContainerPlugin implements ModelCreationPlugin {
 
@@ -80,29 +85,54 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
         SystemModel systemModel = new SystemModel();
         EntityGraph entityGraph = new EntityGraph();
 
-        GraphBuilder builder = EntityGraph.createBuilder(() -> {return null;});
-
         // this whole thing here feels weird, however, contructing yaml just to read it into this again is a little more weird...
+        // Edit: it is even funnier now
+        EdmmYamlBuilder yamlBuilder = new EdmmYamlBuilder();
 
-        // TODO FIXME how do you _actually_ work with EDMM ?
-        /*
         instance.getNodeInstances().forEach(n -> {
-            EntityId id = new EntityId(n.getId());
-            MappingEntity mappingEntity = new MappingEntity(id, entityGraph);
-
-            entityGraph.addEntity(mappingEntity);
+            yamlBuilder.component(this.getClassForNodeInstance(n), n.getId());
+            this.getRelationInstancesWithSource(instance, n.getId()).forEach(r ->
+            {
+                NodeInstance targetInstance = this.getNodeInstance(instance, r.getTargetId());
+                switch (r.getTemplateType()) {
+                    case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}HostedOn":
+                        yamlBuilder.hostedOn(this.getClassForNodeInstance(targetInstance), targetInstance.getId());
+                        break;
+                    case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ConnectsTo":
+                        yamlBuilder.connectsTo(this.getClassForNodeInstance(targetInstance), targetInstance.getId());
+                        break;
+                }
+            });
         });
 
-        instance.getRelationInstances().forEach(r -> {
-            Entity sourceEntity = entityGraph.getEntity(Arrays.asList(r.getSourceId())).get();
-            Entity targetEntity = entityGraph.getEntity(Arrays.asList(r.getTargetId())).get();
-            EntityGraph.Edge edge = new EntityGraph.Edge(r.getId(), sourceEntity, targetEntity);
-            entityGraph.addEdge(sourceEntity, targetEntity, edge);
-        }); */
+        String yamlString = yamlBuilder.build();
 
-
-        //DeploymentModel deploymentModel = new DeploymentModel(appId, entityGraph);
-        //systemModel.setDeploymentModel(deploymentModel);
+        DeploymentModel deploymentModel = DeploymentModel.of(yamlString);
+        systemModel.setDeploymentModel(deploymentModel);
         return systemModel;
+    }
+
+    private Collection<RelationInstance> getRelationInstancesWithSource(ApplicationInstance applicationInstance, String sourceId) {
+        return applicationInstance.getRelationInstances().stream().filter(r -> r.getSourceId().equals(sourceId)).collect(Collectors.toList());
+    }
+
+    private Class<? extends RootComponent> getClassForNodeInstance(NodeInstance nodeInstance) {
+        String type = nodeInstance.getTemplateType();
+        // TODO add more later
+        if (type.equals("{http://opentosca.org/nodetypes}DockerEngine_w1")) {
+            return Paas.class;
+        } else if (type.equals("{http://opentosca.org/nodetypes}NGINX_latest-w1")) {
+            return WebServer.class;
+        } else if (type.equals("{http://opentosca.org/example/applications/nodetypes}RealWorld-Application_Angular-w1")) {
+            return WebApplication.class;
+        } else if (type.equals("{http://opentosca.org/nodetypes}MySQL-DBMS_8.0-w1")) {
+            return MysqlDbms.class;
+        } else {
+            return SoftwareComponent.class;
+        }
+    }
+
+    private NodeInstance getNodeInstance(ApplicationInstance applicationInstance, String id) {
+        return applicationInstance.getNodeInstances().stream().filter(n -> n.getId().equals(id)).findFirst().orElse(null);
     }
 }
