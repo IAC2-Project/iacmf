@@ -18,6 +18,14 @@ services:
     image: opentosca/camunda-bpmn:latest
     ports:
       - '8092:8080'
+  db:
+    image: mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: rootpassword
+        MYSQL_USER: iac2-admin
+        MYSQL_PASSWORD: rootpassword
+    ports:
+        - 3306:3306
   container:
     image: opentosca/container:latest
     ports:
