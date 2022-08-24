@@ -3,6 +3,7 @@ package org.iac2.repositories.compliancejob;
 import java.util.Arrays;
 import java.util.List;
 
+import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.trigger.CronTriggerEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
@@ -12,11 +13,13 @@ import org.iac2.repositories.compliancerule.ComplianceRuleRepository;
 import org.iac2.repositories.productionsystem.ProductionSystemRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TriggerRepositoryTest {
     @Autowired
     private ComplianceRuleRepository complianceRuleRepository;
@@ -26,6 +29,9 @@ class TriggerRepositoryTest {
     private TriggerRepository triggerRepository;
     @Autowired
     private ComplianceJobRepository complianceJobRepository;
+
+    @Autowired
+    private ModelEnhancementStrategyRepository modelEnhancementStrategyRepository;
 
     @Test
     void testTriggersOfJobQuery() {
@@ -59,8 +65,15 @@ class TriggerRepositoryTest {
         List<TriggerEntity> triggers1 = Arrays.asList(new TriggerEntity[]{trigger1, trigger3});
         List<TriggerEntity> triggers2 = Arrays.asList(new TriggerEntity[]{trigger2});
 
-        ComplianceJobEntity job1 = new ComplianceJobEntity("this is job 1", productionSystem, complianceRule1, triggers1);
-        ComplianceJobEntity job2 = new ComplianceJobEntity("this is job 2", productionSystem, complianceRule2, triggers2);
+        ModelEnhancementStrategyEntity strategy1 = new ModelEnhancementStrategyEntity(List.of("p1", "p2"));
+        ModelEnhancementStrategyEntity strategy2 = new ModelEnhancementStrategyEntity(List.of("p3", "p4"));
+        modelEnhancementStrategyRepository.save(strategy1);
+        modelEnhancementStrategyRepository.save(strategy2);
+
+        ComplianceJobEntity job1 = new ComplianceJobEntity("this is job 1", productionSystem, complianceRule1, strategy1,
+                triggers1);
+        ComplianceJobEntity job2 = new ComplianceJobEntity("this is job 2", productionSystem, complianceRule2, strategy2,
+                triggers2);
 
         this.complianceJobRepository.save(job1);
         this.complianceJobRepository.save(job2);
