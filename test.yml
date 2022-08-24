@@ -24,6 +24,7 @@ services:
         MYSQL_ROOT_PASSWORD: rootpassword
         MYSQL_USER: iac2-admin
         MYSQL_PASSWORD: rootpassword
+        MYSQL_DATABASE: iac2
     ports:
         - 3306:3306
   container:
