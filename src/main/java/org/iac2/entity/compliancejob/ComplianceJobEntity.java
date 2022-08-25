@@ -67,10 +67,12 @@ public class ComplianceJobEntity {
     public ComplianceJobEntity(String description,
                                ProductionSystemEntity productionSystem,
                                ComplianceRuleEntity complianceRule,
+                               ModelEnhancementStrategyEntity modelEnhancementStrategy,
                                List<TriggerEntity> triggers
                                ) {
         this.complianceRule = complianceRule;
         this.productionSystem = productionSystem;
+        this.modelEnhancementStrategy = modelEnhancementStrategy;
         this.triggers = triggers;
         this.description = description;
     }

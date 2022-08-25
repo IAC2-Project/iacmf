@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 services:
   engine-ia-java8:
     image: opentosca/engine-ia:latest-jdk8
@@ -20,13 +20,16 @@ services:
       - '8092:8080'
   db:
     image: mysql
+    command: --default-authentication-plugin=mysql_native_password
     environment:
-        MYSQL_ROOT_PASSWORD: rootpassword
-        MYSQL_USER: iac2-admin
-        MYSQL_PASSWORD: rootpassword
-        MYSQL_DATABASE: iac2
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: iac2
+      MYSQL_PASSWORD: rootpassword
+      MYSQL_USER: iac2-admin
     ports:
-        - 3306:3306
+      - '3306:3306'
+    volumes:
+      - mysql_db_data_container:/var/lib/mysql
   container:
     image: opentosca/container:latest
     ports:
@@ -44,3 +47,5 @@ services:
       ENGINE_PLAN_BPMN_HOSTNAME: 172.17.0.1
       ENGINE_PLAN_BPMN_PORT: 8092
       CONTAINER_DEPLOYMENT_TESTS: 'false'
+volumes:
+  mysql_db_data_container:
