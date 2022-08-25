@@ -83,7 +83,7 @@
         <dependency>
             <groupId>com.github.OpenTOSCA</groupId>
             <artifactId>container-client</artifactId>
-            <version>ee1342e6c4</version>
+            <version>333b567aa9</version>
         </dependency>
         <dependency>
             <groupId>${winery.groupid}</groupId>

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,7 +47,7 @@ public class OpenToscaContainerPluginTest {
     private static final String hostName = "localhost";
     private static final String port = "1337";
     private static String instanceId = "";
-    private static ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).build();
+    private static ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(2000000, TimeUnit.MILLISECONDS).build();
 
     // set this to true if you want faster execution of this test when you probably need to run it more often
     private static boolean debugging = false;
