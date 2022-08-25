@@ -108,6 +108,16 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
         String yamlString = yamlBuilder.build();
 
         DeploymentModel deploymentModel = DeploymentModel.of(yamlString);
+
+        instance.getNodeInstances().forEach(n -> {
+            Map<String, String> properties = n.getProperties();
+            deploymentModel.getComponents().stream().filter(c -> c.getId().equals(n.getId())).collect(Collectors.toList()).forEach(c -> {
+                properties.forEach((k,v) -> {
+                    c.addProperty(k,v);
+                });
+            });
+        });
+
         systemModel.setDeploymentModel(deploymentModel);
         return systemModel;
     }

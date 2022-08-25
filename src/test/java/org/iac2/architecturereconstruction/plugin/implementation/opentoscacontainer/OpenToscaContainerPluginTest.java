@@ -113,6 +113,19 @@ public class OpenToscaContainerPluginTest {
             }
             return false;
         }).collect(Collectors.toList()).size());
+
+        applicationInstance.getNodeInstances().forEach(n -> {
+            Collection<RootComponent> components = systemModel.getDeploymentModel().getComponents().stream().filter(c ->
+                    c.getId().equals(n.getId())).collect(Collectors.toList());
+            assertEquals(1, components.size());
+
+            components.forEach(c -> {
+                n.getProperties().forEach((k,v) -> {
+                    assertTrue(c.getProperties().containsKey(k));
+                    assertEquals(c.getProperties().get(k).getValue(), v);
+                });
+            });
+        });
     }
 
     private static void uploadApp() {
