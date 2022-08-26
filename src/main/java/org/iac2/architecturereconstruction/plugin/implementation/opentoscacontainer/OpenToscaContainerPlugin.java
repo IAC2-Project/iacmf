@@ -54,7 +54,7 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
         String appId = props.get("opentoscacontainer_appId");
         String instanceId = props.get("opentoscacontainer_instanceId");
 
-        if (Objects.isNull(hostName) && Objects.isNull(port) && Objects.isNull(appId) && Objects.isNull(instanceId)) {
+        if (Objects.isNull(hostName) || Objects.isNull(port) || Objects.isNull(appId) || Objects.isNull(instanceId)) {
             StringBuilder strb = new StringBuilder();
             strb.append("Missing Properties");
             strb.append(System.lineSeparator());
