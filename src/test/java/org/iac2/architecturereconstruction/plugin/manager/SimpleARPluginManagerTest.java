@@ -21,7 +21,7 @@ class SimpleARPluginManagerTest {
     @Test
     void getPossibleModelCreationPluginsForProductionSystem() {
     }
-    
+
 
     @Test
     void getAll() {

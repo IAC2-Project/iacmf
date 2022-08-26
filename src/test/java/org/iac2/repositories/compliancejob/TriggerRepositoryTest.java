@@ -1,8 +1,5 @@
 package org.iac2.repositories.compliancejob;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.trigger.CronTriggerEntity;
@@ -15,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -39,7 +39,7 @@ class TriggerRepositoryTest {
                 "polymorphism",
                 "https://localhost/rule-1",
                 "my awesome rule"
-                );
+        );
 
         ComplianceRuleEntity complianceRule2 = new ComplianceRuleEntity(
                 "polymorphism",

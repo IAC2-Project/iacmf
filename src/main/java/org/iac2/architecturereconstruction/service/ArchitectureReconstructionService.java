@@ -1,11 +1,5 @@
 package org.iac2.architecturereconstruction.service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
-
 import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
@@ -14,6 +8,11 @@ import org.iac2.common.model.SystemModel;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.springframework.stereotype.Service;
+
+import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class ArchitectureReconstructionService {

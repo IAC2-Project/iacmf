@@ -41,16 +41,16 @@ public class OpenToscaContainerPluginTest {
 
     private static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-example-applications";
     private static final QName csarId = new QName("http://opentosca.org/example/applications/servicetemplates", "RealWorld-Application_Angular-Spring-MySQL-w1");
-    private static Path csarPath;
-    private static String appName = "RealWorld-Application_Angular-Spring-MySQL-w1";;
-
     private static final String hostName = "localhost";
     private static final String port = "1337";
+    ;
+    private static Path csarPath;
+    private static String appName = "RealWorld-Application_Angular-Spring-MySQL-w1";
     private static String instanceId = "";
     private static ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(20, TimeUnit.MINUTES).build();
 
     // set this to true if you want faster execution of this test when you probably need to run it more often
-    private static boolean debugging = false;
+    private static boolean debugging = true;
 
 
     @BeforeAll
@@ -67,65 +67,6 @@ public class OpenToscaContainerPluginTest {
             terminateApp();
             client.getApplications().forEach(a -> client.removeApplication(a));
         }
-    }
-
-    @Test
-    public void testReconstruction() {
-        SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
-        ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentoscacontainerplugin");
-        assertNotNull(plugin);
-        assertEquals("opentoscacontainerplugin", plugin.getIdentifier());
-
-        Map<String, String> prodProps = Maps.newHashMap();
-        prodProps.put("opentoscacontainer_hostname", hostName);
-        prodProps.put("opentoscacontainer_port", port);
-        prodProps.put("opentoscacontainer_appId", appName);
-        prodProps.put("opentoscacontainer_instanceId", instanceId);
-        ProductionSystem productionSystem = new ProductionSystem("opentoscacontainer", "realworldapp-test", prodProps);
-
-        SystemModel systemModel = plugin.reconstructInstanceModel(productionSystem);
-        Set<RootComponent> comps = systemModel.getDeploymentModel().getComponents();
-        Set<RootRelation> rels  = systemModel.getDeploymentModel().getRelations();
-
-        ApplicationInstance applicationInstance = this.getInstance();
-
-        assertEquals(applicationInstance.getNodeInstances().size(), comps.size());
-        assertEquals(applicationInstance.getRelationInstances().size(), rels.size());
-
-        ;
-
-        assertEquals(applicationInstance.getNodeInstances().size(), comps.stream().filter(c -> {
-            boolean nodeExists = false;
-            boolean relationsExist = true;
-            for (NodeInstance nodeInstance : applicationInstance.getNodeInstances()) {
-                if (nodeInstance.getId().equals(c.getId())) {
-                    nodeExists = true;
-                }
-            }
-            relationsExist = applicationInstance.getRelationInstances().stream().filter(r -> r.getSourceId().equals(c.getId())).collect(Collectors.toList()).size() == c.getRelations().size();
-            return nodeExists & relationsExist;
-        }).collect(Collectors.toList()).size());
-        assertEquals(applicationInstance.getRelationInstances().size(), rels.stream().filter(r -> {
-            for (RelationInstance relationInstance : applicationInstance.getRelationInstances()) {
-                if (relationInstance.getTargetId().equals(r.getTarget())) {
-                    return true;
-                }
-            }
-            return false;
-        }).collect(Collectors.toList()).size());
-
-        applicationInstance.getNodeInstances().forEach(n -> {
-            Collection<RootComponent> components = systemModel.getDeploymentModel().getComponents().stream().filter(c ->
-                    c.getId().equals(n.getId())).collect(Collectors.toList());
-            assertEquals(1, components.size());
-
-            components.forEach(c -> {
-                n.getProperties().forEach((k,v) -> {
-                    assertTrue(c.getProperties().containsKey(k));
-                    assertEquals(c.getProperties().get(k).getValue(), v);
-                });
-            });
-        });
     }
 
     private static void uploadApp() {
@@ -168,12 +109,69 @@ public class OpenToscaContainerPluginTest {
         Assertions.assertNotNull(instanceId);
     }
 
-    private ApplicationInstance getInstance() {
-        return client.getApplicationInstances(client.getApplication(appName).get()).get(0);
-    }
-
     private static void terminateApp() {
         ApplicationInstance instance = client.getApplicationInstances(client.getApplication(appName).get()).stream().findFirst().get();
-        client.terminateApplicationInstance(instance, testUtils.getTerminationPlanInputParameters(testUtils.getServiceInstanceURL(hostName,port,appName,instance.getApplication().getServiceTemplate().getId(),instance.getId())));
+        client.terminateApplicationInstance(instance, testUtils.getTerminationPlanInputParameters(testUtils.getServiceInstanceURL(hostName, port, appName, instance.getApplication().getServiceTemplate().getId(), instance.getId())));
+    }
+
+    @Test
+    public void testReconstruction() {
+        SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
+        ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentoscacontainerplugin");
+        assertNotNull(plugin);
+        assertEquals("opentoscacontainerplugin", plugin.getIdentifier());
+
+        Map<String, String> prodProps = Maps.newHashMap();
+        prodProps.put("opentoscacontainer_hostname", hostName);
+        prodProps.put("opentoscacontainer_port", port);
+        prodProps.put("opentoscacontainer_appId", appName);
+        prodProps.put("opentoscacontainer_instanceId", instanceId);
+        ProductionSystem productionSystem = new ProductionSystem("opentoscacontainer", "realworldapp-test", prodProps);
+
+        SystemModel systemModel = plugin.reconstructInstanceModel(productionSystem);
+        Set<RootComponent> comps = systemModel.getDeploymentModel().getComponents();
+        Set<RootRelation> rels = systemModel.getDeploymentModel().getRelations();
+
+        ApplicationInstance applicationInstance = this.getInstance();
+
+        assertEquals(applicationInstance.getNodeInstances().size(), comps.size());
+        assertEquals(applicationInstance.getRelationInstances().size(), rels.size());
+
+        assertEquals(applicationInstance.getNodeInstances().size(), comps.stream().filter(c -> {
+            boolean nodeExists = false;
+            boolean relationsExist = true;
+            for (NodeInstance nodeInstance : applicationInstance.getNodeInstances()) {
+                if (nodeInstance.getId().equals(c.getId())) {
+                    nodeExists = true;
+                }
+            }
+            relationsExist = applicationInstance.getRelationInstances().stream().filter(r -> r.getSourceId().equals(c.getId())).collect(Collectors.toList()).size() == c.getRelations().size();
+            return nodeExists & relationsExist;
+        }).collect(Collectors.toList()).size());
+        assertEquals(applicationInstance.getRelationInstances().size(), rels.stream().filter(r -> {
+            for (RelationInstance relationInstance : applicationInstance.getRelationInstances()) {
+                if (relationInstance.getTargetId().equals(r.getTarget())) {
+                    return true;
+                }
+            }
+            return false;
+        }).collect(Collectors.toList()).size());
+
+        applicationInstance.getNodeInstances().forEach(n -> {
+            Collection<RootComponent> components = systemModel.getDeploymentModel().getComponents().stream().filter(c ->
+                    c.getId().equals(n.getId())).collect(Collectors.toList());
+            assertEquals(1, components.size());
+
+            components.forEach(c -> {
+                n.getProperties().forEach((k, v) -> {
+                    assertTrue(c.getProperties().containsKey(k));
+                    assertEquals(c.getProperties().get(k).getValue(), v);
+                });
+            });
+        });
+    }
+
+    private ApplicationInstance getInstance() {
+        return client.getApplicationInstances(client.getApplication(appName).get()).get(0);
     }
 }

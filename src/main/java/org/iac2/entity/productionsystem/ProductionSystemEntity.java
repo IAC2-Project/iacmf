@@ -1,20 +1,13 @@
 package org.iac2.entity.productionsystem;
 
-import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.validation.constraints.NotNull;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor

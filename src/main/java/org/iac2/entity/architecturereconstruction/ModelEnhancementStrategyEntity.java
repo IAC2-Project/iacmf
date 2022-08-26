@@ -1,16 +1,11 @@
 package org.iac2.entity.architecturereconstruction;
 
-import java.util.List;
-
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.utll.StringListConverter;
+
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data

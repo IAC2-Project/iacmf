@@ -1,6 +1,6 @@
 package org.iac2.architecturereconstruction.common.exception;
 
-public abstract class ArchitectureReconstructionException extends RuntimeException{
+public abstract class ArchitectureReconstructionException extends RuntimeException {
     public ArchitectureReconstructionException() {
     }
 

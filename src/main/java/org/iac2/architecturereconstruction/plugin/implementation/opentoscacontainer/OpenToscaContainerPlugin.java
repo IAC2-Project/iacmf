@@ -1,21 +1,14 @@
 package org.iac2.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
-import io.github.edmm.core.parser.Entity;
-import io.github.edmm.core.parser.EntityGraph;
-import io.github.edmm.core.parser.EntityId;
-import io.github.edmm.core.parser.MappingEntity;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.*;
 import io.github.edmm.model.support.EdmmYamlBuilder;
-import io.swagger.client.api.DefaultApi;
 import org.iac2.architecturereconstruction.common.exception.AppNotFoundException;
-import org.iac2.architecturereconstruction.common.exception.ArchitectureReconstructionException;
 import org.iac2.architecturereconstruction.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.architecturereconstruction.common.exception.InputNotValidException;
 import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.SystemModel;
-import org.jgrapht.graph.builder.GraphBuilder;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.Application;
@@ -23,7 +16,6 @@ import org.opentosca.container.client.model.ApplicationInstance;
 import org.opentosca.container.client.model.NodeInstance;
 import org.opentosca.container.client.model.RelationInstance;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -109,8 +101,8 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
         instance.getNodeInstances().forEach(n -> {
             Map<String, String> properties = n.getProperties();
             deploymentModel.getComponents().stream().filter(c -> c.getId().equals(n.getId())).collect(Collectors.toList()).forEach(c -> {
-                properties.forEach((k,v) -> {
-                    c.addProperty(k,v);
+                properties.forEach((k, v) -> {
+                    c.addProperty(k, v);
                 });
             });
         });
@@ -127,11 +119,16 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
         String type = nodeInstance.getTemplateType();
         // TODO add more later
         switch (type) {
-            case "{http://opentosca.org/nodetypes}DockerEngine_w1": return Paas.class;
-            case "{http://opentosca.org/nodetypes}NGINX_latest-w1": return WebServer.class;
-            case "{http://opentosca.org/example/applications/nodetypes}RealWorld-Application_Angular-w": return WebApplication.class;
-            case "{http://opentosca.org/nodetypes}MySQL-DBMS_8.0-w1": return MysqlDbms.class;
-            default: return SoftwareComponent.class;
+            case "{http://opentosca.org/nodetypes}DockerEngine_w1":
+                return Paas.class;
+            case "{http://opentosca.org/nodetypes}NGINX_latest-w1":
+                return WebServer.class;
+            case "{http://opentosca.org/example/applications/nodetypes}RealWorld-Application_Angular-w":
+                return WebApplication.class;
+            case "{http://opentosca.org/nodetypes}MySQL-DBMS_8.0-w1":
+                return MysqlDbms.class;
+            default:
+                return SoftwareComponent.class;
         }
     }
 
