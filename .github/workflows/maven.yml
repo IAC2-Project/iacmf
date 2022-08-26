@@ -40,12 +40,6 @@ jobs:
           time: '120s'
       - name: Build with Maven
         run: mvn -B package --file pom.xml --fail-at-end
-      #- name: Run codacy-coverage-reporter
-      #  if: ${{ github.repository_owner == 'OpenTOSCA' }}
-      #  uses: codacy/codacy-coverage-reporter-action@master
-      #  with:
-      #    project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-      #    coverage-reports: target/site/jacoco/jacoco.xml
       - name: Log container run
         if: failure()
         run: docker logs $(docker ps -q -f "ancestor=opentosca/container:latest")
