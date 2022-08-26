@@ -1,11 +1,11 @@
 package org.iac2.repositories.compliancejob;
 
-import java.util.List;
-
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface TriggerRepository extends CrudRepository<TriggerEntity, Long> {
     @Query("""

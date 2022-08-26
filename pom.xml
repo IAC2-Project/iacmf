@@ -17,6 +17,8 @@
         <java.version>18</java.version>
         <maven.compiler.source>18</maven.compiler.source>
         <maven.compiler.target>18</maven.compiler.target>
+        <winery.version>ustutt-SNAPSHOT</winery.version>
+        <winery.groupid>com.github.opentosca.winery</winery.groupid>
     </properties>
 
     <repositories>
@@ -69,6 +71,57 @@
             <groupId>com.github.UST-edmm</groupId>
             <artifactId>edmm</artifactId>
             <version>v1.1.1</version>
+            <exclusions>
+                <!-- Needed right now as TOSCin has an openstack-resteasy implementation in it which breaks the opentosca client...-->
+                <exclusion>
+                    <groupId>com.github.UST-edmm.edmm</groupId>
+                    <artifactId>TOSCin</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- OpenTOSCA deps -->
+        <dependency>
+            <groupId>com.github.OpenTOSCA</groupId>
+            <artifactId>container-client</artifactId>
+            <version>333b567aa9</version>
+        </dependency>
+        <dependency>
+            <groupId>${winery.groupid}</groupId>
+            <artifactId>org.eclipse.winery.model.tosca.canonical</artifactId>
+            <version>${winery.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-to-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>${winery.groupid}</groupId>
+            <artifactId>org.eclipse.winery.repository</artifactId>
+            <version>${winery.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-to-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

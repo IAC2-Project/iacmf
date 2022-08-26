@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class IaCTechnologyNotSupportedException extends ArchitectureReconstructionException{
+public class IaCTechnologyNotSupportedException extends ArchitectureReconstructionException {
     private String iacTechnologyName;
 
     public IaCTechnologyNotSupportedException(String iacTechnologyName) {

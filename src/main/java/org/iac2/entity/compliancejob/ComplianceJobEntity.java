@@ -1,21 +1,5 @@
 package org.iac2.entity.compliancejob;
 
-import java.util.List;
-
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
@@ -24,6 +8,9 @@ import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.compliancerule.parameter.assignment.ComplianceRuleParameterAssignmentEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
+
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
@@ -57,7 +44,7 @@ public class ComplianceJobEntity {
     private List<ExecutionEntity> executions;
 
     @ManyToOne
-    @JoinColumn(name="model_enhancement_strategy_id", nullable = false)
+    @JoinColumn(name = "model_enhancement_strategy_id", nullable = false)
     private ModelEnhancementStrategyEntity modelEnhancementStrategy;
 
     @ManyToOne
@@ -67,10 +54,12 @@ public class ComplianceJobEntity {
     public ComplianceJobEntity(String description,
                                ProductionSystemEntity productionSystem,
                                ComplianceRuleEntity complianceRule,
+                               ModelEnhancementStrategyEntity modelEnhancementStrategy,
                                List<TriggerEntity> triggers
-                               ) {
+    ) {
         this.complianceRule = complianceRule;
         this.productionSystem = productionSystem;
+        this.modelEnhancementStrategy = modelEnhancementStrategy;
         this.triggers = triggers;
         this.description = description;
     }

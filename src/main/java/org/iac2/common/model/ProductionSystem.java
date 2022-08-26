@@ -1,9 +1,9 @@
 package org.iac2.common.model;
 
-import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
+import java.util.Map;
 
 
 @Data
@@ -11,5 +11,5 @@ import lombok.Data;
 public class ProductionSystem {
     private String iacTechnologyName;
     private String description;
-    private Map<String,String> properties;
+    private Map<String, String> properties;
 }

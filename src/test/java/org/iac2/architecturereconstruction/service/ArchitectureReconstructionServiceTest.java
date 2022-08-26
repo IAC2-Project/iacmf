@@ -1,7 +1,5 @@
 package org.iac2.architecturereconstruction.service;
 
-import java.util.List;
-
 import org.iac2.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 import org.iac2.common.model.SystemModel;
 import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
@@ -15,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
 
