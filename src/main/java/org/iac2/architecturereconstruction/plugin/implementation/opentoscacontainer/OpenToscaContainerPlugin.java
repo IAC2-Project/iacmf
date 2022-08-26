@@ -83,10 +83,7 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
         }
 
         SystemModel systemModel = new SystemModel();
-        EntityGraph entityGraph = new EntityGraph();
 
-        // this whole thing here feels weird, however, contructing yaml just to read it into this again is a little more weird...
-        // Edit: it is even funnier now
         EdmmYamlBuilder yamlBuilder = new EdmmYamlBuilder();
 
         instance.getNodeInstances().forEach(n -> {
@@ -129,16 +126,12 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
     private Class<? extends RootComponent> getClassForNodeInstance(NodeInstance nodeInstance) {
         String type = nodeInstance.getTemplateType();
         // TODO add more later
-        if (type.equals("{http://opentosca.org/nodetypes}DockerEngine_w1")) {
-            return Paas.class;
-        } else if (type.equals("{http://opentosca.org/nodetypes}NGINX_latest-w1")) {
-            return WebServer.class;
-        } else if (type.equals("{http://opentosca.org/example/applications/nodetypes}RealWorld-Application_Angular-w1")) {
-            return WebApplication.class;
-        } else if (type.equals("{http://opentosca.org/nodetypes}MySQL-DBMS_8.0-w1")) {
-            return MysqlDbms.class;
-        } else {
-            return SoftwareComponent.class;
+        switch (type) {
+            case "{http://opentosca.org/nodetypes}DockerEngine_w1": return Paas.class;
+            case "{http://opentosca.org/nodetypes}NGINX_latest-w1": return WebServer.class;
+            case "{http://opentosca.org/example/applications/nodetypes}RealWorld-Application_Angular-w": return WebApplication.class;
+            case "{http://opentosca.org/nodetypes}MySQL-DBMS_8.0-w1": return MysqlDbms.class;
+            default: return SoftwareComponent.class;
         }
     }
 
