@@ -10,5 +10,6 @@ public class IaCTechnologyNotSupportedException extends ArchitectureReconstructi
 
     public IaCTechnologyNotSupportedException(String iacTechnologyName) {
         super("The following IaC technology is not supported by the plugin: " + iacTechnologyName);
+        this.iacTechnologyName = iacTechnologyName;
     }
 }

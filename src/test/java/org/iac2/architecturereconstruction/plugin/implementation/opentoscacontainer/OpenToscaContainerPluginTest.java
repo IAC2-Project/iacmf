@@ -8,7 +8,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.architecturereconstruction.plugin.manager.implementations.SimpleARPluginManager;
+import org.iac2.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.SystemModel;
 import org.junit.jupiter.api.AfterAll;

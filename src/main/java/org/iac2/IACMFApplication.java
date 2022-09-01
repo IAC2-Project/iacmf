@@ -1,7 +1,8 @@
 package org.iac2;
 
 import org.iac2.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
-import org.iac2.architecturereconstruction.plugin.manager.implementations.SimpleARPluginManager;
+import org.iac2.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
+import org.iac2.checking.plugin.manager.implementation.SimpleCRCheckingManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -25,6 +26,11 @@ public class IACMFApplication {
         return SimpleARPluginManager.getInstance();
     }
 
+    @Bean
+    @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+    public SimpleCRCheckingManager theCheckingManager() {
+        return SimpleCRCheckingManager.getInstance();
+    }
     /*
     @Bean
     public CommandLineRunner demo(
