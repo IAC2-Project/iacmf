@@ -1,4 +1,4 @@
-package org.iac2.entity.utll;
+package org.iac2.entity.util;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

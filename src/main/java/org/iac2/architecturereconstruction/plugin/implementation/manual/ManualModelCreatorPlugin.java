@@ -1,5 +1,8 @@
 package org.iac2.architecturereconstruction.plugin.implementation.manual;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.iac2.architecturereconstruction.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.common.model.ProductionSystem;
@@ -14,6 +17,11 @@ public class ManualModelCreatorPlugin implements ModelCreationPlugin {
     @Override
     public boolean isIaCTechnologySupported(String iacTechnologyName) {
         return iacTechnologyName.equalsIgnoreCase("opentoscacontainer");
+    }
+
+    @Override
+    public Collection<String> getRequiredPropertyNames() {
+        return Collections.emptyList();
     }
 
     @Override

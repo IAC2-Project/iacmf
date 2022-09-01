@@ -1,7 +1,18 @@
 package org.iac2.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import io.github.edmm.model.DeploymentModel;
-import io.github.edmm.model.component.*;
+import io.github.edmm.model.component.MysqlDbms;
+import io.github.edmm.model.component.Paas;
+import io.github.edmm.model.component.RootComponent;
+import io.github.edmm.model.component.SoftwareComponent;
+import io.github.edmm.model.component.WebApplication;
+import io.github.edmm.model.component.WebServer;
 import io.github.edmm.model.support.EdmmYamlBuilder;
 import org.iac2.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.architecturereconstruction.common.exception.IaCTechnologyNotSupportedException;
@@ -16,11 +27,6 @@ import org.opentosca.container.client.model.ApplicationInstance;
 import org.opentosca.container.client.model.NodeInstance;
 import org.opentosca.container.client.model.RelationInstance;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 public class OpenToscaContainerPlugin implements ModelCreationPlugin {
 
     @Override
@@ -31,6 +37,16 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
     @Override
     public boolean isIaCTechnologySupported(String iacTechnologyName) {
         return iacTechnologyName.equalsIgnoreCase("opentoscacontainer");
+    }
+
+    @Override
+    public Collection<String> getRequiredPropertyNames() {
+        return List.of(
+                "opentoscacontainer_hostname",
+                "opentoscacontainer_port",
+                "opentoscacontainer_appId",
+                "opentoscacontainer_instanceId"
+        );
     }
 
     @Override
@@ -50,13 +66,14 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
             StringBuilder strb = new StringBuilder();
             strb.append("Missing Properties");
             strb.append(System.lineSeparator());
-            strb.append("hostName=" + hostName);
+            strb.append("hostName=").append(hostName);
             strb.append(System.lineSeparator());
-            strb.append("port=" + port);
+            strb.append("port=").append(port);
             strb.append(System.lineSeparator());
-            strb.append("appId=" + appId);
+            strb.append("appId=").append(appId);
             strb.append(System.lineSeparator());
-            strb.append("instanceId=" + instanceId);
+            strb.append("instanceId=").append(instanceId);
+
             throw new InputNotValidException(strb.toString());
         }
 
@@ -100,10 +117,8 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
 
         instance.getNodeInstances().forEach(n -> {
             Map<String, String> properties = n.getProperties();
-            deploymentModel.getComponents().stream().filter(c -> c.getId().equals(n.getId())).collect(Collectors.toList()).forEach(c -> {
-                properties.forEach((k, v) -> {
-                    c.addProperty(k, v);
-                });
+            deploymentModel.getComponents().stream().filter(c -> c.getId().equals(n.getId())).toList().forEach(c -> {
+                properties.forEach(c::addProperty);
             });
         });
 

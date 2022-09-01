@@ -2,8 +2,8 @@ package org.iac2.repositories.compliancejob;
 
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
-import org.iac2.entity.compliancejob.execution.ExecutionStatus;
-import org.iac2.entity.compliancejob.execution.ExecutionStep;
+import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
+import org.iac2.common.model.compliancejob.execution.ExecutionStep;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

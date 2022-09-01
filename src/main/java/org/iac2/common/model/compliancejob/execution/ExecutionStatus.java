@@ -1,4 +1,4 @@
-package org.iac2.entity.compliancejob.execution;
+package org.iac2.common.model.compliancejob.execution;
 
 public enum ExecutionStatus {
     CREATED,

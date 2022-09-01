@@ -2,7 +2,7 @@ package org.iac2.entity.architecturereconstruction;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.iac2.entity.utll.StringListConverter;
+import org.iac2.entity.util.StringListConverter;
 
 import javax.persistence.*;
 import java.util.List;

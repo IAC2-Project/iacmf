@@ -1,5 +1,8 @@
 package org.iac2.architecturereconstruction.service;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import io.github.edmm.model.DeploymentModel;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -15,6 +18,11 @@ public class MockModelCreationPlugin implements ModelCreationPlugin {
 
     public MockModelCreationPlugin(int numberOfComponents) {
         this.numberOfComponents = numberOfComponents;
+    }
+
+    @Override
+    public Collection<String> getRequiredPropertyNames() {
+        return Collections.emptyList();
     }
 
     @Override
