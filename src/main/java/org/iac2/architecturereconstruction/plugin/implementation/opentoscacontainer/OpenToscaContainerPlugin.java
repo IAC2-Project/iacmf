@@ -16,7 +16,6 @@ import io.github.edmm.model.component.WebServer;
 import io.github.edmm.model.support.EdmmYamlBuilder;
 import org.iac2.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.architecturereconstruction.common.exception.IaCTechnologyNotSupportedException;
-import org.iac2.architecturereconstruction.common.exception.InputNotValidException;
 import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.SystemModel;
@@ -74,7 +73,7 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
             strb.append(System.lineSeparator());
             strb.append("instanceId=").append(instanceId);
 
-            throw new InputNotValidException(strb.toString());
+            throw new IllegalArgumentException(strb.toString());
         }
 
         ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).build();
@@ -100,6 +99,7 @@ public class OpenToscaContainerPlugin implements ModelCreationPlugin {
             this.getRelationInstancesWithSource(instance, n.getId()).forEach(r ->
             {
                 NodeInstance targetInstance = this.getNodeInstance(instance, r.getTargetId());
+
                 switch (r.getTemplateType()) {
                     case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}HostedOn":
                         yamlBuilder.hostedOn(this.getClassForNodeInstance(targetInstance), targetInstance.getId());

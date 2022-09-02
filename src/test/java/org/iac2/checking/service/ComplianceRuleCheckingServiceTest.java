@@ -47,8 +47,6 @@ class ComplianceRuleCheckingServiceTest {
 
         Assertions.assertNotNull(issues);
         Assertions.assertEquals(2, issues.size());
-
-
     }
 
 }

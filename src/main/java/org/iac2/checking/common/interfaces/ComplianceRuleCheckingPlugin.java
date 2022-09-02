@@ -10,5 +10,7 @@ public interface ComplianceRuleCheckingPlugin {
 
     boolean isSuitableForComplianceRule(ComplianceRule complianceRule);
     String getIdentifier();
+
+    // todo do we need additional parameters?
     Collection<ComplianceIssue> findIssues(SystemModel systemModel, ComplianceRule rule);
 }

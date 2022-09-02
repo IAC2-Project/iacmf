@@ -2,6 +2,7 @@ package org.iac2;
 
 import org.iac2.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 import org.iac2.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
+import org.iac2.checking.plugin.manager.ComplianceRuleCheckingPluginManager;
 import org.iac2.checking.plugin.manager.implementation.SimpleCRCheckingManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class IACMFApplication {
 
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public SimpleCRCheckingManager theCheckingManager() {
+    public ComplianceRuleCheckingPluginManager theCheckingManager() {
         return SimpleCRCheckingManager.getInstance();
     }
     /*

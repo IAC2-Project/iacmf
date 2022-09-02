@@ -15,6 +15,10 @@ import org.iac2.architecturereconstruction.plugin.implementation.opentoscacontai
 import org.iac2.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 import org.iac2.common.model.ProductionSystem;
 
+/**
+ * Plugin manager with hard-coded plugin classes.
+ * This class is provided as a bean (singleton). Check the application class.
+ */
 public class SimpleARPluginManager implements ArchitectureReconstructionPluginManager {
     private static SimpleARPluginManager instance;
     private final Map<String, ModelCreationPlugin> modelCreationPluginMap;

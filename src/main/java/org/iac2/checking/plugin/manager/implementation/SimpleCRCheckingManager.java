@@ -9,6 +9,10 @@ import org.iac2.checking.common.model.compliancerule.ComplianceRule;
 import org.iac2.checking.plugin.implementation.SubgraphIsomorphismCheckerPlugin;
 import org.iac2.checking.plugin.manager.ComplianceRuleCheckingPluginManager;
 
+/**
+ * Plugin manager with hard-coded plugin classes.
+ * This class is provided as a bean (singleton). Check the application class.
+ */
 public class SimpleCRCheckingManager implements ComplianceRuleCheckingPluginManager {
     private static SimpleCRCheckingManager instance;
     private Map<String, ComplianceRuleCheckingPlugin> allPlugins;
