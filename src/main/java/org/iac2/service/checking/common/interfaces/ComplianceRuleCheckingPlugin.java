@@ -12,5 +12,5 @@ public interface ComplianceRuleCheckingPlugin {
     String getIdentifier();
 
     // todo do we need additional parameters?
-    Collection<ComplianceIssue> findIssues(InstanceModel systemModel, ComplianceRule rule);
+    Collection<ComplianceIssue> findIssues(InstanceModel instanceModel, ComplianceRule rule);
 }

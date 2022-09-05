@@ -26,19 +26,19 @@ public class ArchitectureReconstructionService {
 
     public InstanceModel reconstructArchitectureForProductionSystem(ProductionSystemEntity productionSystemEntity) {
         ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
-        InstanceModel systemModel = createInstanceModel(productionSystemEntity.getModelCreationPluginId(), productionSystem);
+        InstanceModel instanceModel = createInstanceModel(productionSystemEntity.getModelCreationPluginId(), productionSystem);
         enhanceInstanceModel(productionSystemEntity.getModelEnhancementStrategy().getPluginIdList(),
                 productionSystem,
-                systemModel);
+                instanceModel);
 
-        return systemModel;
+        return instanceModel;
     }
 
-    public void enhanceArchitectureForComplianceJob(@NotNull ComplianceJobEntity complianceJob, @NotNull InstanceModel systemModel) {
+    public void enhanceArchitectureForComplianceJob(@NotNull ComplianceJobEntity complianceJob, @NotNull InstanceModel instanceModel) {
         ProductionSystem productionSystem = transformProductionSystemEntity(complianceJob.getProductionSystem());
         enhanceInstanceModel(complianceJob.getModelEnhancementStrategy().getPluginIdList(),
                 productionSystem,
-                systemModel);
+                instanceModel);
     }
 
     private InstanceModel createInstanceModel(String pluginId, ProductionSystem productionSystem) {

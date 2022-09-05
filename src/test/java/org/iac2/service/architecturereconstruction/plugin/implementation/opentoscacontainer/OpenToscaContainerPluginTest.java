@@ -134,9 +134,9 @@ public class OpenToscaContainerPluginTest {
         prodProps.put("opentoscacontainer_instanceId", instanceId);
         ProductionSystem productionSystem = new ProductionSystem("opentoscacontainer", "realworldapp-test", prodProps);
 
-        InstanceModel systemModel = plugin.reconstructInstanceModel(productionSystem);
-        Set<RootComponent> comps = systemModel.getDeploymentModel().getComponents();
-        Set<RootRelation> rels = systemModel.getDeploymentModel().getRelations();
+        InstanceModel instanceModel = plugin.reconstructInstanceModel(productionSystem);
+        Set<RootComponent> comps = instanceModel.getDeploymentModel().getComponents();
+        Set<RootRelation> rels = instanceModel.getDeploymentModel().getRelations();
 
         ApplicationInstance applicationInstance = this.getInstance();
 
@@ -164,7 +164,7 @@ public class OpenToscaContainerPluginTest {
         }).collect(Collectors.toList()).size());
 
         applicationInstance.getNodeInstances().forEach(n -> {
-            Collection<RootComponent> components = systemModel.getDeploymentModel().getComponents().stream().filter(c ->
+            Collection<RootComponent> components = instanceModel.getDeploymentModel().getComponents().stream().filter(c ->
                     c.getId().equals(n.getId())).collect(Collectors.toList());
             assertEquals(1, components.size());
 

@@ -17,7 +17,7 @@ public class OpenToscaContainerModelEnhancementPlugin implements ModelEnhancemen
         return "opentosca-container-model-enhancement-plugin";
     }
 
-    // TODO this should add a property to the systemModel indicating whether there is a different between the instanceModel
+    // TODO this should add a property to the instanceModel indicating whether there is a different between the instanceModel
     // provided here, and the servicetemplate (must be retrieved).
     @Override
     public void enhanceModel(InstanceModel instanceModel, ProductionSystem productionSystem) {

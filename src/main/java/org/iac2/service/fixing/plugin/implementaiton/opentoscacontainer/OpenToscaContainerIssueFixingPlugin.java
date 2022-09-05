@@ -34,7 +34,7 @@ public class OpenToscaContainerIssueFixingPlugin implements IssueFixingPlugin {
     }
 
     @Override
-    public IssueFixingReport fixIssue(ComplianceIssue issue, InstanceModel systemModel, ProductionSystem productionSystem) {
+    public IssueFixingReport fixIssue(ComplianceIssue issue, InstanceModel instanceModel, ProductionSystem productionSystem) {
         if (!isSuitableForIssue(issue)) {
             throw new IssueNotSupportedException(issue);
         }

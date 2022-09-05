@@ -4,5 +4,5 @@ import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.InstanceModel;
 
 public interface ModelEnhancementPlugin extends ArchitectureReconstructionPlugin {
-    void enhanceModel(InstanceModel systemModel, ProductionSystem productionSystem);
+    void enhanceModel(InstanceModel instanceModel, ProductionSystem productionSystem);
 }

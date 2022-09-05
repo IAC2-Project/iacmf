@@ -22,7 +22,7 @@ public class ComplianceRuleCheckingService {
         this.pluginManager = pluginManager;
     }
 
-    public Collection<ComplianceIssueEntity> findIssuesOfSystemModel(ExecutionEntity execution, InstanceModel systemModel) {
+    public Collection<ComplianceIssueEntity> findIssuesOfSystemModel(ExecutionEntity execution, InstanceModel instanceModel) {
         ComplianceRuleEntity complianceRule = execution.getComplianceJob().getComplianceRule();
         Collection<ComplianceRuleParameterAssignmentEntity> assignments =
                 execution.getComplianceJob().getComplianceRuleParameterAssignments();
@@ -30,7 +30,7 @@ public class ComplianceRuleCheckingService {
         ComplianceRuleCheckingPlugin plugin =
                 this.pluginManager.getPlugin(execution.getComplianceJob().getModelCheckingPluginId());
 
-        return plugin.findIssues(systemModel, myCR)
+        return plugin.findIssues(instanceModel, myCR)
                 .stream()
                 .map(i -> PojoToEntity.transformComplianceIssue(execution, i))
                 .toList();

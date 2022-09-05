@@ -27,10 +27,10 @@ public class IssueFixingService {
      * Fixes the first issue in the list of issues reported in the execution
      *
      * @param execution   the current execution entity
-     * @param systemModel the system model resulting from architectural reconstruction
+     * @param instanceModel the system model resulting from architectural reconstruction
      * @return A report on the fixing attempt.
      */
-    public IssueFixingReportEntity fixFirstIssue(ExecutionEntity execution, InstanceModel systemModel) {
+    public IssueFixingReportEntity fixFirstIssue(ExecutionEntity execution, InstanceModel instanceModel) {
         String pluginId = execution.getComplianceJob().getModelFixingPluginId();
         IssueFixingPlugin plugin = this.pluginManager.getPlugin(pluginId);
         List<ComplianceIssueEntity> issues = execution.getComplianceIssueEntities();
@@ -43,7 +43,7 @@ public class IssueFixingService {
         ComplianceIssue issue = EntityToPojo.transformIssue(issueE);
         ProductionSystem productionSystem =
                 EntityToPojo.transformProductionSystemEntity(execution.getComplianceJob().getProductionSystem());
-        IssueFixingReport report = plugin.fixIssue(issue, systemModel, productionSystem);
+        IssueFixingReport report = plugin.fixIssue(issue, instanceModel, productionSystem);
 
         return PojoToEntity.transformFixingReport(report, issueE);
     }

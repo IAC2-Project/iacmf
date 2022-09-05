@@ -21,7 +21,7 @@ public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugi
     }
 
     @Override
-    public Collection<ComplianceIssue> findIssues(InstanceModel systemModel, ComplianceRule rule) {
+    public Collection<ComplianceIssue> findIssues(InstanceModel instanceModel, ComplianceRule rule) {
         ComplianceIssue issue1 = new ComplianceIssue(
                 "your architecture sucks!",
                 rule,
