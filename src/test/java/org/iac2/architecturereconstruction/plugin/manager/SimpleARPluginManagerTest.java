@@ -10,9 +10,9 @@ class SimpleARPluginManagerTest {
     @Test
     void getModelCreationPlugin() {
         SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
-        ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentoscacontainerplugin");
+        ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentosca-container-model-creation-plugin");
         assertNotNull(plugin);
-        assertEquals("opentoscacontainerplugin", plugin.getIdentifier());
+        assertEquals("opentosca-container-model-creation-plugin", plugin.getIdentifier());
         plugin = instance.getModelCreationPlugin("abc");
         assertNull(plugin);
     }

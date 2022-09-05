@@ -11,7 +11,7 @@ import org.iac2.architecturereconstruction.common.interfaces.ArchitectureReconst
 import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.architecturereconstruction.plugin.implementation.manual.ManualModelCreatorPlugin;
-import org.iac2.architecturereconstruction.plugin.implementation.opentoscacontainer.OpenToscaContainerPlugin;
+import org.iac2.architecturereconstruction.plugin.implementation.opentoscacontainer.OpenToscaContainerModelCreationPlugin;
 import org.iac2.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 import org.iac2.common.model.ProductionSystem;
 
@@ -41,7 +41,7 @@ public class SimpleARPluginManager implements ArchitectureReconstructionPluginMa
     private void initializePlugins() {
         // here instances of plugins are created.
         ManualModelCreatorPlugin manualPlugin = new ManualModelCreatorPlugin();
-        OpenToscaContainerPlugin openToscaContainerPlugin = new OpenToscaContainerPlugin();
+        OpenToscaContainerModelCreationPlugin openToscaContainerPlugin = new OpenToscaContainerModelCreationPlugin();
         this.modelCreationPluginMap.put(manualPlugin.getIdentifier(), manualPlugin);
         this.modelCreationPluginMap.put(openToscaContainerPlugin.getIdentifier(), openToscaContainerPlugin);
     }

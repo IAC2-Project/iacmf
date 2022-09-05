@@ -1,12 +1,25 @@
 package org.iac2.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import javax.xml.namespace.QName;
+
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
+
 import com.google.common.collect.Maps;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
 import io.swagger.client.model.ServiceTemplateInstanceDTO;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
 import org.iac2.common.model.ProductionSystem;
@@ -22,18 +35,9 @@ import org.opentosca.container.client.model.ApplicationInstance;
 import org.opentosca.container.client.model.NodeInstance;
 import org.opentosca.container.client.model.RelationInstance;
 
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OpenToscaContainerPluginTest {
 
@@ -117,9 +121,9 @@ public class OpenToscaContainerPluginTest {
     @Test
     public void testReconstruction() {
         SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
-        ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentoscacontainerplugin");
+        ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentosca-container-model-creation-plugin");
         assertNotNull(plugin);
-        assertEquals("opentoscacontainerplugin", plugin.getIdentifier());
+        assertEquals("opentosca-container-model-creation-plugin", plugin.getIdentifier());
 
         Map<String, String> prodProps = Maps.newHashMap();
         prodProps.put("opentoscacontainer_hostname", hostName);

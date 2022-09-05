@@ -26,11 +26,11 @@ import org.opentosca.container.client.model.ApplicationInstance;
 import org.opentosca.container.client.model.NodeInstance;
 import org.opentosca.container.client.model.RelationInstance;
 
-public class OpenToscaContainerPlugin implements ModelCreationPlugin {
+public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugin {
 
     @Override
     public String getIdentifier() {
-        return "opentoscacontainerplugin";
+        return "opentosca-container-model-creation-plugin";
     }
 
     @Override

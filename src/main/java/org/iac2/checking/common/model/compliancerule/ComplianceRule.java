@@ -26,20 +26,26 @@ public class ComplianceRule {
         parameterAssignments = new ArrayList<>();
     }
 
-    public void addStringParameter(String name, String value) {
+    public ComplianceRule addStringParameter(String name, String value) {
         this.parameterAssignments.add(new StringComplianceRuleParameter(name, value));
+
+        return this;
     }
 
-    public void addIntParameter(String name, int value) {
+    public ComplianceRule addIntParameter(String name, int value) {
         this.parameterAssignments.add(new IntegerComplianceRuleParameter(name, value));
+
+        return this;
     }
 
-    public void addBooleanParameter(String name, boolean value) {
+    public ComplianceRule addBooleanParameter(String name, boolean value) {
         this.parameterAssignments.add(new BooleanComplianceRuleParameter(name, value));
+        return this;
     }
 
-    public void addDoubleParameter(String name, double value) {
+    public ComplianceRule addDoubleParameter(String name, double value) {
         this.parameterAssignments.add(new DoubleComplianceRuleParameter(name, value));
+        return this;
     }
 
 }
