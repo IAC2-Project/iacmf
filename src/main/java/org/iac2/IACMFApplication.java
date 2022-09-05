@@ -1,9 +1,11 @@
 package org.iac2;
 
-import org.iac2.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
-import org.iac2.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
-import org.iac2.checking.plugin.manager.ComplianceRuleCheckingPluginManager;
-import org.iac2.checking.plugin.manager.implementation.SimpleCRCheckingManager;
+import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
+import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
+import org.iac2.service.checking.plugin.manager.ComplianceRuleCheckingPluginManager;
+import org.iac2.service.checking.plugin.manager.implementation.SimpleCRCheckingManager;
+import org.iac2.service.fixing.plugin.manager.IssueFixingPluginManager;
+import org.iac2.service.fixing.plugin.manager.implementation.SimpleIssueFixingPluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -32,6 +34,13 @@ public class IACMFApplication {
     public ComplianceRuleCheckingPluginManager theCheckingManager() {
         return SimpleCRCheckingManager.getInstance();
     }
+
+    @Bean
+    @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+    public IssueFixingPluginManager theIssueFixingPluginManager() {
+        return SimpleIssueFixingPluginManager.getInstance();
+    }
+
     /*
     @Bean
     public CommandLineRunner demo(
@@ -94,5 +103,4 @@ public class IACMFApplication {
         };
     }
     */
-
 }

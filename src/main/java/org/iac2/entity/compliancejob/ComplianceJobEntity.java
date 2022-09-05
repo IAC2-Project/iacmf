@@ -15,6 +15,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,6 +37,12 @@ public class ComplianceJobEntity {
     private Long id;
 
     private String description;
+
+    @NotNull
+    private String modelCheckingPluginId;
+
+    @NotNull
+    private String modelFixingPluginId;
 
     @ManyToOne
     @JoinColumn(name = "compliance_rule_id", nullable = false)
@@ -63,10 +70,14 @@ public class ComplianceJobEntity {
     private ProductionSystemEntity productionSystem;
 
     public ComplianceJobEntity(String description,
+                               String modelCheckingPluginId,
+                               String modelFixingPluginId,
                                ProductionSystemEntity productionSystem,
                                ComplianceRuleEntity complianceRule,
                                ModelEnhancementStrategyEntity modelEnhancementStrategy,
                                List<TriggerEntity> triggers) {
+        this.modelCheckingPluginId = modelCheckingPluginId;
+        this.modelFixingPluginId = modelFixingPluginId;
         this.complianceRule = complianceRule;
         this.productionSystem = productionSystem;
         this.modelEnhancementStrategy = modelEnhancementStrategy;
