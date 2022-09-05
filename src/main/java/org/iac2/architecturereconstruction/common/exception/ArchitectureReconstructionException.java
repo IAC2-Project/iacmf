@@ -1,6 +1,8 @@
 package org.iac2.architecturereconstruction.common.exception;
 
-public abstract class ArchitectureReconstructionException extends RuntimeException {
+import org.iac2.common.exception.IacmfException;
+
+public abstract class ArchitectureReconstructionException extends IacmfException {
     public ArchitectureReconstructionException() {
     }
 
@@ -16,7 +18,4 @@ public abstract class ArchitectureReconstructionException extends RuntimeExcepti
         super(cause);
     }
 
-    public ArchitectureReconstructionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

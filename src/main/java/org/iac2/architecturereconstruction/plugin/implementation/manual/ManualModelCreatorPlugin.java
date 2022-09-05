@@ -3,7 +3,7 @@ package org.iac2.architecturereconstruction.plugin.implementation.manual;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.iac2.architecturereconstruction.common.exception.IaCTechnologyNotSupportedException;
+import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.SystemModel;

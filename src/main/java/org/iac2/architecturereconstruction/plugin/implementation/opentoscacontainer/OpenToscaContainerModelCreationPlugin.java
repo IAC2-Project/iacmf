@@ -15,7 +15,7 @@ import io.github.edmm.model.component.WebApplication;
 import io.github.edmm.model.component.WebServer;
 import io.github.edmm.model.support.EdmmYamlBuilder;
 import org.iac2.architecturereconstruction.common.exception.AppNotFoundException;
-import org.iac2.architecturereconstruction.common.exception.IaCTechnologyNotSupportedException;
+import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.SystemModel;

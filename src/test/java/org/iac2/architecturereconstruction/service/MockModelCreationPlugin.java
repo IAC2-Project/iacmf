@@ -6,7 +6,7 @@ import java.util.Collections;
 import io.github.edmm.model.DeploymentModel;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.iac2.architecturereconstruction.common.exception.IaCTechnologyNotSupportedException;
+import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.SystemModel;

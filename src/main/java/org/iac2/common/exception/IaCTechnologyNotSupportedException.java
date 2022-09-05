@@ -1,11 +1,11 @@
-package org.iac2.architecturereconstruction.common.exception;
+package org.iac2.common.exception;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
-public class IaCTechnologyNotSupportedException extends ArchitectureReconstructionException {
+public class IaCTechnologyNotSupportedException extends IacmfException {
     private String iacTechnologyName;
 
     public IaCTechnologyNotSupportedException(String iacTechnologyName) {

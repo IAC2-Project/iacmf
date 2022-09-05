@@ -30,11 +30,10 @@ public class ComplianceRuleCheckingService {
                 systemModel);
     }
 
-
     public Collection<ComplianceIssue> findIssuesOfSystemModel(
             ComplianceRuleEntity complianceRule,
-                                                               Collection<ComplianceRuleParameterAssignmentEntity> assignments,
-                                                               SystemModel systemModel) {
+            Collection<ComplianceRuleParameterAssignmentEntity> assignments,
+            SystemModel systemModel) {
         ComplianceRule myCR = this.transformComplianceRule(complianceRule, assignments);
         Collection<ComplianceRuleCheckingPlugin> plugins = this.pluginManager.getPossiblePluginsForComplianceRule(myCR);
 
@@ -45,8 +44,6 @@ public class ComplianceRuleCheckingService {
         ComplianceRuleCheckingPlugin plugin = plugins.stream().findFirst().get();
         return plugin.findIssues(systemModel, myCR);
     }
-
-
 
     private ComplianceRule transformComplianceRule(ComplianceRuleEntity complianceRule,
                                                    Collection<ComplianceRuleParameterAssignmentEntity> assignments) {

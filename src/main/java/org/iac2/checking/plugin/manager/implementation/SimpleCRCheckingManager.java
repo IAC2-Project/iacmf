@@ -15,7 +15,7 @@ import org.iac2.checking.plugin.manager.ComplianceRuleCheckingPluginManager;
  */
 public class SimpleCRCheckingManager implements ComplianceRuleCheckingPluginManager {
     private static SimpleCRCheckingManager instance;
-    private Map<String, ComplianceRuleCheckingPlugin> allPlugins;
+    private final Map<String, ComplianceRuleCheckingPlugin> allPlugins;
 
     private SimpleCRCheckingManager() {
         SubgraphIsomorphismCheckerPlugin isomorphismCheckerPlugin = new SubgraphIsomorphismCheckerPlugin();
