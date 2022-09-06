@@ -19,13 +19,13 @@ public class SimplePropertyValueCheckingPlugin implements ComplianceRuleChecking
     final String ACCEPTED_COMPLIANCE_RULE_TYPE = "ensure-property-value";
     final String PLUGIN_ID = "property-value-checker-plugin";
 
-    // expected keys in the compliance rule assignments
+    // expected keys in the compliance rule parameter assignments
     final String ENTITY_ID_KEY = "entity-id";
     final String PROPERTY_NAME_KEY = "property-name";
     final String PROPERTY_VALUE_KEY = "property-value";
 
     //special entity ids
-    final String ENTITY_ID_FOR_INSTANCE_MODEL = "<instnace-model>";
+    final String ENTITY_ID_FOR_INSTANCE_MODEL = "<instance-model>";
 
     // issue types
     final String WRONG_PROPERTY_VALUE_ISSUE_TYPE = "wrong-property-value";
@@ -95,7 +95,10 @@ public class SimplePropertyValueCheckingPlugin implements ComplianceRuleChecking
                 if (entity.getId().equals(entityId)) {
                     entityFound = true;
                     propertyFound = entity.getProperty(propertyName).isPresent();
-                    actualValue = entity.getProperty(propertyName).get().getValue();
+
+                    if (propertyFound) {
+                        actualValue = entity.getProperty(propertyName).get().getValue();
+                    }
 
                     break;
                 }
