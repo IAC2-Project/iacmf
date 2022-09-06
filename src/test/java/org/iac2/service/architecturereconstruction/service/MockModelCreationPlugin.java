@@ -38,7 +38,7 @@ public class MockModelCreationPlugin implements ModelCreationPlugin {
     @SneakyThrows
     @Override
     public InstanceModel reconstructInstanceModel(ProductionSystem productionSystem) throws IaCTechnologyNotSupportedException {
-        ClassPathResource resource = new ClassPathResource("edmm/three-components-hosted-on.yml");
+        ClassPathResource resource = new ClassPathResource("edmm/four-components-hosted-on.yml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
 
         return new InstanceModel(model);

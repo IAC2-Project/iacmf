@@ -72,7 +72,7 @@ class SimplePropertyValueCheckingPluginTest {
 
     @Test
     void testPropertyInComponent() throws IOException {
-        ClassPathResource resource = new ClassPathResource("edmm/three-components-hosted-on.yml");
+        ClassPathResource resource = new ClassPathResource("edmm/four-components-hosted-on.yml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
         InstanceModel instanceModel = new InstanceModel(model);
 
