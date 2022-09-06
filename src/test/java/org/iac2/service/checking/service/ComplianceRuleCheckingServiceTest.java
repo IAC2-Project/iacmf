@@ -38,7 +38,7 @@ class ComplianceRuleCheckingServiceTest {
                 .thenReturn(new MockComplianceCheckingPlugin());
 
         ComplianceRuleEntity cr = new ComplianceRuleEntity(
-                "property-value-checker",
+                "ensure-property-value",
                 "http://nowherer.no",
                 "compliacne rule for fooling around");
         ProductionSystemEntity productionSystem = new ProductionSystemEntity(
@@ -48,7 +48,7 @@ class ComplianceRuleCheckingServiceTest {
         ModelEnhancementStrategyEntity modelEnhancementStrategy = new ModelEnhancementStrategyEntity(Collections.emptyList());
         ComplianceJobEntity complianceJob = new ComplianceJobEntity(
                 "a fine job",
-                "property-value-checker",
+                "property-value-checker-plugin",
                 "opentosca-container-issue-fixing-plugin",
                 productionSystem,
                 cr,

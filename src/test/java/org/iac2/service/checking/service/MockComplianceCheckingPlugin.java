@@ -12,12 +12,12 @@ import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugin {
     @Override
     public boolean isSuitableForComplianceRule(ComplianceRule complianceRule) {
-        return complianceRule.getType().equals("property-value-checker");
+        return complianceRule.getType().equals("ensure-property-value");
     }
 
     @Override
     public String getIdentifier() {
-        return "property-value-checker";
+        return "property-value-checker-plugin";
     }
 
     @Override
