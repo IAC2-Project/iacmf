@@ -1,5 +1,6 @@
 package org.iac2.entity.compliancejob.execution;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -52,8 +53,8 @@ public class ExecutionEntity {
     @JoinColumn(name = "compliance_job_id", nullable = false)
     private ComplianceJobEntity complianceJob;
 
-    @OneToMany(mappedBy = "execution", orphanRemoval = true)
-    private List<ComplianceIssueEntity> complianceIssueEntities = new java.util.ArrayList<>();
+    @OneToMany(mappedBy = "execution")
+    private List<ComplianceIssueEntity> complianceIssueEntities;
 
 
     public ExecutionEntity(ComplianceJobEntity complianceJob) {
@@ -61,6 +62,7 @@ public class ExecutionEntity {
         this.startTime = new Date();
         this.status = ExecutionStatus.CREATED;
         this.currentStep = ExecutionStep.START;
+        complianceIssueEntities = new ArrayList<>();
     }
 
 }

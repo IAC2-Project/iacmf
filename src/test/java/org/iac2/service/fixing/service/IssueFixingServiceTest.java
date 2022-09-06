@@ -3,10 +3,12 @@ package org.iac2.service.fixing.service;
 import java.util.Collections;
 
 import org.iac2.common.model.InstanceModel;
+import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
+import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.service.fixing.plugin.manager.IssueFixingPluginManager;
 import org.junit.jupiter.api.Assertions;
@@ -35,6 +37,11 @@ class IssueFixingServiceTest {
         Mockito.when(pluginManager.getPlugin(anyString()))
                 .thenReturn(new MockIssueFixingPlugin());
 
+        ComplianceRuleEntity complianceRule = new ComplianceRuleEntity(
+                "ensure-property-value",
+                "",
+                "my useless compliance rule!"
+        );
         ProductionSystemEntity productionSystem = new ProductionSystemEntity(
                 "my super system",
                 "opentoscacontainer",
@@ -44,8 +51,8 @@ class IssueFixingServiceTest {
                 "property-value-checker",
                 "mock",
                 productionSystem,
-                null,
-                null,
+                complianceRule,
+                new ModelEnhancementStrategyEntity(Collections.emptyList()),
                 Collections.emptyList()
         );
         ExecutionEntity execution = new ExecutionEntity(complianceJob);

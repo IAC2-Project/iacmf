@@ -1,5 +1,6 @@
 package org.iac2.entity.productionsystem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -53,5 +54,7 @@ public class ProductionSystemEntity {
         this.iacTechnologyName = iacTechnologyName;
         this.isDeleted = false;
         this.modelCreationPluginId = modelCreationPluginId;
+        this.properties = new ArrayList<>();
+        this.complianceJobs = new ArrayList<>();
     }
 }

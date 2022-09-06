@@ -1,5 +1,6 @@
 package org.iac2.entity.compliancejob.issue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -44,5 +45,7 @@ public class ComplianceIssueEntity {
         this.execution = execution;
         this.description = description;
         this.type = type;
+        fixingReports = new ArrayList<>();
+        properties = new ArrayList<>();
     }
 }

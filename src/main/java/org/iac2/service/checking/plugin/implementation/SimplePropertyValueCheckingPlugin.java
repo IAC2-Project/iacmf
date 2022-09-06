@@ -1,70 +1,141 @@
 package org.iac2.service.checking.plugin.implementation;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.github.edmm.model.support.ModelEntity;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
-import org.iac2.service.checking.common.exception.ComplianceRuleMalformattedException;
+import org.iac2.common.model.compliancerule.parameter.ComplianceRuleParameter;
 import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupportedException;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 
 public class SimplePropertyValueCheckingPlugin implements ComplianceRuleCheckingPlugin {
+    final String ACCEPTED_COMPLIANCE_RULE_TYPE = "ensure-property-value";
+    final String PLUGIN_ID = "property-value-checker-plugin";
+
+    // expected keys in the compliance rule assignments
+    final String ENTITY_ID_KEY = "entity-id";
+    final String PROPERTY_NAME_KEY = "property-name";
+    final String PROPERTY_VALUE_KEY = "property-value";
+
+    //special entity ids
+    final String ENTITY_ID_FOR_INSTANCE_MODEL = "<instnace-model>";
+
+    // issue types
+    final String WRONG_PROPERTY_VALUE_ISSUE_TYPE = "wrong-property-value";
+    final String MISSING_PROPERTY_ISSUE_TYPE = "missing-property";
+    final String MISSING_ENTITY_ISSUE_TYPE = "missing-entity";
 
     @Override
     public boolean isSuitableForComplianceRule(ComplianceRule complianceRule) {
-        return complianceRule.getType().toLowerCase().equals(getIdentifier());
+        return ACCEPTED_COMPLIANCE_RULE_TYPE.equals(complianceRule.getType());
     }
 
     @Override
     public String getIdentifier() {
-        return "property-value-checker";
+        return PLUGIN_ID;
     }
 
     @Override
     public Collection<ComplianceIssue> findIssues(InstanceModel instanceModel, ComplianceRule rule) {
-        // cheating: instead of retrieving the compliance rule model from some external source,
-        // we assume it is embedded in the location variable
-        final String ruleText = rule.getLocation();
-        String[] parts = ruleText.split("=");
-
         if (!isSuitableForComplianceRule(rule)) {
             throw new ComplianceRuleTypeNotSupportedException(rule.getType());
         }
 
-        if (parts.length != 2) {
-            throw new ComplianceRuleMalformattedException(
-                    "Expected format: key=value , but got " + rule.getLocation() + " instead.");
+        String entityId = null;
+        String propertyName = null;
+        String propertyValue = null;
+
+        if (rule.getParameterAssignments() != null) {
+            for (ComplianceRuleParameter p : rule.getParameterAssignments()) {
+                switch (p.getName()) {
+                    case ENTITY_ID_KEY -> entityId = p.getValueAsString();
+                    case PROPERTY_NAME_KEY -> propertyName = p.getValueAsString();
+                    case PROPERTY_VALUE_KEY -> propertyValue = p.getValueAsString();
+                }
+            }
         }
 
-        final String key = parts[0];
-        final String value = parts[1];
+        if (entityId == null || propertyValue == null || propertyName == null) {
+            StringBuilder strb = new StringBuilder();
+            strb.append("Missing needed parameter assignments!");
+            strb.append(System.lineSeparator());
+            strb.append(ENTITY_ID_KEY).append("=").append(entityId);
+            strb.append(System.lineSeparator());
+            strb.append(PROPERTY_NAME_KEY).append("=").append(propertyName);
+            strb.append(System.lineSeparator());
+            strb.append(PROPERTY_VALUE_KEY).append("=").append(propertyValue);
 
-        if (!instanceModel.getProperties().containsKey(key)) {
-            Map<String,String> issueProperties = new HashMap<>();
-            issueProperties.put("property-name", key);
+            throw new IllegalArgumentException(strb.toString());
+        }
+
+        String actualValue = null;
+        boolean propertyFound = false;
+        boolean entityFound = false;
+
+        // check if the property should be found at the instance model level or in a specific entity
+        if (entityId.equals(ENTITY_ID_FOR_INSTANCE_MODEL)) {
+            entityFound = true;
+            if (instanceModel.getProperties().containsKey(propertyName)) {
+                propertyFound = true;
+                actualValue = instanceModel.getProperties().get(propertyName);
+            }
+        } else {
+            // let's search for the entity
+            List<ModelEntity> allEntities = new ArrayList<>(instanceModel.getDeploymentModel().getComponents());
+            allEntities.addAll(instanceModel.getDeploymentModel().getRelations());
+
+            for (ModelEntity entity : allEntities) {
+                if (entity.getId().equals(entityId)) {
+                    entityFound = true;
+                    propertyFound = entity.getProperty(propertyName).isPresent();
+                    actualValue = entity.getProperty(propertyName).get().getValue();
+
+                    break;
+                }
+            }
+        }
+
+        if (!entityFound) {
+            Map<String, String> issueProperties = new HashMap<>();
+            issueProperties.put("entity-id", entityId);
 
             return List.of(new ComplianceIssue(
-                    "A property is missing from the instance model",
+                    "An entity is missing from the instance model",
                     rule,
-                    "missing-property",
+                    MISSING_ENTITY_ISSUE_TYPE,
                     issueProperties
             ));
         }
 
-        if (!instanceModel.getProperties().get(key).equals(value)) {
-            Map<String,String> issueProperties = new HashMap<>();
-            issueProperties.put("property-name", key);
-            issueProperties.put("expected-value", value);
+        if (!propertyFound) {
+            Map<String, String> issueProperties = new HashMap<>();
+            issueProperties.put("property-name", propertyName);
+
+            return List.of(new ComplianceIssue(
+                    "A property is missing from the instance model",
+                    rule,
+                    MISSING_PROPERTY_ISSUE_TYPE,
+                    issueProperties
+            ));
+        }
+
+        if (!propertyValue.equals(actualValue)) {
+            Map<String, String> issueProperties = new HashMap<>();
+            issueProperties.put("property-name", propertyName);
+            issueProperties.put("expected-value", propertyValue);
+            issueProperties.put("actual-value", actualValue);
 
             return List.of(new ComplianceIssue(
                     "A property value has an unexpected value.",
                     rule,
-                    "wrong-property-value",
+                    WRONG_PROPERTY_VALUE_ISSUE_TYPE,
                     issueProperties
             ));
         }

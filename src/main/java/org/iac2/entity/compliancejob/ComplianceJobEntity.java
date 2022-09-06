@@ -1,5 +1,6 @@
 package org.iac2.entity.compliancejob;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.DiscriminatorColumn;
@@ -83,5 +84,7 @@ public class ComplianceJobEntity {
         this.modelEnhancementStrategy = modelEnhancementStrategy;
         this.triggers = triggers;
         this.description = description;
+        this.complianceRuleParameterAssignments = new ArrayList<>();
+        this.executions = new ArrayList<>();
     }
 }

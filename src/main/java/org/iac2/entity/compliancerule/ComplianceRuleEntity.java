@@ -1,13 +1,19 @@
 package org.iac2.entity.compliancerule;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterEntity;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Entity
 @Data
@@ -28,10 +34,8 @@ public class ComplianceRuleEntity {
     @NotNull
     private Boolean isDeleted;
 
-
     @OneToMany(mappedBy = "complianceRule")
     private List<ComplianceRuleParameterEntity> parameters;
-
 
     @OneToMany(mappedBy = "complianceRule")
     private List<ComplianceJobEntity> jobs;
@@ -41,5 +45,7 @@ public class ComplianceRuleEntity {
         this.location = location;
         this.description = description;
         this.isDeleted = false;
+        this.parameters = new ArrayList<>();
+        this.jobs = new ArrayList<>();
     }
 }
