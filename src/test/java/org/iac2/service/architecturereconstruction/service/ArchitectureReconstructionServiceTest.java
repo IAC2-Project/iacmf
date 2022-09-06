@@ -42,7 +42,7 @@ class ArchitectureReconstructionServiceTest {
 
         String ID = "ID";
         InstanceModel model = service.reconstructArchitectureForProductionSystem(system);
-        Assertions.assertEquals(3, model.getDeploymentModel().getComponents().size());
+        Assertions.assertEquals(4, model.getDeploymentModel().getComponents().size());
 
 
     }
