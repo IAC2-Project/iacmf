@@ -19,7 +19,6 @@ public class ComplianceRule {
     private String type;
     private String location;
     private Collection<ComplianceRuleParameter> parameterAssignments;
-
     public ComplianceRule(String type, String location) {
         this.type = type;
         this.location = location;

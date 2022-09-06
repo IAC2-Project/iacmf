@@ -14,6 +14,10 @@ properties:
     type: integer
 
 components:
+  windows:
+    type: compute
+    properties:
+      os_family: windows
   ubuntu:
     type: compute
   tomcat:
@@ -43,5 +47,9 @@ relation_types:
     extends: null
   hosted_on:
     extends: depends_on
+    properties:
+      type: string
+      description: Specifies how stupid the relation is
+      default_value: stupid
   connects_to:
     extends: depends_on

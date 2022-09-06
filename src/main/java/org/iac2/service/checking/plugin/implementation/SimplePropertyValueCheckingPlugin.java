@@ -16,21 +16,21 @@ import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupported
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 
 public class SimplePropertyValueCheckingPlugin implements ComplianceRuleCheckingPlugin {
-    final String ACCEPTED_COMPLIANCE_RULE_TYPE = "ensure-property-value";
-    final String PLUGIN_ID = "property-value-checker-plugin";
+    final static String ACCEPTED_COMPLIANCE_RULE_TYPE = "ensure-property-value";
+    final static String PLUGIN_ID = "property-value-checker-plugin";
 
     // expected keys in the compliance rule parameter assignments
-    final String ENTITY_ID_KEY = "entity-id";
-    final String PROPERTY_NAME_KEY = "property-name";
-    final String PROPERTY_VALUE_KEY = "property-value";
+    static final String ENTITY_ID_KEY = "entity-id";
+    static final String PROPERTY_NAME_KEY = "property-name";
+    static final String PROPERTY_VALUE_KEY = "property-value";
 
     //special entity ids
-    final String ENTITY_ID_FOR_INSTANCE_MODEL = "<instance-model>";
+    static final String ENTITY_ID_FOR_INSTANCE_MODEL = "<instance-model>";
 
     // issue types
-    final String WRONG_PROPERTY_VALUE_ISSUE_TYPE = "wrong-property-value";
-    final String MISSING_PROPERTY_ISSUE_TYPE = "missing-property";
-    final String MISSING_ENTITY_ISSUE_TYPE = "missing-entity";
+    static final String WRONG_PROPERTY_VALUE_ISSUE_TYPE = "wrong-property-value";
+    static final String MISSING_PROPERTY_ISSUE_TYPE = "missing-property";
+    static final String MISSING_ENTITY_ISSUE_TYPE = "missing-entity";
 
     @Override
     public boolean isSuitableForComplianceRule(ComplianceRule complianceRule) {
@@ -88,19 +88,24 @@ public class SimplePropertyValueCheckingPlugin implements ComplianceRuleChecking
             }
         } else {
             // let's search for the entity
-            List<ModelEntity> allEntities = new ArrayList<>(instanceModel.getDeploymentModel().getComponents());
-            allEntities.addAll(instanceModel.getDeploymentModel().getRelations());
 
-            for (ModelEntity entity : allEntities) {
-                if (entity.getId().equals(entityId)) {
-                    entityFound = true;
-                    propertyFound = entity.getProperty(propertyName).isPresent();
+            if (instanceModel.getDeploymentModel() != null) {
+                List<ModelEntity> allEntities = new ArrayList<>(instanceModel.getDeploymentModel().getComponents());
+                allEntities.addAll(instanceModel.getDeploymentModel().getRelations());
 
-                    if (propertyFound) {
-                        actualValue = entity.getProperty(propertyName).get().getValue();
+                for (ModelEntity entity : allEntities) {
+                    String id = entity.getId();
+
+                    if (id.equals(entityId)) {
+                        entityFound = true;
+                        propertyFound = entity.getProperty(propertyName).isPresent();
+
+                        if (propertyFound) {
+                            actualValue = entity.getProperty(propertyName).get().getValue();
+                        }
+
+                        break;
                     }
-
-                    break;
                 }
             }
         }
@@ -145,4 +150,5 @@ public class SimplePropertyValueCheckingPlugin implements ComplianceRuleChecking
 
         return Collections.emptyList();
     }
+
 }
