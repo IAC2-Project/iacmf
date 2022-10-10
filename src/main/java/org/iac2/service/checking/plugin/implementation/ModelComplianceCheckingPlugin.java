@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
+import org.assertj.core.util.Sets;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
@@ -26,11 +27,14 @@ public class ModelComplianceCheckingPlugin implements ComplianceRuleCheckingPlug
 
     @Override
     public String getIdentifier() {
-        return "opentoscamodelcompliancecheckingplugin";
+        return "opentosca-modelcompliance-checking-plugin";
     }
 
     @Override
     public Collection<ComplianceIssue> findIssues(InstanceModel instanceModel, ComplianceRule rule) {
+        if (!rule.getType().equals("modelCompliance")) {
+            return Sets.newHashSet();
+        }
         Collection<ComplianceIssue> issues = Lists.newArrayList();
         Set<RootComponent> modelComponents = instanceModel.getDeploymentModel().getComponents();
         Set<RootRelation> modelRelations = instanceModel.getDeploymentModel().getRelations();

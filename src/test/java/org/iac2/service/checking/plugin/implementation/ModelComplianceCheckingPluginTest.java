@@ -1,4 +1,4 @@
-package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
+package org.iac2.service.checking.plugin.implementation;
 
 import com.google.common.collect.Maps;
 import io.github.edmm.model.component.RootComponent;
@@ -8,9 +8,13 @@ import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
+import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
+import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
+import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
+import org.iac2.service.checking.plugin.manager.implementation.SimpleCRCheckingManager;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
 import org.junit.Assert;
@@ -28,12 +32,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class DockerContainerEnhancementPluginTest {
+public class ModelComplianceCheckingPluginTest {
 
     private static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-example-applications";
     private static final QName csarId = new QName("http://opentosca.org/example/applications/servicetemplates", "RealWorld-Application_Angular-Spring-MySQL-w1");
@@ -84,30 +87,28 @@ public class DockerContainerEnhancementPluginTest {
         return instanceModel;
     }
 
-    @Test
-    public void testDockerReconstruction() {
-        ProductionSystem productionSystem = this.createProductionSystem();
-        InstanceModel instanceModel = this.reconstructeModel(productionSystem);
+    private InstanceModel enhanceModel(ProductionSystem productionSystem, InstanceModel instanceModel) {
         Set<RootComponent> comps = instanceModel.getDeploymentModel().getComponents();
         Set<RootRelation> rels = instanceModel.getDeploymentModel().getRelations();
 
         SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
         ModelEnhancementPlugin enhancementPlugin = instance.getModelEnhancementPlugin("docker-enhancement-plugin");
         InstanceModel instanceModel1 = enhancementPlugin.enhanceModel(instanceModel, productionSystem);
-
-        Set<RootComponent> newComps = instanceModel1.getDeploymentModel().getComponents();
-        Set<RootRelation> newRels = instanceModel1.getDeploymentModel().getRelations();
-
-        Assert.assertNotEquals(comps.size(), newComps.size());
-        Assert.assertNotEquals(rels.size(), newRels.size());
-
-        Collection<RootComponent> dockerContainersBeforeEnhancement = this.getDockerContainers(comps);
-        Collection<RootComponent> dockerContainersAfterEnhancement = this.getDockerContainers(newComps);
-
-        Assert.assertNotEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
+        return instanceModel1;
     }
 
-    private Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {
-        return comps.stream().filter(c -> c.getProperties().values().stream().filter(p -> p.getName().equals("ContainerID")).findFirst().isPresent()).collect(Collectors.toList());
+    @Test
+    public void checkForModelCompliance() {
+        ProductionSystem productionSystem = this.createProductionSystem();
+        InstanceModel instanceModel = this.reconstructeModel(productionSystem);
+        instanceModel = this.enhanceModel(productionSystem, instanceModel);
+
+        SimpleCRCheckingManager manager = SimpleCRCheckingManager.getInstance();
+        ComplianceRuleCheckingPlugin plugin = manager.getPlugin("opentosca-modelcompliance-checking-plugin");
+        ComplianceRule rule = new ComplianceRule();
+        rule.setType("modelCompliance");
+        rule.setLocation("");
+        Collection<ComplianceIssue> issues = plugin.findIssues(instanceModel, rule);
+        Assert.assertNotEquals(0, issues.size());
     }
 }
