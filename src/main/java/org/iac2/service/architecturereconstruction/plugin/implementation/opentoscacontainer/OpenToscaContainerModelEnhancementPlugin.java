@@ -20,7 +20,8 @@ public class OpenToscaContainerModelEnhancementPlugin implements ModelEnhancemen
     // TODO this should add a property to the instanceModel indicating whether there is a different between the instanceModel
     // provided here, and the servicetemplate (must be retrieved).
     @Override
-    public void enhanceModel(InstanceModel instanceModel, ProductionSystem productionSystem) {
+    public InstanceModel enhanceModel(InstanceModel instanceModel, ProductionSystem productionSystem) {
         instanceModel.getProperties().put("different-from-deployment-model", "true");
+        return instanceModel;
     }
 }

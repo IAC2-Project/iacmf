@@ -11,6 +11,7 @@ import org.iac2.service.architecturereconstruction.common.interfaces.Architectur
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.implementation.manual.ManualModelCreatorPlugin;
+import org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.DockerContainerEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.OpenToscaContainerModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 import org.iac2.common.exception.PluginNotFoundException;
@@ -44,8 +45,11 @@ public class SimpleARPluginManager implements ArchitectureReconstructionPluginMa
         // here instances of plugins are created.
         ManualModelCreatorPlugin manualPlugin = new ManualModelCreatorPlugin();
         OpenToscaContainerModelCreationPlugin openToscaContainerPlugin = new OpenToscaContainerModelCreationPlugin();
+        DockerContainerEnhancementPlugin dockerContainerEnhancementPlugin = new DockerContainerEnhancementPlugin();
         this.modelCreationPluginMap.put(manualPlugin.getIdentifier(), manualPlugin);
         this.modelCreationPluginMap.put(openToscaContainerPlugin.getIdentifier(), openToscaContainerPlugin);
+        this.modelEnhancementPluginMap.put(dockerContainerEnhancementPlugin.getIdentifier(), dockerContainerEnhancementPlugin);
+
     }
 
     @Override

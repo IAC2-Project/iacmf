@@ -19,6 +19,7 @@ import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.InstanceModel;
+import org.iac2.service.utility.Edmm;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.Application;
@@ -89,8 +90,6 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         if (Objects.isNull(instance)) {
             throw new AppNotFoundException("Couldn't find application instance with id " + instanceId + " of application " + appId);
         }
-
-
 
         EdmmYamlBuilder yamlBuilder = new EdmmYamlBuilder();
 

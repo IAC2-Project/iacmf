@@ -6,21 +6,25 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import com.google.common.collect.Maps;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
+import io.github.edmm.model.relation.HostedOn;
 import io.github.edmm.model.support.EdmmYamlBuilder;
 import org.apache.commons.compress.utils.Lists;
 import org.eclipse.winery.model.tosca.utils.ModelUtilities;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
+import org.iac2.service.utility.Edmm;
 
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-public class DockerContainerReconstructionPlugin implements ModelEnhancementPlugin {
+public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin {
     @Override
     public Collection<String> getRequiredPropertyNames() {
         Collection<String> reqs = Lists.newArrayList();
@@ -30,14 +34,25 @@ public class DockerContainerReconstructionPlugin implements ModelEnhancementPlug
 
     @Override
     public String getIdentifier() {
-        return "dockerContainerReconstructionPlugin";
+        return "docker-enhancement-plugin";
     }
 
     @Override
-    public void enhanceModel(InstanceModel instanceModel, ProductionSystem productionSystem) {
+    public InstanceModel enhanceModel(InstanceModel instanceModel, ProductionSystem productionSystem) {
 
-        this.getDockerEngineComponents(instanceModel.getDeploymentModel()).forEach(d -> {
+        DeploymentModel newDeploymentModel = instanceModel.getDeploymentModel();
+        Collection<RootComponent> dockerEngineComponents = this.getDockerEngineComponents(newDeploymentModel);
+
+        for (RootComponent d : dockerEngineComponents) {
             String dockerEngineUrl = d.getProperty("DockerEngineURL").get().getValue();
+
+            if (dockerEngineUrl.contains("host.docker.internal")) {
+                // this is a little dirty, as we use such an URL in the test environment,
+                // we assume this URL is never like this but only a proper URL/IP
+                // => TODO: FIXME
+                dockerEngineUrl = dockerEngineUrl.replace("host.docker.internal", "localhost");
+            }
+
             DefaultDockerClientConfig dockerConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
                     .withDockerHost(dockerEngineUrl)
                     .withDockerTlsVerify(false)
@@ -57,12 +72,22 @@ public class DockerContainerReconstructionPlugin implements ModelEnhancementPlug
 
             Collection<Container> containersNotInModel = this.findContainersNotInDeploymentModel(instanceModel.getDeploymentModel(), containers);
 
-            containersNotInModel.forEach(c -> this.addDockerContainerToDeploymentModel(instanceModel.getDeploymentModel(), d, c));
-        });
+            for (Container c : containersNotInModel) {
+                // a bit hacky i know....
+                newDeploymentModel = this.addDockerContainerToDeploymentModel(instanceModel.getDeploymentModel(), d, c);
+            }
+        }
+
+        return new InstanceModel(newDeploymentModel);
     }
 
-    private void addDockerContainerToDeploymentModel(DeploymentModel deploymentModel, RootComponent dockerEngineComponent, Container dockerContainer) {
-
+    private DeploymentModel addDockerContainerToDeploymentModel(DeploymentModel deploymentModel, RootComponent dockerEngineComponent, Container container) {
+        // here we need to setup a proper mapping to the properties of a dockercontainer Node Type and so..
+        String dockerComponentId = container.getId();
+        Map<String, String> props = Maps.newHashMap();
+        props.put("ContainerID", container.getId());
+        Class componentType = RootComponent.class;
+        return Edmm.addComponent(deploymentModel, dockerEngineComponent, HostedOn.class, dockerComponentId, props, componentType);
     }
 
     private Collection<RootComponent> getDockerEngineComponents(DeploymentModel deploymentModel) {
