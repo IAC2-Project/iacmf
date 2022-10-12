@@ -3,6 +3,7 @@ package org.iac2.service.checking.plugin.implementation;
 import com.google.common.collect.Maps;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
+import org.assertj.core.util.Sets;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
@@ -10,6 +11,9 @@ import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
+import org.iac2.common.model.compliancerule.parameter.ComplianceRuleParameter;
+import org.iac2.common.model.compliancerule.parameter.StringComplianceRuleParameter;
+import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterEntity;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
@@ -108,6 +112,16 @@ public class ModelComplianceCheckingPluginTest {
         ComplianceRule rule = new ComplianceRule();
         rule.setType("modelCompliance");
         rule.setLocation("");
+
+        Collection<ComplianceRuleParameter> complianceRuleParameters = Sets.newHashSet();
+        ComplianceRuleParameter iacToolParameter = new StringComplianceRuleParameter("iacToolUrl", "http://localhost:1337");
+        ComplianceRuleParameter instanceIdParameter = new StringComplianceRuleParameter("instanceId", instanceId);
+        ComplianceRuleParameter appIdParameter = new StringComplianceRuleParameter("appId", csarPath.getFileName().toString());
+        complianceRuleParameters.add(iacToolParameter);
+        complianceRuleParameters.add(instanceIdParameter);
+        complianceRuleParameters.add(appIdParameter);
+        rule.setParameterAssignments(complianceRuleParameters);
+
         Collection<ComplianceIssue> issues = plugin.findIssues(instanceModel, rule);
         Assert.assertNotEquals(0, issues.size());
     }

@@ -39,9 +39,10 @@ public class ModelComplianceCheckingPlugin implements ComplianceRuleCheckingPlug
         Set<RootComponent> modelComponents = instanceModel.getDeploymentModel().getComponents();
         Set<RootRelation> modelRelations = instanceModel.getDeploymentModel().getRelations();
 
-        String iacToolUrl = instanceModel.getProperties().get("iacToolUrl");
-        String instanceid = instanceModel.getProperties().get("instanceid");
-        String appId = instanceModel.getProperties().get("appId");
+
+        String iacToolUrl = rule.getParameterAssignments().stream().filter(p -> p.getName().equals("iacToolUrl")).findFirst().get().getValueAsString();
+        String instanceid = rule.getParameterAssignments().stream().filter(p -> p.getName().equals("instanceId")).findFirst().get().getValueAsString();
+        String appId = rule.getParameterAssignments().stream().filter(p -> p.getName().equals("appId")).findFirst().get().getValueAsString();
 
         SwaggerContainerClient client = new SwaggerContainerClient(iacToolUrl, 10000);
         ApplicationInstance instance = client.getApplicationInstance(client.getApplication(appId).get(), instanceid).get();
