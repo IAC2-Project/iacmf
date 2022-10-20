@@ -71,16 +71,6 @@ public class ModelComplianceCheckingPluginTest {
         }
     }
 
-    private ProductionSystem createProductionSystem() {
-        Map<String, String> prodProps = Maps.newHashMap();
-        prodProps.put("opentoscacontainer_hostname", hostName);
-        prodProps.put("opentoscacontainer_port", port);
-        prodProps.put("opentoscacontainer_appId", appName);
-        prodProps.put("opentoscacontainer_instanceId", instanceId);
-        ProductionSystem productionSystem = new ProductionSystem("opentoscacontainer", "realworldapp-test", prodProps);
-        return productionSystem;
-    }
-
     private InstanceModel reconstructeModel(ProductionSystem productionSystem) {
         SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
         ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentosca-container-model-creation-plugin");
@@ -103,7 +93,7 @@ public class ModelComplianceCheckingPluginTest {
 
     @Test
     public void checkForModelCompliance() {
-        ProductionSystem productionSystem = this.createProductionSystem();
+        ProductionSystem productionSystem = OpenTOSCATestUtils.createProductionSystem(this.hostName, this.port, this.appName, this.instanceId);
         InstanceModel instanceModel = this.reconstructeModel(productionSystem);
         instanceModel = this.enhanceModel(productionSystem, instanceModel);
 

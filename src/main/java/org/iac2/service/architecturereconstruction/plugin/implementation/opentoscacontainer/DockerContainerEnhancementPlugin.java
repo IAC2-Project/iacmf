@@ -17,6 +17,7 @@ import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.utility.Edmm;
+import org.iac2.service.utility.Utils;
 
 import java.time.Duration;
 import java.util.Collection;
@@ -28,7 +29,6 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
     @Override
     public Collection<String> getRequiredPropertyNames() {
         Collection<String> reqs = Lists.newArrayList();
-        reqs.add("DockerEngineUrl");
         return reqs;
     }
 
@@ -41,7 +41,10 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
     public InstanceModel enhanceModel(InstanceModel instanceModel, ProductionSystem productionSystem) {
 
         DeploymentModel newDeploymentModel = instanceModel.getDeploymentModel();
-        Collection<RootComponent> dockerEngineComponents = this.getDockerEngineComponents(newDeploymentModel);
+        Collection<RootComponent> dockerEngineComponents = Edmm.getDockerEngineComponents(newDeploymentModel);
+
+        // to filter for example the management components of the production system (opentosca runnning on the same docker engin...)
+        Collection<String> containerImagesToFilter = productionSystem.getProperties().keySet().stream().filter(k -> k.startsWith("dockerContainerFilter")).map(k -> productionSystem.getProperties().get(k)).collect(Collectors.toList());
 
         for (RootComponent d : dockerEngineComponents) {
             String dockerEngineUrl = d.getProperty("DockerEngineURL").get().getValue();
@@ -53,22 +56,15 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
                 dockerEngineUrl = dockerEngineUrl.replace("host.docker.internal", "localhost");
             }
 
-            DefaultDockerClientConfig dockerConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                    .withDockerHost(dockerEngineUrl)
-                    .withDockerTlsVerify(false)
-                    .build();
-
-            DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
-                    .dockerHost(dockerConfig.getDockerHost())
-                    .sslConfig(dockerConfig.getSSLConfig())
-                    .maxConnections(100)
-                    .connectionTimeout(Duration.ofSeconds(30))
-                    .responseTimeout(Duration.ofSeconds(45))
-                    .build();
-
-            DockerClient dockerClient = DockerClientImpl.getInstance(dockerConfig, httpClient);
+            DockerClient dockerClient = Utils.createDockerClient(dockerEngineUrl);
 
             List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
+
+            containers = containers.stream()
+                    .filter(c -> !containerImagesToFilter.contains(c.getImage()))
+                    .filter(c -> c.getState().equals("running"))
+                    .collect(Collectors.toList());
+
 
             Collection<Container> containersNotInModel = this.findContainersNotInDeploymentModel(instanceModel.getDeploymentModel(), containers);
 
@@ -81,6 +77,8 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
         return new InstanceModel(newDeploymentModel);
     }
 
+
+
     private DeploymentModel addDockerContainerToDeploymentModel(DeploymentModel deploymentModel, RootComponent dockerEngineComponent, Container container) {
         // here we need to setup a proper mapping to the properties of a dockercontainer Node Type and so..
         String dockerComponentId = container.getId();
@@ -90,13 +88,11 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
         return Edmm.addComponent(deploymentModel, dockerEngineComponent, HostedOn.class, dockerComponentId, props, componentType);
     }
 
-    private Collection<RootComponent> getDockerEngineComponents(DeploymentModel deploymentModel) {
-        return deploymentModel.getComponents().stream().filter(c -> c.getProperties().containsKey("DockerEngineURL")).collect(Collectors.toList());
-    }
+
 
     private Collection<Container> findContainersNotInDeploymentModel(DeploymentModel deploymentModel, Collection<Container> containers) {
         Collection<String> deploymentModelContainerIds = deploymentModel.getComponents().stream().filter(c -> c.getProperties().containsKey("ContainerID")).map(c -> c.getProperty("ContainerID").get().getValue()).collect(Collectors.toList());
-        Collection<Container> containersNotInModel = containers.stream().filter(c -> deploymentModelContainerIds.contains(c.getId())).collect(Collectors.toList());
+        Collection<Container> containersNotInModel = containers.stream().filter(c -> !deploymentModelContainerIds.contains(c.getId())).collect(Collectors.toList());
         return containersNotInModel;
     }
 }

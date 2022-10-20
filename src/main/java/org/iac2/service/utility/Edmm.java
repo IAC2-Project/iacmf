@@ -68,5 +68,8 @@ public class Edmm {
         return newDeploymentModel;
     }
 
+    public static Collection<RootComponent> getDockerEngineComponents(DeploymentModel deploymentModel) {
+        return deploymentModel.getComponents().stream().filter(c -> c.getProperties().containsKey("DockerEngineURL")).collect(Collectors.toList());
+    }
 
 }

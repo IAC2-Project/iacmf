@@ -1,8 +1,12 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.google.common.collect.Maps;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
+import org.assertj.core.util.Sets;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
@@ -11,6 +15,8 @@ import org.iac2.common.model.ProductionSystem;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
+import org.iac2.service.utility.Edmm;
+import org.iac2.service.utility.Utils;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
 import org.junit.Assert;
@@ -64,30 +70,11 @@ public class DockerContainerEnhancementPluginTest {
         }
     }
 
-    private ProductionSystem createProductionSystem() {
-        Map<String, String> prodProps = Maps.newHashMap();
-        prodProps.put("opentoscacontainer_hostname", hostName);
-        prodProps.put("opentoscacontainer_port", port);
-        prodProps.put("opentoscacontainer_appId", appName);
-        prodProps.put("opentoscacontainer_instanceId", instanceId);
-        ProductionSystem productionSystem = new ProductionSystem("opentoscacontainer", "realworldapp-test", prodProps);
-        return productionSystem;
-    }
-
-    private InstanceModel reconstructeModel(ProductionSystem productionSystem) {
-        SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
-        ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentosca-container-model-creation-plugin");
-        assertNotNull(plugin);
-        assertEquals("opentosca-container-model-creation-plugin", plugin.getIdentifier());
-
-        InstanceModel instanceModel = plugin.reconstructInstanceModel(productionSystem);
-        return instanceModel;
-    }
-
     @Test
     public void testDockerReconstruction() {
-        ProductionSystem productionSystem = this.createProductionSystem();
-        InstanceModel instanceModel = this.reconstructeModel(productionSystem);
+        ProductionSystem productionSystem = OpenTOSCATestUtils.createProductionSystem(this.hostName, this.port, this.appName, this.instanceId);
+        ModelCreationPlugin plugin = OpenTOSCATestUtils.getOpenTOSCAModelCreationPlugin();
+        InstanceModel instanceModel = plugin.reconstructInstanceModel(productionSystem);
         Set<RootComponent> comps = instanceModel.getDeploymentModel().getComponents();
         Set<RootRelation> rels = instanceModel.getDeploymentModel().getRelations();
 
@@ -98,13 +85,58 @@ public class DockerContainerEnhancementPluginTest {
         Set<RootComponent> newComps = instanceModel1.getDeploymentModel().getComponents();
         Set<RootRelation> newRels = instanceModel1.getDeploymentModel().getRelations();
 
-        Assert.assertNotEquals(comps.size(), newComps.size());
-        Assert.assertNotEquals(rels.size(), newRels.size());
+        Assert.assertEquals(comps.size(), newComps.size());
+        Assert.assertEquals(rels.size(), newRels.size());
 
         Collection<RootComponent> dockerContainersBeforeEnhancement = this.getDockerContainers(comps);
         Collection<RootComponent> dockerContainersAfterEnhancement = this.getDockerContainers(newComps);
 
+        Assert.assertEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
+
+        // up to this point the enhanced deployment model should be equal to the deployment
+        // now we introduce a new docker container per engine therefore try to create compliance issues
+
+        Collection<String> newContainerIds = Sets.newHashSet();
+        Collection<RootComponent> dockerEngineComponents = Edmm.getDockerEngineComponents(instanceModel.getDeploymentModel());
+        for (RootComponent d : dockerEngineComponents) {
+            String dockerEngineUrl = d.getProperty("DockerEngineURL").get().getValue();
+
+            if (dockerEngineUrl.contains("host.docker.internal")) {
+                // this is a little dirty, as we use such an URL in the test environment,
+                // we assume this URL is never like this but only a proper URL/IP
+                // => TODO: FIXME
+                dockerEngineUrl = dockerEngineUrl.replace("host.docker.internal", "localhost");
+            }
+
+            DockerClient dockerClient = Utils.createDockerClient(dockerEngineUrl);
+
+            try {
+                dockerClient.pullImageCmd("strm/helloworld-http")
+                        .exec(new PullImageResultCallback())
+                        .awaitCompletion();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            CreateContainerResponse newContainer = dockerClient.createContainerCmd("strm/helloworld-http").exec();
+            dockerClient.startContainerCmd(newContainer.getId()).exec();
+            newContainerIds.add(newContainer.getId());
+        }
+
+        // now the enhanced model should not be the model given by opentosca
+        instanceModel1 = enhancementPlugin.enhanceModel(instanceModel, productionSystem);
+
+        newComps = instanceModel1.getDeploymentModel().getComponents();
+        newRels = instanceModel1.getDeploymentModel().getRelations();
+
+        Assert.assertNotEquals(comps.size(), newComps.size());
+        Assert.assertNotEquals(rels.size(), newRels.size());
+
+        dockerContainersBeforeEnhancement = this.getDockerContainers(comps);
+        dockerContainersAfterEnhancement = this.getDockerContainers(newComps);
+
         Assert.assertNotEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
+
     }
 
     private Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {

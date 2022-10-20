@@ -1,16 +1,54 @@
 package org.iac2.util;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientImpl;
+import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import com.github.dockerjava.transport.DockerHttpClient;
+import com.google.common.collect.Maps;
 import io.swagger.client.model.ServiceTemplateInstanceDTO;
+import org.iac2.common.model.InstanceModel;
+import org.iac2.common.model.ProductionSystem;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
+import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
 import org.junit.jupiter.api.Assertions;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.model.Application;
 import org.opentosca.container.client.model.ApplicationInstance;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class OpenTOSCATestUtils {
+
+    public static ProductionSystem createProductionSystem(String hostName, String port, String appName, String instanceId) {
+        Map<String, String> prodProps = Maps.newHashMap();
+        prodProps.put("opentoscacontainer_hostname", hostName);
+        prodProps.put("opentoscacontainer_port", port);
+        prodProps.put("opentoscacontainer_appId", appName);
+        prodProps.put("opentoscacontainer_instanceId", instanceId);
+        prodProps.put("dockerContainerFilter_opentoscaContainer", "opentosca/container:latest");
+        prodProps.put("dockerContainerFilter_engineBpmn", "opentosca/camunda-bpmn:latest");
+        prodProps.put("dockerContainerFilter_engineBpel", "opentosca/ode:latest");
+        prodProps.put("dockerContainerFilter_engineJava8", "opentosca/engine-ia:latest-jdk8");
+        prodProps.put("dockerContainerFilter_engineJava17", "opentosca/engine-ia:latest-jdk17");
+        // we should really watch out whether this filters something from the use case....
+        prodProps.put("dockerContainerFilter_mysql", "mysql");
+        ProductionSystem productionSystem = new ProductionSystem("opentoscacontainer", "realworldapp-test", prodProps);
+        return productionSystem;
+    }
+
+    public static ModelCreationPlugin getOpenTOSCAModelCreationPlugin() {
+        SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
+        ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentosca-container-model-creation-plugin");
+        return plugin;
+    }
 
     public static void uploadApp(ContainerClient client, String appName, Path csarPath) {
         List<Application> applications = client.getApplications();

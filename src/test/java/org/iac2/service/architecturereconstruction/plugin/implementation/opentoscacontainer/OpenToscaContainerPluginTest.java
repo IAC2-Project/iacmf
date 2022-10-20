@@ -73,12 +73,9 @@ public class OpenToscaContainerPluginTest {
         }
     }
 
-
-
     @Test
     public void testReconstruction() {
-        SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
-        ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentosca-container-model-creation-plugin");
+        ModelCreationPlugin plugin = OpenTOSCATestUtils.getOpenTOSCAModelCreationPlugin();
         assertNotNull(plugin);
         assertEquals("opentosca-container-model-creation-plugin", plugin.getIdentifier());
 
