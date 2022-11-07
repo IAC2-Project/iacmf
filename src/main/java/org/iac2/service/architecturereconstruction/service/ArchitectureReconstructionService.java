@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.InstanceModel;
+import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
@@ -24,7 +25,7 @@ public class ArchitectureReconstructionService {
         this.pluginManager = pluginManager;
     }
 
-    public InstanceModel reconstructArchitectureForProductionSystem(ProductionSystemEntity productionSystemEntity) {
+    public InstanceModel reconstructArchitectureForProductionSystem(@NotNull ProductionSystemEntity productionSystemEntity) {
         ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
         InstanceModel instanceModel = createInstanceModel(productionSystemEntity.getModelCreationPluginId(), productionSystem);
         enhanceInstanceModel(productionSystemEntity.getModelEnhancementStrategy().getPluginIdList(),
@@ -35,8 +36,17 @@ public class ArchitectureReconstructionService {
     }
 
     public void enhanceArchitectureForComplianceJob(@NotNull ComplianceJobEntity complianceJob, @NotNull InstanceModel instanceModel) {
-        ProductionSystem productionSystem = transformProductionSystemEntity(complianceJob.getProductionSystem());
-        enhanceInstanceModel(complianceJob.getModelEnhancementStrategy().getPluginIdList(),
+        this.enhanceArchitectureForComplianceJob(
+                complianceJob.getModelEnhancementStrategy(),
+                complianceJob.getProductionSystem(),
+                instanceModel);
+    }
+
+    public void enhanceArchitectureForComplianceJob(@NotNull ModelEnhancementStrategyEntity enhancementStrategy,
+                                                    @NotNull ProductionSystemEntity productionSystemEntity,
+                                                    @NotNull InstanceModel instanceModel) {
+        ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
+        enhanceInstanceModel(enhancementStrategy.getPluginIdList(),
                 productionSystem,
                 instanceModel);
     }

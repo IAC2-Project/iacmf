@@ -1,12 +1,13 @@
 package org.iac2.repository.compliancerule.parameter;
 
+import java.util.List;
+
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterEntity;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import java.util.List;
-
-
+@RepositoryRestResource(path = "compliance-rule-parameters")
 public interface ParameterRepository extends CrudRepository<ComplianceRuleParameterEntity, Long> {
     List<ComplianceRuleParameterEntity> findByName(String name);
 
