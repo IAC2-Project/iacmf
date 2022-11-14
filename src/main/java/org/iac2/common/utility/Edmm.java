@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.Maps;
 import io.github.edmm.core.parser.Entity;
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
@@ -17,25 +16,23 @@ import io.github.edmm.core.parser.SequenceEntity;
 import io.github.edmm.core.parser.support.DefaultKeys;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
-import io.github.edmm.model.relation.ConnectsTo;
 import io.github.edmm.model.relation.DependsOn;
-import io.github.edmm.model.relation.HostedOn;
 import io.github.edmm.model.relation.RootRelation;
 import io.github.edmm.model.support.Attribute;
-import io.github.edmm.model.support.EdmmYamlBuilder;
 import io.github.edmm.model.support.ModelEntity;
 import io.github.edmm.model.support.TypeResolver;
 
 public class Edmm {
 
-    public static void addType(DeploymentModel deploymentModel, Class<? extends ModelEntity> componentType) throws IllegalAccessException {
-        Set<Entity> existingTypes = deploymentModel.getGraph().getChildren(EntityGraph.COMPONENT_TYPES);
+    public static Entity addType(DeploymentModel deploymentModel, Class<? extends ModelEntity> componentType) throws IllegalAccessException {
+        EntityGraph graph = deploymentModel.getGraph();
+        Set<Entity> existingTypes = graph.getChildren(EntityGraph.COMPONENT_TYPES);
+        final EntityId typeId = EntityGraph.COMPONENT_TYPES.extend(TypeResolver.resolve(componentType));
+        final MappingEntity typeEntity = new MappingEntity(typeId, graph);
 
         // we couldn't find the type in the deployment model
-        if (existingTypes.stream().noneMatch(e -> e.getName().equals(TypeResolver.resolve(componentType)))) {
-            EntityGraph graph = deploymentModel.getGraph();
-            final EntityId typeId = EntityGraph.COMPONENT_TYPES.extend(TypeResolver.resolve(componentType));
-            graph.addEntity(new MappingEntity(typeId, graph));
+        if (!existingTypes.contains(typeEntity)) {
+            graph.addEntity(typeEntity);
 
             // only the attributes in child types of RootComponent and DependsOn are properties
             // also: if we are at the root component/relation type level, we have null as a parent type
@@ -43,7 +40,11 @@ public class Edmm {
                 // we are sure this is going to work, because we handle the case in which the current componentType is the
                 // root type separately.
                 Class<? extends ModelEntity> parentType = (Class<? extends ModelEntity>) componentType.getSuperclass();
+                addType(deploymentModel, parentType);
+                final EntityId parentTypeId = EntityGraph.COMPONENT_TYPES.extend(TypeResolver.resolve(parentType));
+                final Entity parentEntity = graph.getEntity(parentTypeId).orElseThrow();
                 graph.addEntity(new ScalarEntity(TypeResolver.resolve(parentType), typeId.extend(DefaultKeys.EXTENDS), graph));
+                graph.addEdge(typeEntity, parentEntity, DefaultKeys.EXTENDS_TYPE);
                 Collection<Field> typeAttributesAsFields = Stream
                         .of(componentType.getDeclaredFields())
                         .filter(f -> f.getType() == Attribute.class)
@@ -65,6 +66,8 @@ public class Edmm {
                 graph.addEntity(new ScalarEntity("null", typeId.extend(DefaultKeys.EXTENDS), graph));
             }
         }
+
+        return typeEntity;
     }
 
     private static void addPropertyDefinition(EntityGraph graph, Attribute<?> attribute, EntityId propertiesId) {
@@ -85,21 +88,38 @@ public class Edmm {
         addType(deploymentModel, relationType);
         EntityId relationsEntityId = startComponentEntityId.extend(DefaultKeys.RELATIONS);
         EntityGraph graph = deploymentModel.getGraph();
-        graph.addEntity(
-                new SequenceEntity(relationsEntityId, graph));
-        graph.addEntity(
-                new ScalarEntity(targetComponentEntityId.getName(), relationsEntityId.extend(TypeResolver.resolve(relationType)), graph));
+        Set<Entity> currentRelations = graph.getChildren(relationsEntityId);
+
+        if (currentRelations.size() == 0) {
+            graph.addEntity(
+                    new SequenceEntity(relationsEntityId, graph));
+        }
+
+        // we create an index for the relation
+        EntityId indexId = relationsEntityId.extend(String.valueOf(currentRelations.size()));
+        graph.addEntity(new MappingEntity(indexId, graph));
+
+        final String relationTypeString = TypeResolver.resolve(relationType);
+        MappingEntity normalizedEntity = new MappingEntity(indexId.extend(relationTypeString), graph);
+        ScalarEntity type = new ScalarEntity(relationTypeString, normalizedEntity.getId().extend(DefaultKeys.TYPE), graph);
+        ScalarEntity target = new ScalarEntity(targetComponentEntityId.getName(), normalizedEntity.getId().extend(DefaultKeys.TARGET), graph);
+
+        graph.addEntity(normalizedEntity);
+        graph.addEntity(type);
+        graph.addEntity(target);
     }
 
     public static EntityId addComponent(DeploymentModel deploymentModel,
                                         String componentId,
                                         Map<String, String> attributeAssignments,
                                         Class<? extends RootComponent> componentType) throws IllegalAccessException {
-        addType(deploymentModel, componentType);
+        final Entity typeEntity = addType(deploymentModel, componentType);
         EntityGraph graph = deploymentModel.getGraph();
         EntityId componentEntityId = EntityGraph.COMPONENTS.extend(componentId);
-        graph.addEntity(new MappingEntity(componentEntityId, graph));
+        MappingEntity componentEntity = new MappingEntity(componentEntityId, graph);
+        graph.addEntity(componentEntity);
         graph.addEntity(new ScalarEntity(TypeResolver.resolve(componentType), componentEntityId.extend(DefaultKeys.TYPE), graph));
+        graph.addEdge(componentEntity, typeEntity, DefaultKeys.INSTANCE_OF);
 
         if (attributeAssignments.size() > 0) {
             // ideally, we should check whether these attributes are present in the component type declaration as properties

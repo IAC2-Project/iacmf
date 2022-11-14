@@ -1,31 +1,5 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.command.PullImageResultCallback;
-import io.github.edmm.model.component.RootComponent;
-import io.github.edmm.model.relation.RootRelation;
-import org.assertj.core.util.Sets;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
-import org.iac2.common.model.InstanceModel;
-import org.iac2.common.model.ProductionSystem;
-import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
-import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
-import org.iac2.common.utility.Edmm;
-import org.iac2.common.utility.Utils;
-import org.iac2.util.OpenTOSCATestUtils;
-import org.iac2.util.TestUtils;
-import org.junit.Assert;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.opentosca.container.client.ContainerClient;
-import org.opentosca.container.client.ContainerClientBuilder;
-
-import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -34,8 +8,38 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import javax.xml.namespace.QName;
+
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.model.Container;
+import io.github.edmm.model.DeploymentModel;
+import io.github.edmm.model.component.RootComponent;
+import io.github.edmm.model.relation.RootRelation;
+import org.assertj.core.util.Sets;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.iac2.common.model.InstanceModel;
+import org.iac2.common.model.ProductionSystem;
+import org.iac2.common.utility.Edmm;
+import org.iac2.common.utility.Utils;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
+import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
+import org.iac2.util.OpenTOSCATestUtils;
+import org.iac2.util.TestUtils;
+import org.junit.Assert;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.opentosca.container.client.ContainerClient;
+import org.opentosca.container.client.ContainerClientBuilder;
+import org.springframework.core.io.ClassPathResource;
 
 public class DockerContainerEnhancementPluginTest {
 
@@ -51,13 +55,14 @@ public class DockerContainerEnhancementPluginTest {
     // set this to true if you want faster execution of this test when you probably need to run it more often
     private static boolean debugging = true;
 
-
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
-        csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
-        appName = csarPath.getFileName().toString();
-        OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
-        instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
+        if (!debugging) {
+            csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
+            appName = csarPath.getFileName().toString();
+            OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
+            instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
+        }
     }
 
     @AfterAll
@@ -66,6 +71,18 @@ public class DockerContainerEnhancementPluginTest {
             OpenTOSCATestUtils.terminateApp(client, appName, hostName, port);
             client.getApplications().forEach(a -> client.removeApplication(a));
         }
+    }
+
+    @Test
+    public void testAddDockerContainerToModel() throws IOException, IllegalAccessException {
+        ClassPathResource resource = new ClassPathResource("edmm/four-components-hosted-on.yml");
+        DeploymentModel model = DeploymentModel.of(resource.getFile());
+        ClassPathResource containerInfo = new ClassPathResource("edmm/test-container.json");
+        ModelEnhancementPlugin enhancementPlugin = SimpleARPluginManager.getInstance().getModelEnhancementPlugin("docker-enhancement-plugin");
+        Container container = new ObjectMapper().readValue(containerInfo.getFile(), Container.class);
+        RootComponent engine = model.getComponent("tomcat").get();
+        model = ((DockerContainerEnhancementPlugin)enhancementPlugin).addDockerContainerToDeploymentModel(model, engine, container);
+        Assertions.assertEquals(5, model.getComponents().size());
     }
 
     @Test
@@ -134,7 +151,6 @@ public class DockerContainerEnhancementPluginTest {
         dockerContainersAfterEnhancement = this.getDockerContainers(newComps);
 
         Assert.assertNotEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
-
     }
 
     private Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {
