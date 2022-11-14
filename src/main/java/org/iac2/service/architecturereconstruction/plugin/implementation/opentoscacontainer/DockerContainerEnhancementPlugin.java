@@ -2,24 +2,18 @@ package org.iac2.service.architecturereconstruction.plugin.implementation.opento
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientImpl;
-import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
-import com.github.dockerjava.transport.DockerHttpClient;
 import com.google.common.collect.Maps;
+import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
-import io.github.edmm.model.support.EdmmYamlBuilder;
 import org.apache.commons.compress.utils.Lists;
-import org.eclipse.winery.model.tosca.utils.ModelUtilities;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
-import org.iac2.service.utility.Edmm;
+import org.iac2.common.utility.Edmm;
 import org.iac2.service.utility.Utils;
 
-import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +64,11 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
 
             for (Container c : containersNotInModel) {
                 // a bit hacky i know....
-                newDeploymentModel = this.addDockerContainerToDeploymentModel(instanceModel.getDeploymentModel(), d, c);
+                try {
+                    newDeploymentModel = this.addDockerContainerToDeploymentModel(instanceModel.getDeploymentModel(), d, c);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -79,13 +77,15 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
 
 
 
-    private DeploymentModel addDockerContainerToDeploymentModel(DeploymentModel deploymentModel, RootComponent dockerEngineComponent, Container container) {
+    private DeploymentModel addDockerContainerToDeploymentModel(DeploymentModel deploymentModel, RootComponent dockerEngineComponent, Container container) throws IllegalAccessException {
         // here we need to setup a proper mapping to the properties of a dockercontainer Node Type and so..
         String dockerComponentId = container.getId();
         Map<String, String> props = Maps.newHashMap();
         props.put("ContainerID", container.getId());
         Class componentType = RootComponent.class;
-        return Edmm.addComponent(deploymentModel, dockerEngineComponent, HostedOn.class, dockerComponentId, props, componentType);
+        EntityId entityId = Edmm.addComponent(deploymentModel, dockerComponentId, props, componentType);
+        Edmm.addRelation(deploymentModel, entityId, dockerEngineComponent.getEntity().getId(), HostedOn.class);
+        return deploymentModel;
     }
 
 

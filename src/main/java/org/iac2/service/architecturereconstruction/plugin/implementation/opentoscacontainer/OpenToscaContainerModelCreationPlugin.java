@@ -19,7 +19,6 @@ import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.InstanceModel;
-import org.iac2.service.utility.Edmm;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.Application;

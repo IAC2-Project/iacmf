@@ -10,6 +10,8 @@ import java.time.Duration;
 
 public class Utils {
 
+    public static int DOCKERHTTPCLIENT_MAXCONNECTIONS = 100;
+
     public static DockerClient createDockerClient(String dockerEngineUrl) {
         DefaultDockerClientConfig dockerConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(dockerEngineUrl)
@@ -19,7 +21,7 @@ public class Utils {
         DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
                 .dockerHost(dockerConfig.getDockerHost())
                 .sslConfig(dockerConfig.getSSLConfig())
-                .maxConnections(100)
+                .maxConnections(DOCKERHTTPCLIENT_MAXCONNECTIONS)
                 .connectionTimeout(Duration.ofSeconds(30))
                 .responseTimeout(Duration.ofSeconds(45))
                 .build();

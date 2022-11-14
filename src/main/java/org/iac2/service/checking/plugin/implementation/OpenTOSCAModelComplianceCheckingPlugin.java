@@ -20,6 +20,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OpenTOSCAModelComplianceCheckingPlugin implements ComplianceRuleCheckingPlugin {
+
+    public static int SWAGGERCLIENT_TIMEOUT = 10000;
+
     @Override
     public boolean isSuitableForComplianceRule(ComplianceRule complianceRule) {
         return complianceRule.getType().equals("modelCompliance");
@@ -44,7 +47,7 @@ public class OpenTOSCAModelComplianceCheckingPlugin implements ComplianceRuleChe
         String instanceid = rule.getParameterAssignments().stream().filter(p -> p.getName().equals("instanceId")).findFirst().get().getValueAsString();
         String appId = rule.getParameterAssignments().stream().filter(p -> p.getName().equals("appId")).findFirst().get().getValueAsString();
 
-        SwaggerContainerClient client = new SwaggerContainerClient(iacToolUrl, 10000);
+        SwaggerContainerClient client = new SwaggerContainerClient(iacToolUrl, SWAGGERCLIENT_TIMEOUT);
         ApplicationInstance instance = client.getApplicationInstance(client.getApplication(appId).get(), instanceid).get();
 
         List<NodeInstance> nodeInstanceList = instance.getNodeInstances();
