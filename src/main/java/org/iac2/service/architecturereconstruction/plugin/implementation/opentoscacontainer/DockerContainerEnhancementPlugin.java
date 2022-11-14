@@ -6,13 +6,14 @@ import com.google.common.collect.Maps;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
+import io.github.edmm.model.component.SoftwareComponent;
 import io.github.edmm.model.relation.HostedOn;
 import org.apache.commons.compress.utils.Lists;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.common.utility.Edmm;
-import org.iac2.service.utility.Utils;
+import org.iac2.common.utility.Utils;
 
 import java.util.Collection;
 import java.util.List;
@@ -79,11 +80,9 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
 
     private DeploymentModel addDockerContainerToDeploymentModel(DeploymentModel deploymentModel, RootComponent dockerEngineComponent, Container container) throws IllegalAccessException {
         // here we need to setup a proper mapping to the properties of a dockercontainer Node Type and so..
-        String dockerComponentId = container.getId();
         Map<String, String> props = Maps.newHashMap();
         props.put("ContainerID", container.getId());
-        Class componentType = RootComponent.class;
-        EntityId entityId = Edmm.addComponent(deploymentModel, dockerComponentId, props, componentType);
+        EntityId entityId = Edmm.addComponent(deploymentModel, container.getId(), props, SoftwareComponent.class);
         Edmm.addRelation(deploymentModel, entityId, dockerEngineComponent.getEntity().getId(), HostedOn.class);
         return deploymentModel;
     }

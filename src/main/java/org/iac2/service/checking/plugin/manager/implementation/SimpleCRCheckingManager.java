@@ -8,7 +8,6 @@ import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 import org.iac2.common.exception.PluginNotFoundException;
 import org.iac2.common.exception.PluginType;
 import org.iac2.common.model.compliancerule.ComplianceRule;
-import org.iac2.service.checking.plugin.implementation.OpenTOSCAModelComplianceCheckingPlugin;
 import org.iac2.service.checking.plugin.implementation.SimplePropertyValueCheckingPlugin;
 import org.iac2.service.checking.plugin.manager.ComplianceRuleCheckingPluginManager;
 
@@ -22,10 +21,8 @@ public class SimpleCRCheckingManager implements ComplianceRuleCheckingPluginMana
 
     private SimpleCRCheckingManager() {
         SimplePropertyValueCheckingPlugin isomorphismCheckerPlugin = new SimplePropertyValueCheckingPlugin();
-        OpenTOSCAModelComplianceCheckingPlugin modelComplianceCheckingPlugin = new OpenTOSCAModelComplianceCheckingPlugin();
         allPlugins = new HashMap<>();
         allPlugins.put(isomorphismCheckerPlugin.getIdentifier(), isomorphismCheckerPlugin);
-        allPlugins.put(modelComplianceCheckingPlugin.getIdentifier(), modelComplianceCheckingPlugin);
     }
 
     public static SimpleCRCheckingManager getInstance() {

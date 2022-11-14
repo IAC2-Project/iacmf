@@ -1,4 +1,4 @@
-package org.iac2.service.utility;
+package org.iac2.common.utility;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
