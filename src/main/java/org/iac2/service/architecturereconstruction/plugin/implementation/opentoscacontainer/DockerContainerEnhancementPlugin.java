@@ -11,14 +11,15 @@ import com.google.common.collect.Maps;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
-import io.github.edmm.model.component.SoftwareComponent;
 import io.github.edmm.model.relation.HostedOn;
 import org.apache.commons.compress.utils.Lists;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.Edmm;
+import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.common.utility.Utils;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
+import org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.EdmmTypes.DockerComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,10 +84,15 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
 
 
     public DeploymentModel addDockerContainerToDeploymentModel(DeploymentModel deploymentModel, RootComponent dockerEngineComponent, Container container) throws IllegalAccessException {
+        try {
+            EdmmTypeResolver.putMapping("docker_container", DockerComponent.class);
+        } catch(IllegalArgumentException ignored) {
+            // if we have an exception here, it means the type is already registered before.
+        }
         // here we need to setup a proper mapping to the properties of a dockercontainer Node Type and so..
         Map<String, String> props = Maps.newHashMap();
-        // props.put("ContainerID", container.getId());
-        EntityId entityId = Edmm.addComponent(deploymentModel.getGraph(), container.getId(), props, SoftwareComponent.class);
+        props.put("container_id", container.getId());
+        EntityId entityId = Edmm.addComponent(deploymentModel.getGraph(), container.getId(), props, DockerComponent.class);
         Edmm.addRelation(deploymentModel.getGraph(), entityId, dockerEngineComponent.getEntity().getId(), HostedOn.class);
 //        StringWriter writer = new StringWriter();
 //        deploymentModel.getGraph().generateYamlOutput(writer);
@@ -97,8 +103,16 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
 
 
     private Collection<Container> findContainersNotInDeploymentModel(DeploymentModel deploymentModel, Collection<Container> containers) {
-        Collection<String> deploymentModelContainerIds = deploymentModel.getComponents().stream().filter(c -> c.getProperties().containsKey("ContainerID")).map(c -> c.getProperty("ContainerID").get().getValue()).collect(Collectors.toList());
-        Collection<Container> containersNotInModel = containers.stream().filter(c -> !deploymentModelContainerIds.contains(c.getId())).collect(Collectors.toList());
-        return containersNotInModel;
+        Collection<String> deploymentModelContainerIds = deploymentModel
+                .getComponents()
+                .stream()
+                .filter(c -> c.getProperties().containsKey("container_id"))
+                .map(c -> c.getProperty("container_id").get().getValue())
+                .toList();
+
+        return containers
+                .stream()
+                .filter(c -> !deploymentModelContainerIds.contains(c.getId()))
+                .collect(Collectors.toList());
     }
 }

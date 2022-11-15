@@ -80,4 +80,26 @@ class EdmmTest {
         model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertTrue(model.getComponent(id.getName()).isPresent());
     }
+
+    @Test
+    void testAddComponentOfNewType() throws IllegalAccessException, IOException {
+        EdmmTypeResolver.putMapping("test_type", TestComponentType.class);
+        ClassPathResource resource = new ClassPathResource("edmm/four-components-hosted-on.yml");
+        DeploymentModel model = DeploymentModel.of(resource.getFile());
+        EntityId id = Edmm.addComponent(model.getGraph(), "sauron", Map.of("wow", "very wow!"), TestComponentType.class);
+        Assertions.assertEquals("sauron", id.getName());
+        Optional<Entity> properties = model.getGraph().getEntity(id.extend(DefaultKeys.PROPERTIES));
+        Assertions.assertTrue(properties.isPresent());
+        Assertions.assertTrue(properties.get() instanceof MappingEntity);
+        Optional<Entity> property = model.getGraph().getEntity(id.extend(DefaultKeys.PROPERTIES).extend("wow"));
+        Assertions.assertTrue(property.isPresent());
+        Assertions.assertTrue(property.get() instanceof ScalarEntity);
+        Assertions.assertEquals("very wow!", ((ScalarEntity) property.get()).getValue());
+        Optional<Entity> type = model.getGraph().getEntity(id.extend(DefaultKeys.TYPE));
+        Assertions.assertTrue(type.isPresent());
+        Assertions.assertTrue(type.get() instanceof ScalarEntity);
+        Assertions.assertEquals(EdmmTypeResolver.resolve(TestComponentType.class), ((ScalarEntity) type.get()).getValue());
+        model = new DeploymentModel(model.getName(), model.getGraph());
+        Assertions.assertTrue(model.getComponent(id.getName()).isPresent());
+    }
 }

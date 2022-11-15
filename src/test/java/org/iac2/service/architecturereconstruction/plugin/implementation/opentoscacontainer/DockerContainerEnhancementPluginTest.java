@@ -152,6 +152,13 @@ public class DockerContainerEnhancementPluginTest {
     }
 
     private Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {
-        return comps.stream().filter(c -> c.getProperties().values().stream().filter(p -> p.getName().equals("ContainerID")).findFirst().isPresent()).collect(Collectors.toList());
+        return comps
+                .stream()
+                .filter(c -> 
+                        c.getProperties()
+                        .values()
+                        .stream()
+                        .anyMatch(p -> p.getName().equals("container_id")))
+                .collect(Collectors.toList());
     }
 }
