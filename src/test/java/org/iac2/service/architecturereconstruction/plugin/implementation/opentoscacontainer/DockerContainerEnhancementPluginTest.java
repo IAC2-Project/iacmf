@@ -154,11 +154,11 @@ public class DockerContainerEnhancementPluginTest {
     private Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {
         return comps
                 .stream()
-                .filter(c -> 
+                .filter(c ->
                         c.getProperties()
                         .values()
                         .stream()
-                        .anyMatch(p -> p.getName().equals("container_id")))
+                        .anyMatch(p -> p.getName().equals("ContainerID")))
                 .collect(Collectors.toList());
     }
 }

@@ -8,17 +8,18 @@ import java.util.stream.Collectors;
 
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.MysqlDbms;
-import io.github.edmm.model.component.Paas;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.component.SoftwareComponent;
 import io.github.edmm.model.component.WebApplication;
 import io.github.edmm.model.component.WebServer;
 import io.github.edmm.model.support.EdmmYamlBuilder;
-import org.iac2.service.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
-import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.InstanceModel;
+import org.iac2.common.model.ProductionSystem;
+import org.iac2.service.architecturereconstruction.common.exception.AppNotFoundException;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.Application;
@@ -130,18 +131,15 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
     private Class<? extends RootComponent> getClassForNodeInstance(NodeInstance nodeInstance) {
         String type = nodeInstance.getTemplateType();
         // TODO add more later
-        switch (type) {
-            case "{http://opentosca.org/nodetypes}DockerEngine_w1":
-                return Paas.class;
-            case "{http://opentosca.org/nodetypes}NGINX_latest-w1":
-                return WebServer.class;
-            case "{http://opentosca.org/example/applications/nodetypes}RealWorld-Application_Angular-w":
-                return WebApplication.class;
-            case "{http://opentosca.org/nodetypes}MySQL-DBMS_8.0-w1":
-                return MysqlDbms.class;
-            default:
-                return SoftwareComponent.class;
-        }
+        return switch (type) {
+            case "{http://opentosca.org/nodetypes}DockerEngine_w1" -> DockerEngine.class;
+            case "{http://opentosca.org/nodetypes}NGINX_latest-w1" -> WebServer.class;
+            case "{http://opentosca.org/example/applications/nodetypes}RealWorld-Application_Angular-w" ->
+                    WebApplication.class;
+            case "{http://opentosca.org/nodetypes}MySQL-DBMS_8.0-w1" -> MysqlDbms.class;
+            case "{http://opentosca.org/nodetypes}DockerContainer_w1" -> DockerContainer.class;
+            default -> SoftwareComponent.class;
+        };
     }
 
     private NodeInstance getNodeInstance(ApplicationInstance applicationInstance, String id) {

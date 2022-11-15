@@ -22,9 +22,12 @@ import org.iac2.common.utility.Edmm;
 import org.iac2.common.utility.EdmmTypeResolver;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 class EdmmTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EdmmTest.class);
 
     @Test
     void testAddType() throws IOException, IllegalAccessException {
@@ -71,14 +74,15 @@ class EdmmTest {
         Assertions.assertTrue(properties.get() instanceof MappingEntity);
         Optional<Entity> property = model.getGraph().getEntity(id.extend(DefaultKeys.PROPERTIES).extend("os_family"));
         Assertions.assertTrue(property.isPresent());
-        Assertions.assertTrue(property.get() instanceof ScalarEntity);
-        Assertions.assertEquals("flip-flop-os", ((ScalarEntity) property.get()).getValue());
+        Assertions.assertTrue(property.get() instanceof MappingEntity);
+        Assertions.assertEquals("os_family", property.get().getName());
         Optional<Entity> type = model.getGraph().getEntity(id.extend(DefaultKeys.TYPE));
         Assertions.assertTrue(type.isPresent());
         Assertions.assertTrue(type.get() instanceof ScalarEntity);
         Assertions.assertEquals(EdmmTypeResolver.resolve(Compute.class), ((ScalarEntity) type.get()).getValue());
         model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertTrue(model.getComponent(id.getName()).isPresent());
+        Assertions.assertEquals(1, model.getComponent(id.getName()).get().getProperties().size());
     }
 
     @Test
@@ -93,13 +97,16 @@ class EdmmTest {
         Assertions.assertTrue(properties.get() instanceof MappingEntity);
         Optional<Entity> property = model.getGraph().getEntity(id.extend(DefaultKeys.PROPERTIES).extend("wow"));
         Assertions.assertTrue(property.isPresent());
-        Assertions.assertTrue(property.get() instanceof ScalarEntity);
-        Assertions.assertEquals("very wow!", ((ScalarEntity) property.get()).getValue());
+        Assertions.assertTrue(property.get() instanceof MappingEntity);
+        Assertions.assertEquals("wow", property.get().getName());
         Optional<Entity> type = model.getGraph().getEntity(id.extend(DefaultKeys.TYPE));
         Assertions.assertTrue(type.isPresent());
         Assertions.assertTrue(type.get() instanceof ScalarEntity);
         Assertions.assertEquals(EdmmTypeResolver.resolve(TestComponentType.class), ((ScalarEntity) type.get()).getValue());
         model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertTrue(model.getComponent(id.getName()).isPresent());
+        Assertions.assertEquals(1, model.getComponent(id.getName()).get().getProperties().size());
+        LOGGER.info(model.getComponent(id.getName()).get().getClass().getName());
+        // Assertions.assertTrue(model.getComponent(id.getName()).get() instanceof TestComponentType);
     }
 }

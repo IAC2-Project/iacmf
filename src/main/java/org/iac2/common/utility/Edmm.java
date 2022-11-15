@@ -50,12 +50,13 @@ public class Edmm {
 
                 if (typeAttributesAsFields.size() > 0) {
                     final EntityId propertiesId = typeId.extend(DefaultKeys.PROPERTIES);
-                    graph.addEntity(new MappingEntity(propertiesId, graph));
+                    final Entity propertiesEntity = new MappingEntity(propertiesId, graph);
+                    graph.addEntity(propertiesEntity);
                     Attribute<?> attribute;
 
                     for (Field typeAttributesAsField : typeAttributesAsFields) {
                         attribute = (Attribute<?>) typeAttributesAsField.get(null);
-                        addPropertyDefinition(graph, attribute, propertiesId);
+                        addPropertyDefinition(attribute, propertiesEntity);
                     }
                 }
             } else {
@@ -66,16 +67,17 @@ public class Edmm {
         return typeEntity;
     }
 
-    private static void addPropertyDefinition(EntityGraph graph, Attribute<?> attribute, EntityId propertiesId) {
-        EntityId propertyId = propertiesId.extend(attribute.getName());
+    private static void addPropertyDefinition(Attribute<?> attribute, Entity propertiesEntity) {
+        String propertyName = attribute.getName();
         String edmmType = switch (attribute.getType().getName()) {
             case "java.lang.Integer", "java.lang.Long" -> DefaultKeys.INTEGER;
             case "java.lang.Float", "java.lang.Double" -> DefaultKeys.FLOAT;
             default -> DefaultKeys.STRING;
         };
 
-        graph.addEntity(new ScalarEntity(edmmType, propertyId, graph));
+        addProperty(propertiesEntity, edmmType, propertyName, false, null);
     }
+
 
     public static void addRelation(EntityGraph graph,
                                    EntityId startComponentEntityId,
@@ -112,17 +114,41 @@ public class Edmm {
         EntityId componentEntityId = EntityGraph.COMPONENTS.extend(componentId);
         MappingEntity componentEntity = new MappingEntity(componentEntityId, graph);
         graph.addEntity(componentEntity);
+
         graph.addEntity(new ScalarEntity(EdmmTypeResolver.resolve(componentType), componentEntityId.extend(DefaultKeys.TYPE), graph));
         graph.addEdge(componentEntity, typeEntity, DefaultKeys.INSTANCE_OF);
 
         if (attributeAssignments.size() > 0) {
             // ideally, we should check whether these attributes are present in the component type declaration as properties
             EntityId propertiesId = componentEntityId.extend(DefaultKeys.PROPERTIES);
-            graph.addEntity(new MappingEntity(propertiesId, graph));
-            attributeAssignments.forEach((key, value) -> graph.addEntity(new ScalarEntity(value, propertiesId.extend(key), graph)));
+            MappingEntity propertiesEntity = new MappingEntity(propertiesId, graph);
+            graph.addEntity(propertiesEntity);
+            addPropertyAssignments(propertiesEntity, attributeAssignments);
         }
 
         return componentEntityId;
+    }
+
+    public static void addPropertyAssignments(Entity propertiesEntity, Map<String, String> attributeAssignments) {
+
+        attributeAssignments.forEach((key, value) -> {
+            addProperty(propertiesEntity, DefaultKeys.STRING, key, true, value);
+        });
+    }
+
+    private static void addProperty(Entity propertiesEntity, String propertyType, String propertyName, boolean isAssignment, String value) {
+        final EntityGraph graph = propertiesEntity.getGraph();
+        final EntityId propertiesId = propertiesEntity.getId();
+        EntityId propertyId = propertiesId.extend(propertyName);
+        MappingEntity normalizedEntity = new MappingEntity(propertyId, graph);
+        ScalarEntity typeEntity = new ScalarEntity(propertyType, normalizedEntity.getId().extend(DefaultKeys.TYPE), graph);
+        graph.addEntity(normalizedEntity);
+        graph.addEntity(typeEntity);
+
+        if(isAssignment) {
+            ScalarEntity valueEntity = new ScalarEntity(value, normalizedEntity.getId().extend(DefaultKeys.VALUE), graph);
+            graph.addEntity(valueEntity);
+        }
     }
 
     public static Collection<RootComponent> getDockerEngineComponents(DeploymentModel deploymentModel) {
