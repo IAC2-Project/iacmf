@@ -1,6 +1,5 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
-import java.io.StringWriter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -87,15 +86,14 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
         // here we need to setup a proper mapping to the properties of a dockercontainer Node Type and so..
         Map<String, String> props = Maps.newHashMap();
         // props.put("ContainerID", container.getId());
-        EntityId entityId = Edmm.addComponent(deploymentModel, container.getId(), props, SoftwareComponent.class);
-        Edmm.addRelation(deploymentModel, entityId, dockerEngineComponent.getEntity().getId(), HostedOn.class);
-        StringWriter writer = new StringWriter();
-        deploymentModel.getGraph().generateYamlOutput(writer);
-        LOGGER.info(writer.toString());
+        EntityId entityId = Edmm.addComponent(deploymentModel.getGraph(), container.getId(), props, SoftwareComponent.class);
+        Edmm.addRelation(deploymentModel.getGraph(), entityId, dockerEngineComponent.getEntity().getId(), HostedOn.class);
+//        StringWriter writer = new StringWriter();
+//        deploymentModel.getGraph().generateYamlOutput(writer);
+//        LOGGER.info(writer.toString());
 
         return new DeploymentModel(deploymentModel.getName(), deploymentModel.getGraph());
     }
-
 
 
     private Collection<Container> findContainersNotInDeploymentModel(DeploymentModel deploymentModel, Collection<Container> containers) {

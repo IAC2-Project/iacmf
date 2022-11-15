@@ -57,12 +57,10 @@ public class DockerContainerEnhancementPluginTest {
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
-        if (!debugging) {
-            csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
-            appName = csarPath.getFileName().toString();
-            OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
-            instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
-        }
+        csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
+        appName = csarPath.getFileName().toString();
+        OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
+        instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
     }
 
     @AfterAll
@@ -81,7 +79,7 @@ public class DockerContainerEnhancementPluginTest {
         ModelEnhancementPlugin enhancementPlugin = SimpleARPluginManager.getInstance().getModelEnhancementPlugin("docker-enhancement-plugin");
         Container container = new ObjectMapper().readValue(containerInfo.getFile(), Container.class);
         RootComponent engine = model.getComponent("tomcat").get();
-        model = ((DockerContainerEnhancementPlugin)enhancementPlugin).addDockerContainerToDeploymentModel(model, engine, container);
+        model = ((DockerContainerEnhancementPlugin) enhancementPlugin).addDockerContainerToDeploymentModel(model, engine, container);
         Assertions.assertEquals(5, model.getComponents().size());
     }
 

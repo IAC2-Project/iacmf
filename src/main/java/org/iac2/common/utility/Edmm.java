@@ -20,14 +20,12 @@ import io.github.edmm.model.relation.DependsOn;
 import io.github.edmm.model.relation.RootRelation;
 import io.github.edmm.model.support.Attribute;
 import io.github.edmm.model.support.ModelEntity;
-import io.github.edmm.model.support.TypeResolver;
 
 public class Edmm {
 
-    public static Entity addType(DeploymentModel deploymentModel, Class<? extends ModelEntity> componentType) throws IllegalAccessException {
-        EntityGraph graph = deploymentModel.getGraph();
+    public static Entity addType(EntityGraph graph, Class<? extends ModelEntity> componentType) throws IllegalAccessException {
         Set<Entity> existingTypes = graph.getChildren(EntityGraph.COMPONENT_TYPES);
-        final EntityId typeId = EntityGraph.COMPONENT_TYPES.extend(TypeResolver.resolve(componentType));
+        final EntityId typeId = EntityGraph.COMPONENT_TYPES.extend(EdmmTypeResolver.resolve(componentType));
         final MappingEntity typeEntity = new MappingEntity(typeId, graph);
 
         // we couldn't find the type in the deployment model
@@ -40,10 +38,10 @@ public class Edmm {
                 // we are sure this is going to work, because we handle the case in which the current componentType is the
                 // root type separately.
                 Class<? extends ModelEntity> parentType = (Class<? extends ModelEntity>) componentType.getSuperclass();
-                addType(deploymentModel, parentType);
-                final EntityId parentTypeId = EntityGraph.COMPONENT_TYPES.extend(TypeResolver.resolve(parentType));
+                addType(graph, parentType);
+                final EntityId parentTypeId = EntityGraph.COMPONENT_TYPES.extend(EdmmTypeResolver.resolve(parentType));
                 final Entity parentEntity = graph.getEntity(parentTypeId).orElseThrow();
-                graph.addEntity(new ScalarEntity(TypeResolver.resolve(parentType), typeId.extend(DefaultKeys.EXTENDS), graph));
+                graph.addEntity(new ScalarEntity(EdmmTypeResolver.resolve(parentType), typeId.extend(DefaultKeys.EXTENDS), graph));
                 graph.addEdge(typeEntity, parentEntity, DefaultKeys.EXTENDS_TYPE);
                 Collection<Field> typeAttributesAsFields = Stream
                         .of(componentType.getDeclaredFields())
@@ -60,8 +58,6 @@ public class Edmm {
                         addPropertyDefinition(graph, attribute, propertiesId);
                     }
                 }
-
-                addType(deploymentModel, parentType);
             } else {
                 graph.addEntity(new ScalarEntity("null", typeId.extend(DefaultKeys.EXTENDS), graph));
             }
@@ -81,13 +77,12 @@ public class Edmm {
         graph.addEntity(new ScalarEntity(edmmType, propertyId, graph));
     }
 
-    public static void addRelation(DeploymentModel deploymentModel,
+    public static void addRelation(EntityGraph graph,
                                    EntityId startComponentEntityId,
                                    EntityId targetComponentEntityId,
                                    Class<? extends RootRelation> relationType) throws IllegalAccessException {
-        addType(deploymentModel, relationType);
+        addType(graph, relationType);
         EntityId relationsEntityId = startComponentEntityId.extend(DefaultKeys.RELATIONS);
-        EntityGraph graph = deploymentModel.getGraph();
         Set<Entity> currentRelations = graph.getChildren(relationsEntityId);
 
         if (currentRelations.size() == 0) {
@@ -99,7 +94,7 @@ public class Edmm {
         EntityId indexId = relationsEntityId.extend(String.valueOf(currentRelations.size()));
         graph.addEntity(new MappingEntity(indexId, graph));
 
-        final String relationTypeString = TypeResolver.resolve(relationType);
+        final String relationTypeString = EdmmTypeResolver.resolve(relationType);
         MappingEntity normalizedEntity = new MappingEntity(indexId.extend(relationTypeString), graph);
         ScalarEntity type = new ScalarEntity(relationTypeString, normalizedEntity.getId().extend(DefaultKeys.TYPE), graph);
         ScalarEntity target = new ScalarEntity(targetComponentEntityId.getName(), normalizedEntity.getId().extend(DefaultKeys.TARGET), graph);
@@ -109,16 +104,15 @@ public class Edmm {
         graph.addEntity(target);
     }
 
-    public static EntityId addComponent(DeploymentModel deploymentModel,
+    public static EntityId addComponent(EntityGraph graph,
                                         String componentId,
                                         Map<String, String> attributeAssignments,
                                         Class<? extends RootComponent> componentType) throws IllegalAccessException {
-        final Entity typeEntity = addType(deploymentModel, componentType);
-        EntityGraph graph = deploymentModel.getGraph();
+        final Entity typeEntity = addType(graph, componentType);
         EntityId componentEntityId = EntityGraph.COMPONENTS.extend(componentId);
         MappingEntity componentEntity = new MappingEntity(componentEntityId, graph);
         graph.addEntity(componentEntity);
-        graph.addEntity(new ScalarEntity(TypeResolver.resolve(componentType), componentEntityId.extend(DefaultKeys.TYPE), graph));
+        graph.addEntity(new ScalarEntity(EdmmTypeResolver.resolve(componentType), componentEntityId.extend(DefaultKeys.TYPE), graph));
         graph.addEdge(componentEntity, typeEntity, DefaultKeys.INSTANCE_OF);
 
         if (attributeAssignments.size() > 0) {
