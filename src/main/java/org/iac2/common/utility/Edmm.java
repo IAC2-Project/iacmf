@@ -24,6 +24,10 @@ import io.github.edmm.model.support.ModelEntity;
 public class Edmm {
 
     public static Entity addType(EntityGraph graph, Class<? extends ModelEntity> componentType) throws IllegalAccessException {
+        if (graph.getEntity(EntityGraph.COMPONENT_TYPES).isEmpty()){
+            graph.addEntity(new MappingEntity(EntityGraph.COMPONENT_TYPES, graph));
+        }
+
         Set<Entity> existingTypes = graph.getChildren(EntityGraph.COMPONENT_TYPES);
         final EntityId typeId = EntityGraph.COMPONENT_TYPES.extend(EdmmTypeResolver.resolve(componentType));
         final MappingEntity typeEntity = new MappingEntity(typeId, graph);
@@ -60,7 +64,7 @@ public class Edmm {
                     }
                 }
             } else {
-                graph.addEntity(new ScalarEntity("null", typeId.extend(DefaultKeys.EXTENDS), graph));
+                graph.addEntity(new ScalarEntity(null, typeId.extend(DefaultKeys.EXTENDS), graph));
             }
         }
 
@@ -112,6 +116,11 @@ public class Edmm {
                                         Class<? extends RootComponent> componentType) throws IllegalAccessException {
         final Entity typeEntity = addType(graph, componentType);
         EntityId componentEntityId = EntityGraph.COMPONENTS.extend(componentId);
+
+        if (graph.getEntity(EntityGraph.COMPONENTS).isEmpty()){
+            graph.addEntity(new MappingEntity(EntityGraph.COMPONENTS, graph));
+        }
+
         MappingEntity componentEntity = new MappingEntity(componentEntityId, graph);
         graph.addEntity(componentEntity);
 

@@ -1,6 +1,7 @@
 package org.iac2.service.utility;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,13 +14,18 @@ import io.github.edmm.core.parser.support.DefaultKeys;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.AwsBeanstalk;
 import io.github.edmm.model.component.Compute;
+import io.github.edmm.model.component.MysqlDatabase;
+import io.github.edmm.model.component.MysqlDbms;
 import io.github.edmm.model.component.Paas;
 import io.github.edmm.model.component.Platform;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.ConnectsTo;
 import io.github.edmm.model.relation.DependsOn;
+import io.github.edmm.model.relation.HostedOn;
 import org.iac2.common.utility.Edmm;
 import org.iac2.common.utility.EdmmTypeResolver;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -107,6 +113,64 @@ class EdmmTest {
         Assertions.assertTrue(model.getComponent(id.getName()).isPresent());
         Assertions.assertEquals(1, model.getComponent(id.getName()).get().getProperties().size());
         LOGGER.info(model.getComponent(id.getName()).get().getClass().getName());
-        // Assertions.assertTrue(model.getComponent(id.getName()).get() instanceof TestComponentType);
+        StringWriter writer = new StringWriter();
+        model.getGraph().generateYamlOutput(writer);
+        LOGGER.info(writer.toString());
+        Assertions.assertTrue(model.getComponent(id.getName()).get() instanceof TestComponentType);
+    }
+
+    @Test
+    void testBuildGraphFromScratch() throws IllegalAccessException {
+        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
+        EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
+        EntityGraph graph = new EntityGraph();
+        final EntityId engineId = Edmm.addComponent(
+                graph,
+                "engine-1",
+                Map.of(DockerEngine.DOCKER_ENGINE_URL.getName(), "http://docker.engine.com"),
+                DockerEngine.class);
+        final EntityId applicationContainerId = Edmm.addComponent(
+                graph,
+                "app1",
+                Map.of(DockerContainer.CONTAINER_ID.getName(), "ABC",
+                        DockerContainer.STATE.getName(), "Running",
+                        DockerContainer.IMAGE_ID.getName(), "awsome.com/theImage"),
+                DockerContainer.class
+        );
+        final EntityId vmId =  Edmm.addComponent(
+                graph,
+                "ubuntu-1",
+                Map.of(Compute.TYPE.getName(), "ubuntu",
+                        Compute.OS_FAMILY.getName(), "linux",
+                        Compute.PUBLIC_KEY.getName(), "ffff666ffff"),
+                Compute.class
+        );
+        final EntityId dbmsId = Edmm.addComponent(
+                graph,
+                "mysqldbms",
+                Map.of(MysqlDbms.PORT.getName(), "1234",
+                        MysqlDbms.ROOT_PASSWORD.getName(), "iacmfisthebest@##"),
+                MysqlDbms.class
+        );
+        final EntityId dbId = Edmm.addComponent(
+                graph,
+                "production-db",
+                Map.of(MysqlDatabase.PASSWORD.getName(), "1234",
+                        MysqlDatabase.USER.getName(), "falazigb",
+                        MysqlDatabase.NAME.getName(), "user-data"),
+
+                MysqlDatabase.class
+        );
+
+        Edmm.addRelation(graph, dbmsId, vmId, HostedOn.class);
+        Edmm.addRelation(graph, dbId, dbmsId, HostedOn.class);
+        Edmm.addRelation(graph, applicationContainerId, engineId, HostedOn.class);
+        Edmm.addRelation(graph, applicationContainerId, dbId, ConnectsTo.class);
+        DeploymentModel model = new DeploymentModel("myDeploymentModel", graph);
+        StringWriter writer = new StringWriter();
+        graph.generateYamlOutput(writer);
+        LOGGER.info(writer.toString());
+
+
     }
 }

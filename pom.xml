@@ -71,7 +71,7 @@
         <dependency>
             <groupId>com.github.UST-edmm</groupId>
             <artifactId>edmm</artifactId>
-            <version>v1.1.1</version>
+            <version>feature~allow-user-defined-types-SNAPSHOT</version>
             <exclusions>
                 <!-- Needed right now as TOSCin has an openstack-resteasy implementation in it which breaks the opentosca client...-->
                 <exclusion>
