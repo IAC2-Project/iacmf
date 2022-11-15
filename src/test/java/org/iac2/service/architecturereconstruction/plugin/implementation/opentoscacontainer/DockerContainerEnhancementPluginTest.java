@@ -1,6 +1,7 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
@@ -39,10 +40,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 public class DockerContainerEnhancementPluginTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerEnhancementPluginTest.class);
     private static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-example-applications";
     private static final QName csarId = new QName("http://opentosca.org/example/applications/servicetemplates", "RealWorld-Application_Angular-Spring-MySQL-w1");
     private static final String hostName = "localhost";
@@ -98,6 +102,12 @@ public class DockerContainerEnhancementPluginTest {
         Set<RootComponent> newComps = instanceModel1.getDeploymentModel().getComponents();
         Set<RootRelation> newRels = instanceModel1.getDeploymentModel().getRelations();
 
+        StringWriter writer1 = new StringWriter();
+        instanceModel.getDeploymentModel().getGraph().generateYamlOutput(writer1);
+        LOGGER.info(writer1.toString());
+        writer1 = new StringWriter();
+        instanceModel1.getDeploymentModel().getGraph().generateYamlOutput(writer1);
+        LOGGER.info(writer1.toString());
         Assert.assertEquals(comps.size(), newComps.size());
         Assert.assertEquals(rels.size(), newRels.size());
 
@@ -156,9 +166,9 @@ public class DockerContainerEnhancementPluginTest {
                 .stream()
                 .filter(c ->
                         c.getProperties()
-                        .values()
-                        .stream()
-                        .anyMatch(p -> p.getName().equals("ContainerID")))
+                                .values()
+                                .stream()
+                                .anyMatch(p -> p.getName().equals("ContainerID")))
                 .collect(Collectors.toList());
     }
 }
