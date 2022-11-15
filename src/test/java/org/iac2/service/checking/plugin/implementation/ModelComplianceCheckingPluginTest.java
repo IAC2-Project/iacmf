@@ -1,19 +1,27 @@
 package org.iac2.service.checking.plugin.implementation;
 
-import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import javax.xml.namespace.QName;
+
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
+
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
 import org.assertj.core.util.Sets;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.common.model.compliancerule.parameter.ComplianceRuleParameter;
 import org.iac2.common.model.compliancerule.parameter.StringComplianceRuleParameter;
-import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterEntity;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
@@ -24,22 +32,15 @@ import org.iac2.util.TestUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Disabled
 public class ModelComplianceCheckingPluginTest {
 
     private static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-example-applications";
