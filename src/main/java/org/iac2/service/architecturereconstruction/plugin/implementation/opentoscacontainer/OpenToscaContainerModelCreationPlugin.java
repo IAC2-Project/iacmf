@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import io.github.edmm.core.parser.EntityGraph;
@@ -40,6 +41,8 @@ import org.opentosca.container.client.model.RelationInstance;
 import javax.xml.namespace.QName;
 
 public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugin {
+
+    private static int OPENTOSCA_CLIENT_TIMEOUT=10000;
 
     public OpenToscaContainerModelCreationPlugin() {
         EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
@@ -102,7 +105,7 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
             throw new IllegalArgumentException(strb.toString());
         }
 
-        ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).build();
+        ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(OPENTOSCA_CLIENT_TIMEOUT, TimeUnit.MILLISECONDS).build();
 
         Application app = client.getApplications().stream().filter(a -> a.getId().equals(appId)).findFirst().orElse(null);
 
