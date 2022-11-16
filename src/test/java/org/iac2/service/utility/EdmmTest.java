@@ -171,6 +171,12 @@ class EdmmTest {
         graph.generateYamlOutput(writer);
         LOGGER.info(writer.toString());
 
-
+        Optional<RootComponent> component = model.getComponent(engineId.getName());
+        Assertions.assertTrue(component.isPresent());
+        Assertions.assertTrue(component.get() instanceof DockerEngine);
+        Assertions.assertTrue(component.get().getProperties().size() > 0);
+        Assertions.assertTrue(component.get().getProperties().containsKey(DockerEngine.DOCKER_ENGINE_URL.getName()));
+        Assertions.assertEquals("http://docker.engine.com",
+                component.get().getProperty(DockerEngine.DOCKER_ENGINE_URL.getName()).get().getValue());
     }
 }
