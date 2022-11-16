@@ -184,7 +184,11 @@ public class Edmm {
                         .COMPONENT_TYPES
                         .extend(componentType)
                         .extend(DefaultKeys.PROPERTIES);
-                final Entity propertyDefinitionsEntity = graph.getEntity(propertyDefinitionsId).orElseThrow();
+                final Entity propertyDefinitionsEntity = graph.getEntity(propertyDefinitionsId).orElseGet(()->{
+                    MappingEntity properties = new MappingEntity(propertyDefinitionsId, graph);
+                    graph.addEntity(properties);
+                    return properties;
+                });
                 addProperty(propertyDefinitionsEntity, propertyType, propertyName, false, null);
             }
         }
