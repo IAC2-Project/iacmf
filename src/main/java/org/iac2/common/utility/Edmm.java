@@ -24,7 +24,7 @@ import io.github.edmm.model.support.ModelEntity;
 public class Edmm {
 
     public static Entity addType(EntityGraph graph, Class<? extends ModelEntity> componentType) throws IllegalAccessException {
-        if (graph.getEntity(EntityGraph.COMPONENT_TYPES).isEmpty()){
+        if (graph.getEntity(EntityGraph.COMPONENT_TYPES).isEmpty()) {
             graph.addEntity(new MappingEntity(EntityGraph.COMPONENT_TYPES, graph));
         }
 
@@ -71,18 +71,6 @@ public class Edmm {
         return typeEntity;
     }
 
-    private static void addPropertyDefinition(Attribute<?> attribute, Entity propertiesEntity) {
-        String propertyName = attribute.getName();
-        String edmmType = switch (attribute.getType().getName()) {
-            case "java.lang.Integer", "java.lang.Long" -> DefaultKeys.INTEGER;
-            case "java.lang.Float", "java.lang.Double" -> DefaultKeys.FLOAT;
-            default -> DefaultKeys.STRING;
-        };
-
-        addProperty(propertiesEntity, edmmType, propertyName, false, null);
-    }
-
-
     public static void addRelation(EntityGraph graph,
                                    EntityId startComponentEntityId,
                                    EntityId targetComponentEntityId,
@@ -117,7 +105,7 @@ public class Edmm {
         final Entity typeEntity = addType(graph, componentType);
         EntityId componentEntityId = EntityGraph.COMPONENTS.extend(componentId);
 
-        if (graph.getEntity(EntityGraph.COMPONENTS).isEmpty()){
+        if (graph.getEntity(EntityGraph.COMPONENTS).isEmpty()) {
             graph.addEntity(new MappingEntity(EntityGraph.COMPONENTS, graph));
         }
 
@@ -138,7 +126,38 @@ public class Edmm {
         return componentEntityId;
     }
 
-    public static void addPropertyAssignments(Entity propertiesEntity, Map<String, String> attributeAssignments) {
+    public static void addPropertyAssignments(EntityGraph graph, EntityId componentId, Map<String, String> attributeAssignments) {
+        final EntityId propertiesId = componentId.extend(DefaultKeys.PROPERTIES);
+        final Entity propertiesEntity = graph.getEntity(propertiesId).orElseGet(()->{
+            MappingEntity properties = new MappingEntity(propertiesId, graph);
+            graph.addEntity(properties);
+            return properties;
+        });
+        addPropertyAssignments(propertiesEntity, attributeAssignments);
+    }
+
+    public static String getComponentType(EntityGraph graph, EntityId componentId) {
+        final EntityId componentTypeId = componentId.extend(DefaultKeys.TYPE);
+        return ((ScalarEntity) graph.getEntity(componentTypeId).orElseThrow()).getValue();
+    }
+
+    // todo make a generic method based on the component class type (not a specific property name)
+    public static Collection<RootComponent> getDockerEngineComponents(DeploymentModel deploymentModel) {
+        return deploymentModel.getComponents().stream().filter(c -> c.getProperties().containsKey("DockerEngineURL")).collect(Collectors.toList());
+    }
+
+    private static void addPropertyDefinition(Attribute<?> attribute, Entity propertiesEntity) {
+        String propertyName = attribute.getName();
+        String edmmType = switch (attribute.getType().getName()) {
+            case "java.lang.Integer", "java.lang.Long" -> DefaultKeys.INTEGER;
+            case "java.lang.Float", "java.lang.Double" -> DefaultKeys.FLOAT;
+            default -> DefaultKeys.STRING;
+        };
+
+        addProperty(propertiesEntity, edmmType, propertyName, false, null);
+    }
+
+    private static void addPropertyAssignments(Entity propertiesEntity, Map<String, String> attributeAssignments) {
 
         attributeAssignments.forEach((key, value) -> {
             addProperty(propertiesEntity, DefaultKeys.STRING, key, true, value);
@@ -154,13 +173,33 @@ public class Edmm {
         graph.addEntity(normalizedEntity);
         graph.addEntity(typeEntity);
 
-        if(isAssignment) {
+        if (isAssignment) {
             ScalarEntity valueEntity = new ScalarEntity(value, normalizedEntity.getId().extend(DefaultKeys.VALUE), graph);
             graph.addEntity(valueEntity);
+            final EntityId componentId = propertiesEntity.getParent().orElseThrow().getId();
+
+            if (!doesPropertyDefinitionExist(graph, componentId, propertyName)) {
+                final String componentType = getComponentType(graph, componentId);
+                final EntityId propertyDefinitionsId = EntityGraph
+                        .COMPONENT_TYPES
+                        .extend(componentType)
+                        .extend(DefaultKeys.PROPERTIES);
+                final Entity propertyDefinitionsEntity = graph.getEntity(propertyDefinitionsId).orElseThrow();
+                addProperty(propertyDefinitionsEntity, propertyType, propertyName, false, null);
+            }
         }
     }
 
-    public static Collection<RootComponent> getDockerEngineComponents(DeploymentModel deploymentModel) {
-        return deploymentModel.getComponents().stream().filter(c -> c.getProperties().containsKey("DockerEngineURL")).collect(Collectors.toList());
+    private static boolean doesPropertyDefinitionExist(EntityGraph graph, EntityId componentId, String propertyName) {
+        final String componentType = getComponentType(graph, componentId);
+        final EntityId propertyDefinitionId = EntityGraph
+                .COMPONENT_TYPES
+                .extend(componentType)
+                .extend(DefaultKeys.PROPERTIES)
+                .extend(propertyName);
+
+        return graph.getEntity(propertyDefinitionId).isPresent();
     }
+
+
 }

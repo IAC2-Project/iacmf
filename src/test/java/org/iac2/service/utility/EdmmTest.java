@@ -2,6 +2,7 @@ package org.iac2.service.utility;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -12,6 +13,7 @@ import io.github.edmm.core.parser.MappingEntity;
 import io.github.edmm.core.parser.ScalarEntity;
 import io.github.edmm.core.parser.support.DefaultKeys;
 import io.github.edmm.model.DeploymentModel;
+import io.github.edmm.model.Property;
 import io.github.edmm.model.component.AwsBeanstalk;
 import io.github.edmm.model.component.Compute;
 import io.github.edmm.model.component.MysqlDatabase;
@@ -178,5 +180,39 @@ class EdmmTest {
         Assertions.assertTrue(component.get().getProperties().containsKey(DockerEngine.DOCKER_ENGINE_URL.getName()));
         Assertions.assertEquals("http://docker.engine.com",
                 component.get().getProperty(DockerEngine.DOCKER_ENGINE_URL.getName()).get().getValue());
+    }
+
+    @Test
+    void testAddingPropertyProgrammatically() throws IllegalAccessException {
+        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
+        EntityGraph graph = new EntityGraph();
+        final EntityId engineId = Edmm.addComponent(
+                graph,
+                "engine_1",
+                Map.of(DockerEngine.DOCKER_ENGINE_URL.getName(), "http://docker.engine.com"),
+                DockerEngine.class);
+        final EntityId stuff = Edmm.addComponent(
+                graph,
+                "stuff_1",
+                new HashMap<>(),
+                Paas.class);
+        Edmm.addPropertyAssignments(graph, stuff, Map.of("aKey", "aValue", "bKey", "bValue"));
+        DeploymentModel model = new DeploymentModel("myModel", graph);
+        Map<String, Property> engineProperties = model.getComponent(engineId.getName()).orElseThrow().getProperties();
+        Assertions.assertTrue(engineProperties.containsKey(DockerEngine.DOCKER_ENGINE_URL.getName()));
+        Assertions.assertEquals("http://docker.engine.com",
+                engineProperties.get(DockerEngine.DOCKER_ENGINE_URL.getName()).getValue());
+
+        Map<String, Property> stuffProperties = model.getComponent(stuff.getName()).orElseThrow().getProperties();
+        Assertions.assertTrue(stuffProperties.containsKey("aKey"));
+        Assertions.assertEquals("aValue",
+                stuffProperties.get("aKey").getValue());
+        Assertions.assertTrue(stuffProperties.containsKey("bKey"));
+        Assertions.assertEquals("bValue",
+                stuffProperties.get("bKey").getValue());
+
+        StringWriter writer = new StringWriter();
+        graph.generateYamlOutput(writer);
+        LOGGER.info(writer.toString());
     }
 }
