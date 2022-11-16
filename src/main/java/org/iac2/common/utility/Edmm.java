@@ -20,6 +20,7 @@ import io.github.edmm.model.relation.DependsOn;
 import io.github.edmm.model.relation.RootRelation;
 import io.github.edmm.model.support.Attribute;
 import io.github.edmm.model.support.ModelEntity;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 
 public class Edmm {
 
@@ -143,7 +144,7 @@ public class Edmm {
 
     // todo make a generic method based on the component class type (not a specific property name)
     public static Collection<RootComponent> getDockerEngineComponents(DeploymentModel deploymentModel) {
-        return deploymentModel.getComponents().stream().filter(c -> c.getProperties().containsKey("DockerEngineURL")).collect(Collectors.toList());
+        return deploymentModel.getComponents().stream().filter(c -> c instanceof DockerEngine).collect(Collectors.toList());
     }
 
     private static void addPropertyDefinition(Attribute<?> attribute, Entity propertiesEntity) {
