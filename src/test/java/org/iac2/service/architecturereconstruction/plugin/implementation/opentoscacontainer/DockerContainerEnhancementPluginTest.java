@@ -30,6 +30,7 @@ import org.iac2.common.utility.Edmm;
 import org.iac2.common.utility.Utils;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
@@ -164,11 +165,7 @@ public class DockerContainerEnhancementPluginTest {
     private Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {
         return comps
                 .stream()
-                .filter(c ->
-                        c.getProperties()
-                                .values()
-                                .stream()
-                                .anyMatch(p -> p.getName().equals("ContainerID")))
+                .filter(c -> c instanceof DockerContainer)
                 .collect(Collectors.toList());
     }
 }
