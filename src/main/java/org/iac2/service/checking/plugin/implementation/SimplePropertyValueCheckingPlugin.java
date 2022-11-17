@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.github.edmm.model.support.ModelEntity;
 import org.iac2.common.model.InstanceModel;
@@ -31,6 +33,16 @@ public class SimplePropertyValueCheckingPlugin implements ComplianceRuleChecking
     static final String WRONG_PROPERTY_VALUE_ISSUE_TYPE = "wrong-property-value";
     static final String MISSING_PROPERTY_ISSUE_TYPE = "missing-property";
     static final String MISSING_ENTITY_ISSUE_TYPE = "missing-entity";
+
+    @Override
+    public Set<String> requiredConfiguration() {
+        return new HashSet<>();
+    }
+
+    @Override
+    public void setConfiguration(String key, String value) {
+        //ignore
+    }
 
     @Override
     public boolean isSuitableForComplianceRule(ComplianceRule complianceRule) {

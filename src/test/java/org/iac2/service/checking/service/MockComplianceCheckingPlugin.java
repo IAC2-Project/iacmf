@@ -3,6 +3,7 @@ package org.iac2.service.checking.service;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 import org.iac2.common.model.compliancerule.ComplianceRule;
@@ -10,6 +11,16 @@ import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 
 public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugin {
+    @Override
+    public Set<String> requiredConfiguration() {
+        return null;
+    }
+
+    @Override
+    public void setConfiguration(String key, String value) {
+
+    }
+
     @Override
     public boolean isSuitableForComplianceRule(ComplianceRule complianceRule) {
         return complianceRule.getType().equals("ensure-property-value");
