@@ -129,7 +129,7 @@ public class Edmm {
 
     public static void addPropertyAssignments(EntityGraph graph, EntityId componentId, Map<String, Object> attributeAssignments) {
         final EntityId propertiesId = componentId.extend(DefaultKeys.PROPERTIES);
-        final Entity propertiesEntity = graph.getEntity(propertiesId).orElseGet(()->{
+        final Entity propertiesEntity = graph.getEntity(propertiesId).orElseGet(() -> {
             MappingEntity properties = new MappingEntity(propertiesId, graph);
             graph.addEntity(properties);
             return properties;
@@ -159,12 +159,20 @@ public class Edmm {
         addProperty(propertiesEntity, edmmType, propertyName, false, null);
     }
 
-    private static <T> void addPropertyAssignments(Entity propertiesEntity, Map<String, Object> attributeAssignments) {
+    private static void addPropertyAssignments(Entity propertiesEntity, Map<String, Object> attributeAssignments) {
 
         attributeAssignments.forEach((key, value) -> {
             String type = EdmmTypeResolver.resolveBasicType(value.getClass());
-            addProperty(propertiesEntity, type, key, true, String.valueOf(value));
+            addProperty(propertiesEntity, type, key, true, convertAttributeValue(type, value));
         });
+    }
+
+    private static String convertAttributeValue(String edmmBasicType, Object value) {
+        if (edmmBasicType.equals("list")) {
+            return String.join(",", (Collection<String>)value);
+        }
+
+        return String.valueOf(value);
     }
 
     private static void addProperty(Entity propertiesEntity, String propertyType, String propertyName, boolean isAssignment, String value) {
@@ -190,7 +198,7 @@ public class Edmm {
                         .COMPONENT_TYPES
                         .extend(componentType)
                         .extend(DefaultKeys.PROPERTIES);
-                final Entity propertyDefinitionsEntity = graph.getEntity(propertyDefinitionsId).orElseGet(()->{
+                final Entity propertyDefinitionsEntity = graph.getEntity(propertyDefinitionsId).orElseGet(() -> {
                     MappingEntity properties = new MappingEntity(propertyDefinitionsId, graph);
                     graph.addEntity(properties);
                     return properties;
@@ -210,6 +218,4 @@ public class Edmm {
 
         return graph.getEntity(propertyDefinitionId).isPresent();
     }
-
-
 }

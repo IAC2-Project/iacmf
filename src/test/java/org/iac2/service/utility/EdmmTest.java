@@ -198,12 +198,9 @@ class EdmmTest {
                 Paas.class);
         Edmm.addPropertyAssignments(graph, stuff, Map.of("aKey", "aValue", "bKey", "bValue"));
         DeploymentModel model = new DeploymentModel("myModel", graph);
-        // model.getComponent(engineId.getName()).orElseThrow().addProperty("min_instances", "55");
-        // model.getComponent(engineId.getName()).orElseThrow().addProperty("bKey", "bValue");
-        // model.getComponent(engineId.getName()).orElseThrow().addProperty("wow", "WOW!");
         Map<String, Property> engineProperties = model.getComponent(engineId.getName()).orElseThrow().getProperties();
+        Assertions.assertEquals(1, engineProperties.values().stream().filter(Property::isComputed).count());
         Assertions.assertTrue(engineProperties.containsKey(DockerEngine.DOCKER_ENGINE_URL.getName()));
-        engineProperties.forEach((k,v)-> LOGGER.info("key: {}, value: {}, computed: {}", k, v.getValue(), v.isComputed()));
         Assertions.assertEquals("http://docker.engine.com",
                 engineProperties.get(DockerEngine.DOCKER_ENGINE_URL.getName()).getValue());
         Map<String, Property> stuffProperties = model.getComponent(stuff.getName()).orElseThrow().getProperties();
@@ -214,7 +211,7 @@ class EdmmTest {
         Assertions.assertTrue(stuffProperties.containsKey("bKey"));
         Assertions.assertEquals("bValue",
                 stuffProperties.get("bKey").getValue());
-
+        Assertions.assertEquals(2, stuffProperties.values().stream().filter(Property::isComputed).count());
         StringWriter writer = new StringWriter();
         graph.generateYamlOutput(writer);
         LOGGER.info(writer.toString());

@@ -28,7 +28,7 @@ public class RuleChecker {
                 rule, selector, checker);
         final IsomorphismInspector<RootComponent, RootRelation> inspector2 = IsomorphismAlgorithmProvider.forSelection(
                 rule, instanceModel, selector);
-        final Comparator<RootComponent> semanticComparator = IsomorphismAlgorithmProvider.getSemanticComponentComparator();
+        final Comparator<RootComponent> semanticComparator = IsomorphismAlgorithmProvider.getSemanticComponentComparator(rule);
 
         List<GraphMapping<RootComponent, RootRelation>> ruleMappingList = IteratorUtils.toList(inspector1.getMappings());
 

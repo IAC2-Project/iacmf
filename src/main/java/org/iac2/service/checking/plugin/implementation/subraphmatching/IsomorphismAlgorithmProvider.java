@@ -33,12 +33,12 @@ public abstract class IsomorphismAlgorithmProvider {
         return new VF2SubgraphIsomorphismInspector<> (
                 instanceModel,
                 selector,
-                new ComponentComparatorForMatchingWithInstanceModel(),
+                new ComponentComparatorForMatchingWithInstanceModel(rule),
                 new RelationComparator());
     }
 
-    public static Comparator<RootComponent> getSemanticComponentComparator() {
-        return new ComponentComparatorForMatchingWithInstanceModel();
+    public static Comparator<RootComponent> getSemanticComponentComparator(ComplianceRule rule) {
+        return new ComponentComparatorForMatchingWithInstanceModel(rule);
     }
 
 

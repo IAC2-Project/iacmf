@@ -11,6 +11,7 @@ import org.iac2.common.model.compliancerule.parameter.ComplianceRuleParameter;
 import org.iac2.common.model.compliancerule.parameter.DoubleComplianceRuleParameter;
 import org.iac2.common.model.compliancerule.parameter.IntegerComplianceRuleParameter;
 import org.iac2.common.model.compliancerule.parameter.StringCollectionComplianceRuleParameter;
+import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -18,7 +19,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 public class AttributeComparator {
 
-    public static boolean evaluateAttribute(String expressionS, Property property, ComplianceRule rule) {
+    public static boolean evaluateAttribute(String expressionS, Property property, ComplianceRule rule) throws EvaluationException {
         ExpressionParser parser = new SpelExpressionParser();
         StandardEvaluationContext context = new StandardEvaluationContext();
         Map<String, Object> assignments = prepareAssignments(rule.getParameterAssignments());
@@ -27,6 +28,7 @@ public class AttributeComparator {
         context.setRootObject(ruleContext);
         Expression expression = parser.parseExpression(expressionS);
 
+        // the following statement might throw EvaluationException if the evaluation result is not a boolean value
         return Boolean.TRUE.equals(expression.getValue(context, Boolean.class));
     }
 
