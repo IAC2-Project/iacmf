@@ -134,6 +134,7 @@ public class Edmm {
             graph.addEntity(properties);
             return properties;
         });
+
         addPropertyAssignments(propertiesEntity, attributeAssignments);
     }
 
@@ -177,6 +178,9 @@ public class Edmm {
         if (isAssignment) {
             ScalarEntity valueEntity = new ScalarEntity(value, normalizedEntity.getId().extend(DefaultKeys.VALUE), graph);
             graph.addEntity(valueEntity);
+            ScalarEntity computedEntity = new ScalarEntity("true", normalizedEntity.getId().extend(DefaultKeys.COMPUTED), graph);
+            graph.addEntity(computedEntity);
+
             final EntityId componentId = propertiesEntity.getParent().orElseThrow().getId();
 
             if (!doesPropertyDefinitionExist(graph, componentId, propertyName)) {
