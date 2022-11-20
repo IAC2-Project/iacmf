@@ -81,7 +81,7 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
 
     public DeploymentModel addDockerContainerToDeploymentModel(DeploymentModel deploymentModel, RootComponent dockerEngineComponent, Container container) throws IllegalAccessException {
         // here we need to setup a proper mapping to the properties of a dockercontainer Node Type and so..
-        Map<String, String> props = Maps.newHashMap();
+        Map<String, Object> props = Maps.newHashMap();
         props.put("ContainerID", container.getId());
         EntityId entityId = Edmm.addComponent(deploymentModel.getGraph(), container.getId(), props, DockerContainer.class);
         Edmm.addRelation(deploymentModel.getGraph(), entityId, dockerEngineComponent.getEntity().getId(), HostedOn.class);

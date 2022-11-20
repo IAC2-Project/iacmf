@@ -101,7 +101,7 @@ public class Edmm {
 
     public static EntityId addComponent(EntityGraph graph,
                                         String componentId,
-                                        Map<String, String> attributeAssignments,
+                                        Map<String, Object> attributeAssignments,
                                         Class<? extends RootComponent> componentType) throws IllegalAccessException {
         final Entity typeEntity = addType(graph, componentType);
         EntityId componentEntityId = EntityGraph.COMPONENTS.extend(componentId);
@@ -127,7 +127,7 @@ public class Edmm {
         return componentEntityId;
     }
 
-    public static void addPropertyAssignments(EntityGraph graph, EntityId componentId, Map<String, String> attributeAssignments) {
+    public static void addPropertyAssignments(EntityGraph graph, EntityId componentId, Map<String, Object> attributeAssignments) {
         final EntityId propertiesId = componentId.extend(DefaultKeys.PROPERTIES);
         final Entity propertiesEntity = graph.getEntity(propertiesId).orElseGet(()->{
             MappingEntity properties = new MappingEntity(propertiesId, graph);
@@ -158,10 +158,11 @@ public class Edmm {
         addProperty(propertiesEntity, edmmType, propertyName, false, null);
     }
 
-    private static void addPropertyAssignments(Entity propertiesEntity, Map<String, String> attributeAssignments) {
+    private static <T> void addPropertyAssignments(Entity propertiesEntity, Map<String, Object> attributeAssignments) {
 
         attributeAssignments.forEach((key, value) -> {
-            addProperty(propertiesEntity, DefaultKeys.STRING, key, true, value);
+            String type = EdmmTypeResolver.resolveBasicType(value.getClass());
+            addProperty(propertiesEntity, type, key, true, String.valueOf(value));
         });
     }
 
