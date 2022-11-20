@@ -1,7 +1,6 @@
 package org.iac2.service.checking.plugin.implementation.subraphmatching.comparison.comparators;
 
 import java.util.Collection;
-import java.util.Comparator;
 
 import io.github.edmm.model.Property;
 import io.github.edmm.model.component.RootComponent;
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.expression.ExpressionException;
 
 @Getter
-public class ComponentComparatorForMatchingWithInstanceModel implements Comparator<RootComponent> {
+public class ComponentComparatorForMatchingWithInstanceModel implements  SemanticComponentComparator{
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentComparatorForMatchingWithInstanceModel.class);
     private final ComplianceRule rule;
 
@@ -22,9 +21,9 @@ public class ComponentComparatorForMatchingWithInstanceModel implements Comparat
         this.rule = rule;
     }
 
-    public int compare(RootComponent instanceModelComponent, RootComponent ruleComponent) {
+    public ComponentComparisonOutcome compare(RootComponent instanceModelComponent, RootComponent ruleComponent) {
         if (!ruleComponent.getClass().isAssignableFrom(instanceModelComponent.getClass())) {
-            return -1;
+            return ComponentComparisonOutcome.WRONG_TYPE;
         }
 
         String expression;
@@ -53,12 +52,12 @@ public class ComponentComparatorForMatchingWithInstanceModel implements Comparat
                         try {
                             if (!AttributeComparator.evaluateAttribute(expression, instanceProperty, rule)) {
                                 // the attribute values do not match!
-                                return -1;
+                                return ComponentComparisonOutcome.WRONG_VALUE;
                             }
                         } catch (ExpressionException e) {
                             // expression does not have a boolean value! (we should have discovered this problem earlier!)
                             LOGGER.error("expression '{}' in property '{}' cannot be evaluated to a boolean value.", expression, name);
-                            return -1;
+                            return ComponentComparisonOutcome.NOT_BOOLEAN;
                         }
 
                         break;
@@ -67,13 +66,13 @@ public class ComponentComparatorForMatchingWithInstanceModel implements Comparat
 
                 // a required property in the compliance rule is not found in the instance model component.
                 if (!isFound) {
-                    return -1;
+                    return ComponentComparisonOutcome.MISSING_PROPERTY;
                 }
             }
         }
 
         // no problems found! the components match!
-        return 0;
+        return ComponentComparisonOutcome.MATCH;
     }
 
     private static boolean areEqualPropertyNames(String prop1, String prop2) {

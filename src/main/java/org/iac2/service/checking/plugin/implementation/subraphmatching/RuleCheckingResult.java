@@ -3,33 +3,28 @@ package org.iac2.service.checking.plugin.implementation.subraphmatching;
 import io.github.edmm.model.component.RootComponent;
 import lombok.Getter;
 
-enum Outcome {
-    INVALID_RULE,
-    COMPLIANCE_VIOLATION,
-    NO_VIOLATIONS
-}
-
 @Getter
 public class RuleCheckingResult {
-    private Outcome outcome;
+    private final RuleCheckingOutcome outcome;
     private RootComponent checkerComponent;
     private RootComponent instanceModelComponent;
+
+    private String errorMessage;
     
-    private RuleCheckingResult(Outcome outcome, RootComponent checkerComponent, RootComponent instanceModelComponent) {
+    private RuleCheckingResult(RuleCheckingOutcome outcome, RootComponent checkerComponent, RootComponent instanceModelComponent) {
         this.outcome = outcome;
         this.checkerComponent = checkerComponent;
         this.instanceModelComponent = instanceModelComponent;
     }
     
-    public static RuleCheckingResult forOutcome(Outcome outcome) {
+    public static RuleCheckingResult forOutcome(RuleCheckingOutcome outcome) {
         return new RuleCheckingResult(outcome, null, null);
     }
     
-    public void setDetails(RootComponent checkerComponent, RootComponent instanceModelComponent) {
+    public void setDetails(RootComponent checkerComponent, RootComponent instanceModelComponent, String errorMessage) {
         this.checkerComponent = checkerComponent;
         this.instanceModelComponent = instanceModelComponent;
+        this.errorMessage = errorMessage;
     }
-    
-    
-    
+
 }

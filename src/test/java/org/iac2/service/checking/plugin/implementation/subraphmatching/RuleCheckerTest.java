@@ -48,19 +48,34 @@ class RuleCheckerTest {
 
         RuleChecker checker = new RuleChecker(instanceModel);
         RuleCheckingResult result = checker.checkCompliance(rule, selectorGraph, checkerGraph);
-        Assertions.assertEquals(Outcome.INVALID_RULE, result.getOutcome());
+        Assertions.assertEquals(RuleCheckingOutcome.INVALID_RULE, result.getOutcome());
 
         final EntityGraph selector2 = new EntityGraph();
         final EntityId app3Id = Edmm.addComponent(selector2, "app-3", new HashMap<>(), SoftwareComponent.class);
         final EntityId webServerId = Edmm.addComponent(selector2, "web-server", new HashMap<>(), WebServer.class);
         Edmm.addRelation(selector2, app3Id, webServerId, HostedOn.class);
         Edmm.addComponent(selector2, "dbms", new HashMap<>(), MysqlDbms.class);
+        Edmm.addPropertyExpressionAssignment(selector2, app3Id, "a", "string", "value.length()");
         final Graph<RootComponent, RootRelation> selectorGraph2 = EdmmGraphCreator.of(selector2);
 
+
         result = checker.checkCompliance(rule, selectorGraph2, checkerGraph);
-        Assertions.assertEquals(Outcome.NO_VIOLATIONS, result.getOutcome());
+        Assertions.assertEquals(RuleCheckingOutcome.INVALID_RULE, result.getOutcome());
+
+        final EntityGraph selector3 = new EntityGraph();
+        final EntityId app4Id = Edmm.addComponent(selector3, "app-4", new HashMap<>(), SoftwareComponent.class);
+        final EntityId webServer2Id = Edmm.addComponent(selector3, "web-server-2", new HashMap<>(), WebServer.class);
+        Edmm.addRelation(selector3, app4Id, webServer2Id, HostedOn.class);
+        Edmm.addComponent(selector3, "dbms", new HashMap<>(), MysqlDbms.class);
+        Edmm.addPropertyExpressionAssignment(selector3, app4Id, "a", "string", "value.length() > 0");
+        final Graph<RootComponent, RootRelation> selectorGraph3 = EdmmGraphCreator.of(selector3);
+
+
+        result = checker.checkCompliance(rule, selectorGraph3, checkerGraph);
+        Assertions.assertEquals(RuleCheckingOutcome.NO_VIOLATIONS, result.getOutcome());
 
     }
+
 
 
 

@@ -44,25 +44,25 @@ class ComponentComparatorForMatchingWithInstanceModelTest {
 
     @Test
     void testSimpleComponents() {
-        Assertions.assertEquals(0, comparator.compare(mysqlDatabase, db));
-        Assertions.assertEquals(-1, comparator.compare(paas, db));
+        Assertions.assertEquals(ComponentComparisonOutcome.MATCH, comparator.compare(mysqlDatabase, db));
+        Assertions.assertEquals(ComponentComparisonOutcome.WRONG_TYPE, comparator.compare(paas, db));
     }
 
     @Test
     void testMissingProperty() {
         db.addProperty("a", "'apple'.equals(value)");
-        Assertions.assertEquals(-1, comparator.compare(mysqlDatabase, db));
+        Assertions.assertEquals(ComponentComparisonOutcome.MISSING_PROPERTY, comparator.compare(mysqlDatabase, db));
         mysqlDatabase.addProperty("b", "apple");
-        Assertions.assertEquals(-1, comparator.compare(mysqlDatabase, db));
+        Assertions.assertEquals(ComponentComparisonOutcome.MISSING_PROPERTY, comparator.compare(mysqlDatabase, db));
         mysqlDatabase.addProperty("a", "apple");
-        Assertions.assertEquals(0, comparator.compare(mysqlDatabase, db));
+        Assertions.assertEquals(ComponentComparisonOutcome.MATCH, comparator.compare(mysqlDatabase, db));
     }
 
     @Test
     void testNotBoolean() {
         db.addProperty("a", "value.length()");
         mysqlDatabase.addProperty("a", "apple");
-        Assertions.assertEquals(-1, comparator.compare(mysqlDatabase, db));
+        Assertions.assertEquals(ComponentComparisonOutcome.NOT_BOOLEAN, comparator.compare(mysqlDatabase, db));
     }
 
 
@@ -70,7 +70,7 @@ class ComponentComparatorForMatchingWithInstanceModelTest {
     void testWrongValue() {
         db.addProperty("a", "'apple'.equals(value)");
         mysqlDatabase.addProperty("a", "banana");
-        Assertions.assertEquals(-1, comparator.compare(mysqlDatabase, db));
+        Assertions.assertEquals(ComponentComparisonOutcome.WRONG_VALUE, comparator.compare(mysqlDatabase, db));
     }
 
     @Test
@@ -78,7 +78,7 @@ class ComponentComparatorForMatchingWithInstanceModelTest {
         comparator.getRule().addStringParameter("HOST", "https://iac2.com/iacmf");
         db.addProperty("a", "#HOST.equals(value)");
         mysqlDatabase.addProperty("a", "https://iac2.com/iacmf");
-        Assertions.assertEquals(0, comparator.compare(mysqlDatabase, db));
+        Assertions.assertEquals(ComponentComparisonOutcome.MATCH, comparator.compare(mysqlDatabase, db));
     }
 
 

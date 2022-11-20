@@ -128,14 +128,13 @@ public class Edmm {
     }
 
     public static void addPropertyAssignments(EntityGraph graph, EntityId componentId, Map<String, Object> attributeAssignments) {
-        final EntityId propertiesId = componentId.extend(DefaultKeys.PROPERTIES);
-        final Entity propertiesEntity = graph.getEntity(propertiesId).orElseGet(() -> {
-            MappingEntity properties = new MappingEntity(propertiesId, graph);
-            graph.addEntity(properties);
-            return properties;
-        });
-
+        final Entity propertiesEntity = ensurePropertiesEntityExists(graph, componentId);
         addPropertyAssignments(propertiesEntity, attributeAssignments);
+    }
+
+    public static void addPropertyExpressionAssignment(EntityGraph graph, EntityId componentId, String name, String type, String expression) {
+        final Entity propertiesEntity = ensurePropertiesEntityExists(graph, componentId);
+        addProperty(propertiesEntity, type, name, true, expression);
     }
 
     public static String getComponentType(EntityGraph graph, EntityId componentId) {
@@ -175,6 +174,15 @@ public class Edmm {
         return String.valueOf(value);
     }
 
+    private static Entity ensurePropertiesEntityExists(EntityGraph graph, EntityId componentId) {
+        final EntityId propertiesId = componentId.extend(DefaultKeys.PROPERTIES);
+        return graph.getEntity(propertiesId).orElseGet(() -> {
+            MappingEntity properties = new MappingEntity(propertiesId, graph);
+            graph.addEntity(properties);
+            return properties;
+        });
+    }
+
     private static void addProperty(Entity propertiesEntity, String propertyType, String propertyName, boolean isAssignment, String value) {
         final EntityGraph graph = propertiesEntity.getGraph();
         final EntityId propertiesId = propertiesEntity.getId();
@@ -194,15 +202,9 @@ public class Edmm {
 
             if (!doesPropertyDefinitionExist(graph, componentId, propertyName)) {
                 final String componentType = getComponentType(graph, componentId);
-                final EntityId propertyDefinitionsId = EntityGraph
+                final Entity propertyDefinitionsEntity = ensurePropertiesEntityExists(graph, EntityGraph
                         .COMPONENT_TYPES
-                        .extend(componentType)
-                        .extend(DefaultKeys.PROPERTIES);
-                final Entity propertyDefinitionsEntity = graph.getEntity(propertyDefinitionsId).orElseGet(() -> {
-                    MappingEntity properties = new MappingEntity(propertyDefinitionsId, graph);
-                    graph.addEntity(properties);
-                    return properties;
-                });
+                        .extend(componentType));
                 addProperty(propertyDefinitionsEntity, propertyType, propertyName, false, null);
             }
         }
