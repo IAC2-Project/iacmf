@@ -17,10 +17,12 @@ import org.iac2.common.model.compliancerule.parameter.StringComplianceRuleParame
 @Getter
 @NoArgsConstructor
 public class ComplianceRule {
+    private Long id;
     private String type;
     private String location;
     private Collection<ComplianceRuleParameter> parameterAssignments;
-    public ComplianceRule(String type, String location) {
+    public ComplianceRule(Long id, String type, String location) {
+        this.id = id;
         this.type = type;
         this.location = location;
         parameterAssignments = new ArrayList<>();

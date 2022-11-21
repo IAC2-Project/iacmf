@@ -1,0 +1,67 @@
+---
+components:
+  MySQL_Database_0:
+    operations:
+      configure: C:\Users\falazigb\winery-repositories\modeling-repository/artifacttemplates/https%3A%2F%2Fedmm.uni-stuttgart.de%2Fartifacttemplates/MySQL_Database-Configure/files/configure.sh
+    relations:
+    - hosted_on: MySQL_DBMS_0
+    type: mysql_database
+    properties:
+      password: ''
+      name: MySQL_Database
+      componentName: ''
+      schema_name: ''
+      user: ''
+  MySQL_DBMS_0:
+    operations:
+      start: C:\Users\falazigb\winery-repositories\modeling-repository/artifacttemplates/https%3A%2F%2Fedmm.uni-stuttgart.de%2Fartifacttemplates/MySQL_DBMS-Start/files/start.sh
+      create: C:\Users\falazigb\winery-repositories\modeling-repository/artifacttemplates/https%3A%2F%2Fedmm.uni-stuttgart.de%2Fartifacttemplates/MySQL_DBMS-Create/files/create.sh
+    type: mysql_dbms
+    properties:
+      port: ''
+      root_password: ''
+      name: MySQL_DBMS
+      componentName: value.equals(#DBMS_NAME)
+      version: ''
+relation_types:
+  depends_on:
+    extends: null
+  hosted_on:
+    extends: depends_on
+multi_id: '12345'
+component_types:
+  database:
+    extends: base
+    properties:
+      password:
+        type: string
+      schema_name:
+        type: string
+      user:
+        type: string
+  dbms:
+    extends: software_component
+    properties:
+      port:
+        type: integer
+      root_password:
+        type: string
+  software_component:
+    extends: base
+  mysql_dbms:
+    extends: dbms
+    properties:
+      port:
+        type: integer
+      root_password:
+        type: string
+      version:
+        type: string
+  mysql_database:
+    extends: database
+  base:
+    extends: null
+    properties:
+      componentName:
+        type: string
+version: edm_1_0

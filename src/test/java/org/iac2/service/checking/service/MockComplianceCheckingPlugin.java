@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupportedException;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
+import org.iac2.service.checking.common.interfaces.RuleValidationResult;
 
 public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugin {
     @Override
@@ -24,6 +26,16 @@ public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugi
     @Override
     public boolean isSuitableForComplianceRule(ComplianceRule complianceRule) {
         return complianceRule.getType().equals("ensure-property-value");
+    }
+
+    @Override
+    public RuleValidationResult isComplianceRuleValid(ComplianceRule complianceRule) throws ComplianceRuleTypeNotSupportedException {
+        return new RuleValidationResult() {
+            @Override
+            public boolean isValid() {
+                return true;
+            }
+        };
     }
 
     @Override

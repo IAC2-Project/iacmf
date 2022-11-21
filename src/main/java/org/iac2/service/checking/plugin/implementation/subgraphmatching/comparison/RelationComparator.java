@@ -1,4 +1,4 @@
-package org.iac2.service.checking.plugin.implementation.subraphmatching.comparison.comparators;
+package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison;
 
 import java.util.Comparator;
 

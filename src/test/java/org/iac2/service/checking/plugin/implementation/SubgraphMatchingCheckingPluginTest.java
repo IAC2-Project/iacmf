@@ -11,7 +11,7 @@ import io.github.edmm.model.relation.RootRelation;
 import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
-import org.iac2.service.checking.plugin.implementation.subraphmatching.SubgraphMatchingCheckingPlugin;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.SubgraphMatchingCheckingPlugin;
 import org.jgrapht.Graph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

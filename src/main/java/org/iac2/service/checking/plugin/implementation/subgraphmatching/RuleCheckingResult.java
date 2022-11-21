@@ -1,4 +1,4 @@
-package org.iac2.service.checking.plugin.implementation.subraphmatching;
+package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
 import io.github.edmm.model.component.RootComponent;
 import lombok.Getter;
@@ -8,7 +8,6 @@ public class RuleCheckingResult {
     private final RuleCheckingOutcome outcome;
     private RootComponent checkerComponent;
     private RootComponent instanceModelComponent;
-
     private String errorMessage;
     
     private RuleCheckingResult(RuleCheckingOutcome outcome, RootComponent checkerComponent, RootComponent instanceModelComponent) {

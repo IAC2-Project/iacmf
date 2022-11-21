@@ -1,4 +1,4 @@
-package org.iac2.service.checking.plugin.implementation.subraphmatching;
+package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
 import java.util.Set;
 

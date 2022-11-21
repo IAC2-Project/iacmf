@@ -1,4 +1,4 @@
-package org.iac2.service.checking.plugin.implementation.subraphmatching.comparison.comparators.attribute;
+package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.comparators.attribute;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +11,7 @@ import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.component.SoftwareComponent;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.common.utility.Edmm;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.attribute.AttributeComparator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.expression.EvaluationException;
@@ -20,7 +21,7 @@ class AttributeComparatorTest {
 
     @Test
     void testExpressionNoVariables() throws IllegalAccessException {
-        ComplianceRule rule = new ComplianceRule("isomeso", "somewhere");
+        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere");
         EntityGraph instanceModel = new EntityGraph();
 
         Edmm.addComponent(instanceModel, "comp1", Map.of("structuralState", "EXPECTED"), SoftwareComponent.class);
@@ -35,7 +36,7 @@ class AttributeComparatorTest {
 
     @Test
     void testExpressionWithVariables() throws IllegalAccessException {
-        ComplianceRule rule = new ComplianceRule("isomeso", "somewhere");
+        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere");
         rule.addStringParameter("HOST", "http://localhost");
         rule.addIntParameter("PORT", 1234);
         EntityGraph instanceModel = new EntityGraph();
@@ -50,7 +51,7 @@ class AttributeComparatorTest {
 
     @Test
     void testMissingVariables() throws IllegalAccessException {
-        ComplianceRule rule = new ComplianceRule("isomeso", "somewhere");
+        ComplianceRule rule = new ComplianceRule(1L,"isomeso", "somewhere");
         rule.addStringParameter("HOST", "http://localhost");
         EntityGraph instanceModel = new EntityGraph();
 
@@ -63,7 +64,7 @@ class AttributeComparatorTest {
 
     @Test
     void testNotBoolean() throws IllegalAccessException {
-        ComplianceRule rule = new ComplianceRule("isomeso", "somewhere");
+        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere");
         rule.addStringParameter("HOST", "http://localhost");
         rule.addIntParameter("PORT", 1234);
         EntityGraph instanceModel = new EntityGraph();
@@ -77,7 +78,7 @@ class AttributeComparatorTest {
 
     @Test
     void testListContainment() throws IllegalAccessException {
-        ComplianceRule rule = new ComplianceRule("isomeso", "somewhere");
+        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere");
         rule.addStringCollectionParameter("ALLOWED", List.of("A", "B"));
         EntityGraph instanceModel = new EntityGraph();
 

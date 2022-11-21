@@ -36,7 +36,7 @@ public class EntityToPojo {
 
     public static ComplianceRule transformComplianceRule(ComplianceRuleEntity complianceRule,
                                                          Collection<ComplianceRuleParameterAssignmentEntity> assignments) {
-        ComplianceRule myCR = new ComplianceRule(complianceRule.getType(), complianceRule.getLocation());
+        ComplianceRule myCR = new ComplianceRule(complianceRule.getId(), complianceRule.getType(), complianceRule.getLocation());
 
         if (assignments != null) {
             assignments.forEach(assignment -> {

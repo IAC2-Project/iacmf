@@ -1,4 +1,4 @@
-package org.iac2.service.checking.plugin.implementation.subraphmatching.comparison.comparators;
+package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.comparators;
 
 import java.util.HashMap;
 
@@ -10,6 +10,8 @@ import io.github.edmm.model.component.MysqlDatabase;
 import io.github.edmm.model.component.Paas;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.common.utility.Edmm;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.ComponentComparatorForMatchingWithInstanceModel;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.ComponentComparisonOutcome;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +36,7 @@ class ComponentComparatorForMatchingWithInstanceModelTest {
         EntityId paasId = Edmm.addComponent(graph2, "paas", new HashMap<>(), Paas.class);
         DeploymentModel ruleModel = new DeploymentModel("rule", graph1);
         DeploymentModel instanceModel = new DeploymentModel("instance model", graph2);
-        ComplianceRule rule = new ComplianceRule("a", "b");
+        ComplianceRule rule = new ComplianceRule(1L, "a", "b");
 
         db = (Database) ruleModel.getComponent(dbId.getName()).orElseThrow();
         mysqlDatabase = (MysqlDatabase) instanceModel.getComponent(mySqlId.getName()).orElseThrow();

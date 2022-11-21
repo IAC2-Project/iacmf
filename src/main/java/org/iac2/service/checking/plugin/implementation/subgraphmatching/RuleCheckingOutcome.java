@@ -1,4 +1,4 @@
-package org.iac2.service.checking.plugin.implementation.subraphmatching;
+package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
 enum RuleCheckingOutcome {
     INVALID_RULE,

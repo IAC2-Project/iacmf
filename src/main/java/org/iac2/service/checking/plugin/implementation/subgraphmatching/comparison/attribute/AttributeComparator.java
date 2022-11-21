@@ -1,4 +1,4 @@
-package org.iac2.service.checking.plugin.implementation.subraphmatching.comparison.comparators.attribute;
+package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.attribute;
 
 import java.util.Collection;
 import java.util.HashMap;
