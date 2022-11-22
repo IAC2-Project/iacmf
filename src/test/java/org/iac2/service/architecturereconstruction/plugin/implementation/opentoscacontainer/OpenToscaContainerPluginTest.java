@@ -47,7 +47,7 @@ public class OpenToscaContainerPluginTest {
     private static Path csarPath;
     private static String appName = "RealWorld-Application_Angular-Spring-MySQL-w1";
     private static String instanceId = "";
-    private static ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(20, TimeUnit.MINUTES).build();
+    private static final ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(20, TimeUnit.MINUTES).build();
 
     // set this to true if you want faster execution of this test when you probably need to run it more often
     private static boolean debugging = true;
@@ -64,7 +64,7 @@ public class OpenToscaContainerPluginTest {
     public static void cleanupContainer() {
         if (!debugging) {
             OpenTOSCATestUtils.terminateApp(client, appName, hostName, port);
-            client.getApplications().forEach(a -> client.removeApplication(a));
+            client.getApplications().forEach(client::removeApplication);
         }
     }
 

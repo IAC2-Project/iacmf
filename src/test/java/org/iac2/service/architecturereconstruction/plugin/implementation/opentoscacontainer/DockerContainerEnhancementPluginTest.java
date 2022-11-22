@@ -34,7 +34,6 @@ import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Docker
 import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -55,7 +54,7 @@ public class DockerContainerEnhancementPluginTest {
     private static Path csarPath;
     private static String appName = "RealWorld-Application_Angular-Spring-MySQL-w1";
     private static String instanceId = "";
-    private static ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(20, TimeUnit.MINUTES).build();
+    private static final ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(20, TimeUnit.MINUTES).build();
 
     // set this to true if you want faster execution of this test when you probably need to run it more often
     private static boolean debugging = true;
@@ -81,16 +80,16 @@ public class DockerContainerEnhancementPluginTest {
         ClassPathResource resource = new ClassPathResource("edmm/four-components-hosted-on.yml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
         ClassPathResource containerInfo = new ClassPathResource("edmm/test-container.json");
-        ModelEnhancementPlugin enhancementPlugin = SimpleARPluginManager.getInstance().getModelEnhancementPlugin("docker-enhancement-plugin");
         Container container = new ObjectMapper().readValue(containerInfo.getFile(), Container.class);
-        RootComponent engine = model.getComponent("tomcat").get();
-        model = ((DockerContainerEnhancementPlugin) enhancementPlugin).addDockerContainerToDeploymentModel(model, engine, container);
+        RootComponent engine = model.getComponent("tomcat").orElseThrow();
+        DockerContainerEnhancementPlugin.addDockerContainerToEntityGraph(model.getGraph(), engine, container);
+        model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertEquals(5, model.getComponents().size());
     }
 
     @Test
     public void testDockerReconstruction() {
-        ProductionSystem productionSystem = OpenTOSCATestUtils.createProductionSystem(this.hostName, this.port, this.appName, this.instanceId);
+        ProductionSystem productionSystem = OpenTOSCATestUtils.createProductionSystem(hostName, port, appName, instanceId);
         ModelCreationPlugin plugin = OpenTOSCATestUtils.getOpenTOSCAModelCreationPlugin();
         InstanceModel instanceModel = plugin.reconstructInstanceModel(productionSystem);
         Set<RootComponent> comps = instanceModel.getDeploymentModel().getComponents();
@@ -109,21 +108,22 @@ public class DockerContainerEnhancementPluginTest {
         writer1 = new StringWriter();
         instanceModel1.getDeploymentModel().getGraph().generateYamlOutput(writer1);
         LOGGER.info(writer1.toString());
-        Assert.assertEquals(comps.size(), newComps.size());
-        Assert.assertEquals(rels.size(), newRels.size());
+        Assertions.assertEquals(comps.size(), newComps.size());
+        Assertions.assertEquals(rels.size(), newRels.size());
 
         Collection<RootComponent> dockerContainersBeforeEnhancement = this.getDockerContainers(comps);
         Collection<RootComponent> dockerContainersAfterEnhancement = this.getDockerContainers(newComps);
 
-        Assert.assertEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
+        Assertions.assertEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
 
         // up to this point the enhanced deployment model should be equal to the deployment
         // now we introduce a new docker container per engine therefore try to create compliance issues
 
         Collection<String> newContainerIds = Sets.newHashSet();
-        Collection<RootComponent> dockerEngineComponents = Edmm.getDockerEngineComponents(instanceModel.getDeploymentModel());
+        Collection<RootComponent> dockerEngineComponents =
+                Edmm.getAllComponentsOfType(instanceModel.getDeploymentModel(), DockerContainer.class);
         for (RootComponent d : dockerEngineComponents) {
-            String dockerEngineUrl = d.getProperty("DockerEngineURL").get().getValue();
+            String dockerEngineUrl = d.getProperty("DockerEngineURL").orElseThrow().getValue();
 
             if (dockerEngineUrl.contains("host.docker.internal")) {
                 // this is a little dirty, as we use such an URL in the test environment,
@@ -153,13 +153,13 @@ public class DockerContainerEnhancementPluginTest {
         newComps = instanceModel1.getDeploymentModel().getComponents();
         newRels = instanceModel1.getDeploymentModel().getRelations();
 
-        Assert.assertNotEquals(comps.size(), newComps.size());
-        Assert.assertNotEquals(rels.size(), newRels.size());
+        Assertions.assertNotEquals(comps.size(), newComps.size());
+        Assertions.assertNotEquals(rels.size(), newRels.size());
 
         dockerContainersBeforeEnhancement = this.getDockerContainers(comps);
         dockerContainersAfterEnhancement = this.getDockerContainers(newComps);
 
-        Assert.assertNotEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
+        Assertions.assertNotEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
     }
 
     private Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {
