@@ -40,9 +40,11 @@ import org.opentosca.container.client.model.Application;
 import org.opentosca.container.client.model.ApplicationInstance;
 import org.opentosca.container.client.model.NodeInstance;
 import org.opentosca.container.client.model.RelationInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugin {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenToscaContainerModelCreationPlugin.class);
     private final static int OPENTOSCA_CLIENT_TIMEOUT = 10000;
 
     public OpenToscaContainerModelCreationPlugin() {
@@ -139,12 +141,16 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         // this ensures we add "stray" node instances that are not part of any relation.
         for (NodeInstance instance : applicationInstance.getNodeInstances()) {
             EntityId currentId = addNodeInstanceAsComp(entityGraph, instance);
+            LOGGER.info("added '{}' to the graph. Node instance id: {}. Node instance template id: {}",
+                    currentId,
+                    instance.getId(),
+                    instance.getTemplate());
             compIds.add(currentId);
         }
 
         for (RelationInstance relationInstance : applicationInstance.getRelationInstances()) {
-            NodeInstance sourceInstance = getNodeInstance(applicationInstance, relationInstance.getSourceId());
-            NodeInstance targetInstance = getNodeInstance(applicationInstance, relationInstance.getTargetId());
+            NodeInstance sourceInstance = findNodeInstanceByNodeInstanceId(applicationInstance, relationInstance.getSourceId());
+            NodeInstance targetInstance = findNodeInstanceByNodeInstanceId(applicationInstance, relationInstance.getTargetId());
             EntityId sourceEntityId = getEntityId(compIds, sourceInstance);
             EntityId targetEntityId = getEntityId(compIds, targetInstance);
 
@@ -187,12 +193,12 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         return entityIds.stream().filter(e -> e.getName().equals(instance.getTemplate())).findFirst().orElse(null);
     }
 
-    private static NodeInstance getNodeInstance(Collection<NodeInstance> nodeInstances, String name) {
+    private static NodeInstance findNodeInstanceByNodeInstanceId(Collection<NodeInstance> nodeInstances, String nodeInstanceId) {
         return nodeInstances.stream()
-                .filter(n -> n.getTemplate().equals(name)).findFirst().orElseThrow(AppInstanceNodeFoundException::new);
+                .filter(n -> n.getId().equals(nodeInstanceId)).findFirst().orElseThrow(AppInstanceNodeFoundException::new);
     }
 
-    private static NodeInstance getNodeInstance(ApplicationInstance applicationInstance, String name) {
-        return getNodeInstance(applicationInstance.getNodeInstances(), name);
+    private static NodeInstance findNodeInstanceByNodeInstanceId(ApplicationInstance applicationInstance, String nodeInstanceId) {
+        return findNodeInstanceByNodeInstanceId(applicationInstance.getNodeInstances(), nodeInstanceId);
     }
 }

@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
@@ -30,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.ApplicationInstance;
+import org.opentosca.container.client.model.NodeInstance;
 import org.opentosca.container.client.model.RelationInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +100,7 @@ public class OpenToscaContainerPluginTest {
                 .stream()
                 .filter(c -> applicationInstance.getNodeInstances()
                         .stream()
-                        .anyMatch(i -> i.getId().equals(c.getId())))
+                        .anyMatch(i -> i.getTemplate().equals(c.getName())))
                 .count());
 
         // ensure all edmm components have correct outgoing relations
@@ -108,22 +108,29 @@ public class OpenToscaContainerPluginTest {
                 .stream()
                 .filter(c -> applicationInstance.getRelationInstances()
                         .stream()
-                        .filter(r -> r.getSourceId().equals(c.getId()))
+                        // find the node instance that corresponds to the source of the current relation
+                        // then compare its template id with the name of the current edmm component
+                        .filter(r -> findNodeInstanceById(r.getSourceId(), applicationInstance)
+                                .getTemplate()
+                                .equals(c.getName()))
                         .count() == c.getRelations().size())
                 .count());
 
         assertEquals(applicationInstance.getRelationInstances().size(), rels.stream().filter(r -> {
             for (RelationInstance relationInstance : applicationInstance.getRelationInstances()) {
-                if (relationInstance.getTargetId().equals(r.getTarget())) {
+                if (findNodeInstanceById(r.getTarget(), applicationInstance).getTemplate().equals(r.getTarget())) {
                     return true;
                 }
             }
             return false;
-        }).collect(Collectors.toList()).size());
+        }).count());
 
         applicationInstance.getNodeInstances().forEach(n -> {
-            Collection<RootComponent> components = instanceModel.getDeploymentModel().getComponents().stream().filter(c ->
-                    c.getId().equals(n.getId())).collect(Collectors.toList());
+            Collection<RootComponent> components = instanceModel.getDeploymentModel().getComponents()
+                    .stream()
+                    .filter(c ->
+                            c.getName().equals(n.getTemplate()))
+                    .toList();
             assertEquals(1, components.size());
 
             components.forEach(c -> {
@@ -137,5 +144,13 @@ public class OpenToscaContainerPluginTest {
 
     private ApplicationInstance getInstance() {
         return client.getApplicationInstances(client.getApplication(appName).get()).get(0);
+    }
+
+    private static NodeInstance findNodeInstanceById(String id, ApplicationInstance applicationInstance) {
+        return applicationInstance.getNodeInstances()
+                .stream()
+                .filter(ni -> ni.getId().equals(id))
+                .findFirst()
+                .orElseThrow();
     }
 }
