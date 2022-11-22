@@ -118,7 +118,7 @@ public class OpenToscaContainerPluginTest {
 
         assertEquals(applicationInstance.getRelationInstances().size(), rels.stream().filter(r -> {
             for (RelationInstance relationInstance : applicationInstance.getRelationInstances()) {
-                if (findNodeInstanceById(r.getTarget(), applicationInstance).getTemplate().equals(r.getTarget())) {
+                if (findNodeInstanceById(relationInstance.getTargetId(), applicationInstance).getTemplate().equals(r.getTarget())) {
                     return true;
                 }
             }
