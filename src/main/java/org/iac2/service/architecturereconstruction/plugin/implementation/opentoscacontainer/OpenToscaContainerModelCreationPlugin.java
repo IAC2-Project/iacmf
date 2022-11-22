@@ -187,12 +187,12 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         return entityIds.stream().filter(e -> e.getName().equals(instance.getTemplate())).findFirst().orElse(null);
     }
 
-    private static NodeInstance getNodeInstance(Collection<NodeInstance> nodeInstances, String id) {
+    private static NodeInstance getNodeInstance(Collection<NodeInstance> nodeInstances, String name) {
         return nodeInstances.stream()
-                .filter(n -> n.getId().equals(id)).findFirst().orElseThrow(AppInstanceNodeFoundException::new);
+                .filter(n -> n.getTemplate().equals(name)).findFirst().orElseThrow(AppInstanceNodeFoundException::new);
     }
 
-    private static NodeInstance getNodeInstance(ApplicationInstance applicationInstance, String id) {
-        return getNodeInstance(applicationInstance.getNodeInstances(), id);
+    private static NodeInstance getNodeInstance(ApplicationInstance applicationInstance, String name) {
+        return getNodeInstance(applicationInstance.getNodeInstances(), name);
     }
 }
