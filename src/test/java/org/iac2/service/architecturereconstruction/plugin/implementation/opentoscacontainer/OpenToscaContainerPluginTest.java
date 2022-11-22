@@ -82,10 +82,10 @@ public class OpenToscaContainerPluginTest {
         ProductionSystem productionSystem = new ProductionSystem("opentoscacontainer", "realworldapp-test", prodProps);
 
         InstanceModel instanceModel = plugin.reconstructInstanceModel(productionSystem);
-        LOGGER.debug("Reconstructed edmm instance model:");
+        LOGGER.info("Reconstructed edmm instance model:");
         StringWriter writer = new StringWriter();
         instanceModel.getDeploymentModel().getGraph().generateYamlOutput(writer);
-        LOGGER.debug(writer.toString());
+        LOGGER.info(writer.toString());
 
         Set<RootComponent> comps = instanceModel.getDeploymentModel().getComponents();
         Set<RootRelation> rels = instanceModel.getDeploymentModel().getRelations();
