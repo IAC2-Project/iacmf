@@ -1,9 +1,9 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -18,32 +18,28 @@ import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import com.google.common.collect.Maps;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
-import io.swagger.client.model.ServiceTemplateInstanceDTO;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
-import org.opentosca.container.client.model.Application;
 import org.opentosca.container.client.model.ApplicationInstance;
-import org.opentosca.container.client.model.NodeInstance;
 import org.opentosca.container.client.model.RelationInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 public class OpenToscaContainerPluginTest {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenToscaContainerPluginTest.class);
     private static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-example-applications";
     private static final QName csarId = new QName("http://opentosca.org/example/applications/servicetemplates", "RealWorld-Application_Angular-Spring-MySQL-w1");
     private static final String hostName = "localhost";
@@ -55,7 +51,6 @@ public class OpenToscaContainerPluginTest {
 
     // set this to true if you want faster execution of this test when you probably need to run it more often
     private static boolean debugging = true;
-
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
@@ -87,6 +82,11 @@ public class OpenToscaContainerPluginTest {
         ProductionSystem productionSystem = new ProductionSystem("opentoscacontainer", "realworldapp-test", prodProps);
 
         InstanceModel instanceModel = plugin.reconstructInstanceModel(productionSystem);
+        LOGGER.debug("Reconstructed edmm instance model:");
+        StringWriter writer = new StringWriter();
+        instanceModel.getDeploymentModel().getGraph().generateYamlOutput(writer);
+        LOGGER.debug(writer.toString());
+
         Set<RootComponent> comps = instanceModel.getDeploymentModel().getComponents();
         Set<RootRelation> rels = instanceModel.getDeploymentModel().getRelations();
 
@@ -95,17 +95,23 @@ public class OpenToscaContainerPluginTest {
         assertEquals(applicationInstance.getNodeInstances().size(), comps.size());
         assertEquals(applicationInstance.getRelationInstances().size(), rels.size());
 
-        assertEquals(applicationInstance.getNodeInstances().size(), comps.stream().filter(c -> {
-            boolean nodeExists = false;
-            boolean relationsExist = true;
-            for (NodeInstance nodeInstance : applicationInstance.getNodeInstances()) {
-                if (nodeInstance.getId().equals(c.getId())) {
-                    nodeExists = true;
-                }
-            }
-            relationsExist = applicationInstance.getRelationInstances().stream().filter(r -> r.getSourceId().equals(c.getId())).collect(Collectors.toList()).size() == c.getRelations().size();
-            return nodeExists & relationsExist;
-        }).collect(Collectors.toList()).size());
+        // ensure all edmm components have corresponding node instances
+        assertEquals(applicationInstance.getNodeInstances().size(), comps
+                .stream()
+                .filter(c -> applicationInstance.getNodeInstances()
+                        .stream()
+                        .anyMatch(i -> i.getId().equals(c.getId())))
+                .count());
+
+        // ensure all edmm components have correct outgoing relations
+        assertEquals(applicationInstance.getNodeInstances().size(), comps
+                .stream()
+                .filter(c -> applicationInstance.getRelationInstances()
+                        .stream()
+                        .filter(r -> r.getSourceId().equals(c.getId()))
+                        .count() == c.getRelations().size())
+                .count());
+
         assertEquals(applicationInstance.getRelationInstances().size(), rels.stream().filter(r -> {
             for (RelationInstance relationInstance : applicationInstance.getRelationInstances()) {
                 if (relationInstance.getTargetId().equals(r.getTarget())) {

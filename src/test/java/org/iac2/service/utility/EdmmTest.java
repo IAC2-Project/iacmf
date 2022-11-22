@@ -69,6 +69,8 @@ class EdmmTest {
         model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertEquals(3,
                 model.getRelations().stream().filter(r -> r.getTarget().equals(target.getName())).toList().size());
+        Assertions.assertEquals(1, model.getComponent(source.getName()).orElseThrow().getRelations().size());
+        Assertions.assertEquals(0, model.getComponent(target.getName()).orElseThrow().getRelations().size());
     }
 
     @Test
