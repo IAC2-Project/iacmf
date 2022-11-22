@@ -48,7 +48,7 @@ services:
       ENGINE_PLAN_BPMN_PORT: 8092
       CONTAINER_DEPLOYMENT_TESTS: 'false'
   winery:
-    image: opentosca/winery:latest
+    image: opentosca/winery:iac-compliance
     environment:
       WINERY_HOSTNAME: 172.17.0.1
       TOPOLOGYMODELER_HOSTNAME: 172.17.0.1
