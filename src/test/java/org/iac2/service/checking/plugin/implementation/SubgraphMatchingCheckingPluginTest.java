@@ -35,7 +35,7 @@ class SubgraphMatchingCheckingPluginTest {
         final String path = String.format("%s/identifier/edmm/export?edmmUseAbsolutePaths=true", RULE_PATH);
 
         Graph<RootComponent, RootRelation> graph = plugin.getRulePart(path);
-        Assertions.assertEquals(4, graph.vertexSet().size());
+        Assertions.assertEquals(2, graph.vertexSet().size());
         Assertions.assertTrue(graph.vertexSet().stream().anyMatch( v -> v instanceof DockerEngine));
         Assertions.assertTrue(graph.vertexSet().stream().anyMatch( v -> v instanceof DockerContainer));
         RootComponent vertex = graph.vertexSet().stream().findFirst().orElseThrow();
