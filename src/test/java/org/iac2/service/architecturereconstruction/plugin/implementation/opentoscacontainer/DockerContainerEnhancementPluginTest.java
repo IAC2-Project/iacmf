@@ -3,7 +3,10 @@ package org.iac2.service.architecturereconstruction.plugin.implementation.opento
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +30,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.Edmm;
+import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.common.utility.Utils;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
@@ -62,10 +66,10 @@ public class DockerContainerEnhancementPluginTest {
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
-        csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
-        appName = csarPath.getFileName().toString();
-        OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
-        instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
+            csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
+            appName = csarPath.getFileName().toString();
+            OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
+            instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
     }
 
     @AfterAll
@@ -161,6 +165,22 @@ public class DockerContainerEnhancementPluginTest {
         dockerContainersAfterEnhancement = this.getDockerContainers(newComps);
 
         Assertions.assertNotEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
+    }
+
+    @Test
+    void testRefinementLocally() throws IOException, IllegalAccessException {
+        EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
+        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
+        ClassPathResource resource = new ClassPathResource("edmm/instance-model.yaml");
+        DeploymentModel model = DeploymentModel.of(resource.getFile());
+        ClassPathResource containerInfo1 = new ClassPathResource("edmm/test-containers.json");
+        List<Container> containersOnEngine1 = Arrays.stream(new ObjectMapper().readValue(containerInfo1.getFile(), Container[].class)).toList();
+        ClassPathResource containerInfo2 = new ClassPathResource("edmm/test-containers-2.json");
+        Container[] containersOnEngine2 = new ObjectMapper().readValue(containerInfo2.getFile(), Container[].class);
+        DockerContainerEnhancementPlugin plugin = new DockerContainerEnhancementPlugin();
+        plugin.enhanceModel(model, new ArrayList<>(), (DockerEngine) model.getComponent("DockerEngine_0").orElseThrow(), containersOnEngine1);
+        model = new DeploymentModel(model.getName(), model.getGraph());
+        Assertions.assertEquals(2, model.getComponents().stream().filter(c -> c instanceof DockerEngine).count());
     }
 
     private Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {

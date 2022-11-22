@@ -2,6 +2,7 @@ package org.iac2.service.architecturereconstruction.plugin.implementation.opento
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,6 +15,8 @@ import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.compress.utils.Lists;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
@@ -88,16 +91,25 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
         EntityGraph graph = deploymentModel.getGraph();
         containers = containers.stream()
                 .filter(c -> !containerImagesToFilter.contains(c.getImage()))
-                .filter(c -> c.getState().equals("running"))
+                .filter(c -> "running".equals(c.getState()))
                 .collect(Collectors.toList());
+
+        BidiMap<String, DockerContainer> edmmDockerContainers = new DualHashBidiMap<>();
         // we find the edmm docker containers hosted on this specific docker engine
-        Collection<String> deploymentModelContainerIds =
-                deploymentModel.getRelations()
-                        .stream()
-                        .filter(r -> r.getTarget().equals(dockerEngineComponent.getName()))
-                        .map(r -> deploymentModel.getComponent(r.getEntity().getParent().orElseThrow().getName()))
-                        .map(c -> c.orElseThrow().getProperty("ContainerID").orElseThrow().getValue())
-                        .toList();
+        // first, we find the hostedOn relations on the docker engine
+        Collection<EntityId> hostedOnEngineRelIds = deploymentModel.getRelations()
+                .stream()
+                .filter(r -> r.getTarget().equals(dockerEngineComponent.getId()))
+                .map(r -> r.getEntity().getId())
+                .toList();
+        // next, we find the sources of these relations
+        Collection<RootComponent> components = deploymentModel.getComponents()
+                .stream()
+                .filter(c -> c.getRelations().stream().anyMatch(r-> hostedOnEngineRelIds.contains(r.getEntity().getId())))
+                .toList();
+
+        components.forEach(c -> edmmDockerContainers.put(c.getProperty("ContainerID").orElseThrow().getValue(), (DockerContainer) c));
+
         Collection<String> actualDockerContainerIds = containers
                 .stream()
                 .map(Container::getId)
@@ -105,8 +117,8 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
         RootComponent current;
 
         for (Container c : containers) {
-            if (deploymentModelContainerIds.contains(c.getId())) {
-                current = deploymentModel.getComponent(c.getId()).orElseThrow();
+            if (edmmDockerContainers.containsKey(c.getId())) {
+                current = edmmDockerContainers.get(c.getId());
                 Edmm.addPropertyAssignments(graph,
                         current.getEntity().getId(),
                         generateAttributes(c, StructuralState.EXPECTED));
@@ -116,23 +128,21 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
         }
 
         // now we search for containers that should have been there!
-        for (String deploymentModelContainerId : deploymentModelContainerIds) {
+        for (String deploymentModelContainerId : edmmDockerContainers.keySet()) {
             if (!actualDockerContainerIds.contains(deploymentModelContainerId)) {
-                Container container = containers
-                        .stream()
-                        .filter(c -> c.getId().equals(deploymentModelContainerId))
-                        .findFirst()
-                        .orElseThrow();
-                current = deploymentModel.getComponent(deploymentModelContainerId).orElseThrow();
+                current = edmmDockerContainers.get(deploymentModelContainerId);
+                Map<String, String> props = new HashMap<>();
+                props.put("structuralState", StructuralState.REMOVED.name());
                 Edmm.addPropertyAssignments(graph,
                         current.getEntity().getId(),
-                        generateAttributes(container, StructuralState.REMOVED));
+                        props);
             }
         }
     }
 
     public static void addDockerContainerToEntityGraph(EntityGraph graph, RootComponent dockerEngineComponent, Container container) throws IllegalAccessException {
         // here we need to setup a proper mapping to the properties of a dockercontainer Node Type and so..
+        // todo we need to ensure that we do not add components with the same id (...multiple engines)
         Map<String, String> props = generateAttributes(container, StructuralState.NOT_EXPECTED);
         EntityId entityId = Edmm.addComponent(graph, container.getId(), props, DockerContainer.class);
         Edmm.addRelation(graph, entityId, dockerEngineComponent.getEntity().getId(), HostedOn.class);
