@@ -21,6 +21,7 @@ import org.iac2.common.utility.Edmm;
 import org.iac2.common.utility.Utils;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,9 +48,9 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
     @Override
     public InstanceModel enhanceModel(InstanceModel instanceModel, ProductionSystem productionSystem) {
 
-        DeploymentModel newDeploymentModel = instanceModel.getDeploymentModel();
-        EntityGraph graph = newDeploymentModel.getGraph();
-        Collection<RootComponent> dockerEngineComponents = Edmm.getAllComponentsOfType(newDeploymentModel, DockerContainer.class);
+        DeploymentModel deploymentModel = instanceModel.getDeploymentModel();
+        Collection<DockerEngine> dockerEngineComponents =
+                Edmm.getAllComponentsOfType(deploymentModel, DockerEngine.class);
 
         // to filter for example the management components of the production system (opentosca runnning on the same docker engin...)
         Collection<String> containerImagesToFilter = productionSystem.getProperties().keySet()
@@ -58,7 +59,7 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
                 .map(k -> productionSystem.getProperties().get(k))
                 .toList();
 
-        for (RootComponent d : dockerEngineComponents) {
+        for (DockerEngine d : dockerEngineComponents) {
             String dockerEngineUrl = d.getProperty("DockerEngineURL").orElseThrow().getValue();
 
             if (dockerEngineUrl.contains("host.docker.internal")) {
@@ -69,59 +70,65 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
             }
 
             try (DockerClient dockerClient = Utils.createDockerClient(dockerEngineUrl)) {
-
                 List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
-
-                containers = containers.stream()
-                        .filter(c -> !containerImagesToFilter.contains(c.getImage()))
-                        .filter(c -> c.getState().equals("running"))
-                        .collect(Collectors.toList());
-
-                Collection<String> deploymentModelContainerIds =
-                        Edmm.getAllComponentsOfType(newDeploymentModel, DockerContainer.class)
-                                .stream()
-                                .map(c -> c.getProperty("ContainerID").orElseThrow().getValue())
-                                .toList();
-                Collection<String> actualDockerContainerIds = containers
-                        .stream()
-                        .map(Container::getId)
-                        .toList();
-                RootComponent current;
-
-                for (Container c : containers) {
-                    if (deploymentModelContainerIds.contains(c.getId())) {
-                        current = newDeploymentModel.getComponent(c.getId()).orElseThrow();
-                        Edmm.addPropertyAssignments(graph,
-                                current.getEntity().getId(),
-                                generateAttributes(c, StructuralState.EXPECTED));
-
-                    } else {
-                        addDockerContainerToEntityGraph(instanceModel.getDeploymentModel().getGraph(), d, c);
-                    }
-                }
-
-                // now we search for containers that should have been there!
-                for(String deploymentModelContainerId : deploymentModelContainerIds) {
-                    if (!actualDockerContainerIds.contains(deploymentModelContainerId)) {
-                        Container container = containers
-                                .stream()
-                                .filter(c -> c.getId().equals(deploymentModelContainerId))
-                                .findFirst()
-                                .orElseThrow();
-                        current = newDeploymentModel.getComponent(deploymentModelContainerId).orElseThrow();
-                        Edmm.addPropertyAssignments(graph,
-                                current.getEntity().getId(),
-                                generateAttributes(container, StructuralState.REMOVED));
-                    }
-                }
-
-
+                enhanceModel(deploymentModel, containerImagesToFilter, d, containers);
             } catch (IOException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return new InstanceModel(newDeploymentModel);
+        return new InstanceModel(new DeploymentModel(deploymentModel.getName(), deploymentModel.getGraph()));
+    }
+
+    public void enhanceModel(DeploymentModel deploymentModel,
+                             Collection<String> containerImagesToFilter,
+                             DockerEngine dockerEngineComponent,
+                             List<Container> containers) throws IllegalAccessException {
+
+        EntityGraph graph = deploymentModel.getGraph();
+        containers = containers.stream()
+                .filter(c -> !containerImagesToFilter.contains(c.getImage()))
+                .filter(c -> c.getState().equals("running"))
+                .collect(Collectors.toList());
+        // we find the edmm docker containers hosted on this specific docker engine
+        Collection<String> deploymentModelContainerIds =
+                deploymentModel.getRelations()
+                        .stream()
+                        .filter(r -> r.getTarget().equals(dockerEngineComponent.getName()))
+                        .map(r -> deploymentModel.getComponent(r.getEntity().getParent().orElseThrow().getName()))
+                        .map(c -> c.orElseThrow().getProperty("ContainerID").orElseThrow().getValue())
+                        .toList();
+        Collection<String> actualDockerContainerIds = containers
+                .stream()
+                .map(Container::getId)
+                .toList();
+        RootComponent current;
+
+        for (Container c : containers) {
+            if (deploymentModelContainerIds.contains(c.getId())) {
+                current = deploymentModel.getComponent(c.getId()).orElseThrow();
+                Edmm.addPropertyAssignments(graph,
+                        current.getEntity().getId(),
+                        generateAttributes(c, StructuralState.EXPECTED));
+            } else {
+                addDockerContainerToEntityGraph(graph, dockerEngineComponent, c);
+            }
+        }
+
+        // now we search for containers that should have been there!
+        for (String deploymentModelContainerId : deploymentModelContainerIds) {
+            if (!actualDockerContainerIds.contains(deploymentModelContainerId)) {
+                Container container = containers
+                        .stream()
+                        .filter(c -> c.getId().equals(deploymentModelContainerId))
+                        .findFirst()
+                        .orElseThrow();
+                current = deploymentModel.getComponent(deploymentModelContainerId).orElseThrow();
+                Edmm.addPropertyAssignments(graph,
+                        current.getEntity().getId(),
+                        generateAttributes(container, StructuralState.REMOVED));
+            }
+        }
     }
 
     public static void addDockerContainerToEntityGraph(EntityGraph graph, RootComponent dockerEngineComponent, Container container) throws IllegalAccessException {

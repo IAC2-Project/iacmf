@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.github.edmm.core.parser.Entity;
@@ -142,8 +141,12 @@ public class Edmm {
         return ((ScalarEntity) graph.getEntity(componentTypeId).orElseThrow()).getValue();
     }
 
-    public static Collection<RootComponent> getAllComponentsOfType(DeploymentModel deploymentModel, Class<? extends RootComponent> type) {
-        return deploymentModel.getComponents().stream().filter(c -> c.getClass().equals(type)).collect(Collectors.toList());
+    public static <T extends RootComponent> Collection<T> getAllComponentsOfType(DeploymentModel deploymentModel, Class<T> type) {
+        return deploymentModel.getComponents()
+                .stream()
+                .filter(c -> c.getClass().equals(type))
+                .map(c->(T)c)
+                .toList();
     }
 
     private static void addPropertyDefinition(Attribute<?> attribute, Entity propertiesEntity) {

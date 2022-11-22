@@ -31,6 +31,7 @@ import org.iac2.common.utility.Utils;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
@@ -120,8 +121,8 @@ public class DockerContainerEnhancementPluginTest {
         // now we introduce a new docker container per engine therefore try to create compliance issues
 
         Collection<String> newContainerIds = Sets.newHashSet();
-        Collection<RootComponent> dockerEngineComponents =
-                Edmm.getAllComponentsOfType(instanceModel.getDeploymentModel(), DockerContainer.class);
+        Collection<DockerEngine> dockerEngineComponents =
+                Edmm.getAllComponentsOfType(instanceModel.getDeploymentModel(), DockerEngine.class);
         for (RootComponent d : dockerEngineComponents) {
             String dockerEngineUrl = d.getProperty("DockerEngineURL").orElseThrow().getValue();
 
