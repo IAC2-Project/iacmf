@@ -67,17 +67,21 @@ public class DockerContainerEnhancementPluginTest {
     // set this to true if you want faster execution of this test when you probably need to run it more often
     private static boolean debugging = true;
 
+    private static boolean onlyLocal = false;
+
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
-        csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
-        appName = csarPath.getFileName().toString();
-        OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
-        instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
+        if (!onlyLocal) {
+            csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
+            appName = csarPath.getFileName().toString();
+            OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
+            instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
+        }
     }
 
     @AfterAll
     public static void cleanupContainer() {
-        if (!debugging) {
+        if (!debugging && !onlyLocal) {
             OpenTOSCATestUtils.terminateApp(client, appName, hostName, port);
             client.getApplications().forEach(a -> client.removeApplication(a));
         }

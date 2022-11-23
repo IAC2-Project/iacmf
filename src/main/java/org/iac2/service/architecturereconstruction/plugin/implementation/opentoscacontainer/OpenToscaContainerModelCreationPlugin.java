@@ -178,7 +178,7 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         Map<String, Object> properties = new HashMap<>(nodeInstance.getProperties());
         return Edmm.addComponent(entityGraph, nodeInstance.getTemplate(),properties, getClassForTemplateId(nodeInstance.getTemplateType()));
     }
-    
+
 
     private static Class<? extends RootComponent> getClassForTemplateId(String templateType) {
         return switch (QName.valueOf(templateType).getLocalPart()) {
