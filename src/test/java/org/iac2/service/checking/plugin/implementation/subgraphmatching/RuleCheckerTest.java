@@ -28,14 +28,19 @@ import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Docker
 import org.iac2.service.checking.common.interfaces.RuleValidationResult;
 import org.jgrapht.Graph;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
 class RuleCheckerTest {
 
+    @BeforeAll
+    static void init() {
+        EdmmTypeResolver.initDefaultMappings();
+    }
+
     @Test
     void testInvalidRule() throws IllegalAccessException {
-        EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
         final EntityGraph selector1 = new EntityGraph();
         final EntityId app1Id = Edmm.addComponent(selector1, "app-1", new HashMap<>(), SoftwareComponent.class);
         final EntityId tomcatId = Edmm.addComponent(selector1, "tomcat1", new HashMap<>(), Tomcat.class);
@@ -83,8 +88,6 @@ class RuleCheckerTest {
 
     @Test
     void testRegularOperation() throws IOException, IllegalAccessException {
-        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
-        EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
         ClassPathResource resource = new ClassPathResource("edmm/cr1-selector.yaml");
         DeploymentModel selectorDM = DeploymentModel.of(resource.getFile());
         resource = new ClassPathResource("edmm/cr1-checker.yaml");
@@ -103,7 +106,7 @@ class RuleCheckerTest {
                 "component-1",
                 Map.of(
                         "DockerImage", "ubuntu",
-                        "structuralStatus", "ExpEcTed"
+                        "structuralState", "ExpEcTed"
                 ),
                 DockerContainer.class
         );
@@ -143,8 +146,6 @@ class RuleCheckerTest {
 
     @Test
     void testRegularOperation2() throws IOException, IllegalAccessException {
-        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
-        EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
         ClassPathResource resource = new ClassPathResource("edmm/cr2-selector.yaml");
         DeploymentModel selectorDM = DeploymentModel.of(resource.getFile());
         resource = new ClassPathResource("edmm/cr2-checker.yaml");
@@ -163,7 +164,7 @@ class RuleCheckerTest {
                 "component-1",
                 Map.of(
                         "DockerImage", "ubuntu",
-                        "structuralStatus", "ExpEcTed"
+                        "structuralState", "ExpEcTed"
                 ),
                 DockerContainer.class
         );

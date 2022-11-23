@@ -19,6 +19,7 @@ import io.github.edmm.model.relation.RootRelation;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
+import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.checking.common.exception.ComplianceRuleMalformattedException;
 import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupportedException;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
@@ -35,6 +36,10 @@ public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlu
     private static final Logger LOGGER = LoggerFactory.getLogger(SubgraphMatchingCheckingPlugin.class);
     private static final String requiredStructureSegment = "/requiredstructure/edmm/export?edmmUseAbsolutePaths=true";
     private static final String identifierSegment = "/identifier/edmm/export?edmmUseAbsolutePaths=true";
+
+    public SubgraphMatchingCheckingPlugin() {
+        EdmmTypeResolver.initDefaultMappings();
+    }
 
     @Override
     public Set<String> requiredConfiguration() {
@@ -98,8 +103,8 @@ public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlu
                         result.getErrorMessage(),
                         rule,
                         ISSUE_WRONG_ATTRIBUTE_VALUE,
-                        Map.of(ISSUE_PROPERTY_INSTANCE_MODEL_COMPONENT_NAME, result.getInstanceModelComponent().getName(),
-                                ISSUE_PROPERTY_CHECKER_COMPONENT_NAME, result.getCheckerComponent().getName())
+                        Map.of(ISSUE_PROPERTY_INSTANCE_MODEL_COMPONENT_NAME, result.getInstanceModelComponent().getId(),
+                                ISSUE_PROPERTY_CHECKER_COMPONENT_NAME, result.getCheckerComponent().getId())
                 );
 
                 return List.of(issue);
@@ -120,6 +125,6 @@ public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlu
         String edmmModel = response.body();
         DeploymentModel model = DeploymentModel.of(edmmModel);
 
-        return model.getTopology();
+        return EdmmGraphCreator.of(model);
     }
 }

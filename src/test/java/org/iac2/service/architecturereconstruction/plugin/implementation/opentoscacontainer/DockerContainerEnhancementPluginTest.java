@@ -67,10 +67,11 @@ public class DockerContainerEnhancementPluginTest {
     // set this to true if you want faster execution of this test when you probably need to run it more often
     private static boolean debugging = true;
 
-    private static boolean onlyLocal = false;
+    private static boolean onlyLocal = true;
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
+        EdmmTypeResolver.initDefaultMappings();
         if (!onlyLocal) {
             csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
             appName = csarPath.getFileName().toString();
@@ -91,7 +92,7 @@ public class DockerContainerEnhancementPluginTest {
     public void testAddDockerContainerToModel() throws IOException, IllegalAccessException {
         ClassPathResource resource = new ClassPathResource("edmm/four-components-hosted-on.yml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
-        ClassPathResource containerInfo = new ClassPathResource("edmm/test-container.json");
+        ClassPathResource containerInfo = new ClassPathResource("DockerContainers/test-container.json");
         Container container = new ObjectMapper().readValue(containerInfo.getFile(), Container.class);
         RootComponent engine = model.getComponent("tomcat").orElseThrow();
         DockerContainerEnhancementPlugin.addDockerContainerToEntityGraph(model.getGraph(), engine, container);
@@ -116,9 +117,6 @@ public class DockerContainerEnhancementPluginTest {
 
         StringWriter writer1 = new StringWriter();
         instanceModel.getDeploymentModel().getGraph().generateYamlOutput(writer1);
-        LOGGER.info(writer1.toString());
-        writer1 = new StringWriter();
-        instanceModel1.getDeploymentModel().getGraph().generateYamlOutput(writer1);
         LOGGER.info(writer1.toString());
         Assertions.assertEquals(comps.size(), newComps.size());
         Assertions.assertEquals(rels.size(), newRels.size());
@@ -176,13 +174,11 @@ public class DockerContainerEnhancementPluginTest {
 
     @Test
     void testRefinementLocally() throws IOException, IllegalAccessException {
-        EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
-        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
         ClassPathResource resource = new ClassPathResource("edmm/instance-model.yaml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
-        ClassPathResource containerInfo1 = new ClassPathResource("edmm/test-containers.json");
+        ClassPathResource containerInfo1 = new ClassPathResource("DockerContainers/test-containers.json");
         List<Container> containersOnEngine1 = Arrays.stream(new ObjectMapper().readValue(containerInfo1.getFile(), Container[].class)).toList();
-        ClassPathResource containerInfo2 = new ClassPathResource("edmm/test-containers-2.json");
+        ClassPathResource containerInfo2 = new ClassPathResource("DockerContainers/test-containers-2.json");
         List<Container> containersOnEngine2 = Arrays.stream(new ObjectMapper().readValue(containerInfo2.getFile(), Container[].class)).toList();
         DockerContainerEnhancementPlugin plugin = new DockerContainerEnhancementPlugin();
         DockerEngine engine1 = (DockerEngine) model.getComponent("DockerEngine_0").orElseThrow();

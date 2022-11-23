@@ -5,7 +5,7 @@ components:
     relations:
       - hosted_on: DockerEngine_0
     properties:
-      structuralStatus: value.equalsIgnoreCase('EXPECTED')
+      structuralState: value.equalsIgnoreCase('EXPECTED')
       name: DockerContainer
       state: ""
       componentName: ""
@@ -26,7 +26,7 @@ component_types:
   docker_container:
     extends: software_component
     properties:
-      structuralStatus:
+      structuralState:
         type: string
       state:
         type: string

@@ -29,6 +29,7 @@ import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,11 @@ import org.springframework.core.io.ClassPathResource;
 
 class EdmmTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(EdmmTest.class);
+
+    @BeforeAll
+    static void init() {
+        EdmmTypeResolver.initDefaultMappings();
+    }
 
     @Test
     void testAddType() throws IOException, IllegalAccessException {
@@ -125,8 +131,6 @@ class EdmmTest {
 
     @Test
     void testBuildGraphFromScratch() throws IllegalAccessException {
-        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
-        EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
         EntityGraph graph = new EntityGraph();
         final EntityId engineId = Edmm.addComponent(
                 graph,
@@ -186,7 +190,6 @@ class EdmmTest {
 
     @Test
     void testAddingPropertyProgrammatically() throws IllegalAccessException {
-        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
         EntityGraph graph = new EntityGraph();
         final EntityId engineId = Edmm.addComponent(
                 graph,

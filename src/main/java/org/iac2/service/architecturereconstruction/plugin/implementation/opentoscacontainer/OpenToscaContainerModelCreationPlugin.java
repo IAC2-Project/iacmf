@@ -41,7 +41,6 @@ import org.opentosca.container.client.model.Application;
 import org.opentosca.container.client.model.ApplicationInstance;
 import org.opentosca.container.client.model.NodeInstance;
 import org.opentosca.container.client.model.RelationInstance;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,14 +49,7 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
     private final static int OPENTOSCA_CLIENT_TIMEOUT = 10000;
 
     public OpenToscaContainerModelCreationPlugin() {
-        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
-        EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
-        EdmmTypeResolver.putMapping("mysql_dbms", MySqlDbms.class);
-        EdmmTypeResolver.putMapping("mysql_db", MySqlDb.class);
-        EdmmTypeResolver.putMapping("realworld_application_backend_java11_spring", RealWorldApplicationBackendJava11Spring.class);
-        EdmmTypeResolver.putMapping("java_11", Java11.class);
-        EdmmTypeResolver.putMapping("realworld_application_angular", RealWorldAngularApp.class);
-        EdmmTypeResolver.putMapping("nginx", Nginx.class);
+        EdmmTypeResolver.initDefaultMappings();
     }
 
     @Override

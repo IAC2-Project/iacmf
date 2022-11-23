@@ -20,6 +20,7 @@ import io.github.edmm.model.relation.RootRelation;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
+import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
@@ -54,6 +55,7 @@ public class OpenToscaContainerPluginTest {
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
+        EdmmTypeResolver.initDefaultMappings();
         csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
         appName = csarPath.getFileName().toString();
         OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
