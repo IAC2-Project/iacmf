@@ -1,4 +1,4 @@
-package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
+package org.iac2.service.architecturereconstruction.plugin.implementation.docker;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -25,14 +25,9 @@ import org.iac2.common.utility.Utils;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
+import org.iac2.service.architecturereconstruction.common.model.StructuralState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-enum StructuralState {
-    EXPECTED,
-    NOT_EXPECTED,
-    REMOVED
-}
 
 public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerEnhancementPlugin.class);

@@ -37,6 +37,8 @@ import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreati
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
+import org.iac2.service.architecturereconstruction.common.model.StructuralState;
+import org.iac2.service.architecturereconstruction.plugin.implementation.docker.DockerContainerEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
