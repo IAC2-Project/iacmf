@@ -17,7 +17,7 @@ import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreati
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.plugin.implementation.manual.ManualModelCreatorPlugin;
-import org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.DockerContainerEnhancementPlugin;
+import org.iac2.service.architecturereconstruction.plugin.implementation.docker.DockerContainerEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.OpenToscaContainerModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 

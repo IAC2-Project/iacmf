@@ -1,0 +1,22 @@
+[
+  {
+    "Id": "container_1",
+    "Image": "test_container_imageA",
+    "State": "running"
+  },
+  {
+    "Id": "container_2",
+    "Image": "test_container_imageB",
+    "State": "running"
+  },
+  {
+    "Id": "container_3",
+    "Image": "test_container_imageC",
+    "State": "running"
+  },
+  {
+    "Id": "container_X",
+    "Image": "test_container_imageX",
+    "State": "stopped"
+  }
+]

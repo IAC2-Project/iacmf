@@ -42,21 +42,22 @@ import org.opentosca.container.client.model.ApplicationInstance;
 import org.opentosca.container.client.model.NodeInstance;
 import org.opentosca.container.client.model.RelationInstance;
 
-public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugin {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    private static int OPENTOSCA_CLIENT_TIMEOUT=10000;
+public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugin {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenToscaContainerModelCreationPlugin.class);
+    private final static int OPENTOSCA_CLIENT_TIMEOUT = 10000;
 
     public OpenToscaContainerModelCreationPlugin() {
         EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
         EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
-
-        // TODO clean this up later
-        EdmmTypeResolver.putMapping("MySQL-DBMS_8.0-w1", MySqlDbms.class);
-        EdmmTypeResolver.putMapping("MySQL-DB_w1", MySqlDb.class);
-        EdmmTypeResolver.putMapping("RealWorld-Application-Backend_Java11-Spring-w1", RealWorldApplicationBackendJava11Spring.class);
-        EdmmTypeResolver.putMapping("Java_11-w1", Java11.class);
-        EdmmTypeResolver.putMapping("RealWorld-Application_Angular-w1", RealWorldAngularApp.class);
-        EdmmTypeResolver.putMapping("NGINX_latest-w1", Nginx.class);
+        EdmmTypeResolver.putMapping("mysql_dbms", MySqlDbms.class);
+        EdmmTypeResolver.putMapping("mysql_db", MySqlDb.class);
+        EdmmTypeResolver.putMapping("realworld_application_backend_java11_spring", RealWorldApplicationBackendJava11Spring.class);
+        EdmmTypeResolver.putMapping("java_11", Java11.class);
+        EdmmTypeResolver.putMapping("realworld_application_angular", RealWorldAngularApp.class);
+        EdmmTypeResolver.putMapping("nginx", Nginx.class);
     }
 
     @Override
@@ -115,49 +116,56 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
             throw new AppNotFoundException("Couldn't find application with id " + appId);
         }
 
-        ApplicationInstance instance = client.getApplicationInstances(app).stream().filter(i -> i.getId().equals(instanceId)).findFirst().orElse(null);
+        ApplicationInstance instance = client.getApplicationInstances(app)
+                .stream()
+                .filter(i -> i.getId().equals(instanceId))
+                .findFirst()
+                .orElse(null);
 
         if (Objects.isNull(instance)) {
             throw new AppNotFoundException("Couldn't find application instance with id " + instanceId + " of application " + appId);
         }
 
-        DeploymentModel deploymentModel = null;
         try {
-            deploymentModel = new DeploymentModel(app.getName(), this.createEntityGraph(instance));
+            DeploymentModel deploymentModel = new DeploymentModel(app.getName(), this.createEntityGraph(instance));
+            return new InstanceModel(deploymentModel);
         } catch (IllegalAccessException e) {
             throw new IaCTechnologyNotSupportedException("Couldn't generate entity graph from referenced application instance", e);
         }
-
-        return new InstanceModel(deploymentModel);
     }
 
     private EntityGraph createEntityGraph(ApplicationInstance applicationInstance) throws IllegalAccessException {
         EntityGraph entityGraph = new EntityGraph();
         Collection<EntityId> compIds = Sets.newHashSet();
 
+        // this ensures we add "stray" node instances that are not part of any relation.
+        for (NodeInstance instance : applicationInstance.getNodeInstances()) {
+            EntityId currentId = addNodeInstanceAsComp(entityGraph, instance);
+            LOGGER.info("added '{}' to the graph. Node instance id: {}. Node instance template id: {}",
+                    currentId,
+                    instance.getId(),
+                    instance.getTemplate());
+            compIds.add(currentId);
+        }
+
         for (RelationInstance relationInstance : applicationInstance.getRelationInstances()) {
-            NodeInstance sourceInstance = this.getNodeInstance(applicationInstance, relationInstance.getSourceId());
-            NodeInstance targetInstance = this.getNodeInstance(applicationInstance, relationInstance.getTargetId());
-            EntityId sourceEntityId = this.getEntityId(compIds, sourceInstance);
-            EntityId targetEntityId = this.getEntityId(compIds, targetInstance);
+            NodeInstance sourceInstance = findNodeInstanceByNodeInstanceId(applicationInstance, relationInstance.getSourceId());
+            NodeInstance targetInstance = findNodeInstanceByNodeInstanceId(applicationInstance, relationInstance.getTargetId());
+            EntityId sourceEntityId = getEntityId(compIds, sourceInstance);
+            EntityId targetEntityId = getEntityId(compIds, targetInstance);
 
-            if (sourceEntityId == null) {
-                sourceEntityId = this.addNodeInstanceAsComp(entityGraph, sourceInstance);
-                compIds.add(sourceEntityId);
-            }
+            assert sourceEntityId != null;
+            assert targetEntityId != null;
 
-            if (targetEntityId == null) {
-                targetEntityId = this.addNodeInstanceAsComp(entityGraph, targetInstance);
-                compIds.add(targetEntityId);
-            }
-
-            Edmm.addRelation(entityGraph, sourceEntityId, targetEntityId, this.getRelationClass(relationInstance));
+            Edmm.addRelation(entityGraph, sourceEntityId, targetEntityId, getRelationClass(relationInstance));
         }
 
         return entityGraph;
     }
 
-    private Class<? extends RootRelation> getRelationClass(RelationInstance relationInstance) {
+
+    private static Class<? extends RootRelation> getRelationClass(RelationInstance relationInstance) {
+
         return switch (relationInstance.getTemplateType()) {
             case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}HostedOn" -> HostedOn.class;
             case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ConnectsTo" -> ConnectsTo.class;
@@ -165,12 +173,14 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         };
     }
 
-    private EntityId addNodeInstanceAsComp(EntityGraph entityGraph, NodeInstance nodeInstance) throws IllegalAccessException {
-        Map<String, Object> properties = new HashMap<>(nodeInstance.getProperties());
-        return Edmm.addComponent(entityGraph, nodeInstance.getTemplate(),properties, this.getClassForTemplateId(nodeInstance.getTemplateType()));
-    }
 
-    private Class<? extends RootComponent> getClassForTemplateId(String templateType) {
+    private static EntityId addNodeInstanceAsComp(EntityGraph entityGraph, NodeInstance nodeInstance) throws IllegalAccessException {
+        Map<String, Object> properties = new HashMap<>(nodeInstance.getProperties());
+        return Edmm.addComponent(entityGraph, nodeInstance.getTemplate(),properties, getClassForTemplateId(nodeInstance.getTemplateType()));
+    }
+    
+
+    private static Class<? extends RootComponent> getClassForTemplateId(String templateType) {
         return switch (QName.valueOf(templateType).getLocalPart()) {
             case "MySQL-DBMS_8.0-w1" -> MySqlDbms.class;
             case "MySQL-DB_w1" -> MySqlDb.class;
@@ -184,16 +194,16 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         };
     }
 
-    private EntityId getEntityId(Collection<EntityId> entityIds, NodeInstance instance) {
+    private static EntityId getEntityId(Collection<EntityId> entityIds, NodeInstance instance) {
         return entityIds.stream().filter(e -> e.getName().equals(instance.getTemplate())).findFirst().orElse(null);
     }
 
-    private NodeInstance getNodeInstance(Collection<NodeInstance> nodeInstances, String id) {
+    private static NodeInstance findNodeInstanceByNodeInstanceId(Collection<NodeInstance> nodeInstances, String nodeInstanceId) {
         return nodeInstances.stream()
-                .filter(n -> n.getId().equals(id)).findFirst().orElseThrow(AppInstanceNodeFoundException::new);
+                .filter(n -> n.getId().equals(nodeInstanceId)).findFirst().orElseThrow(AppInstanceNodeFoundException::new);
     }
 
-    private NodeInstance getNodeInstance(ApplicationInstance applicationInstance, String id) {
-       return this.getNodeInstance(applicationInstance.getNodeInstances(), id);
+    private static NodeInstance findNodeInstanceByNodeInstanceId(ApplicationInstance applicationInstance, String nodeInstanceId) {
+        return findNodeInstanceByNodeInstanceId(applicationInstance.getNodeInstances(), nodeInstanceId);
     }
 }
