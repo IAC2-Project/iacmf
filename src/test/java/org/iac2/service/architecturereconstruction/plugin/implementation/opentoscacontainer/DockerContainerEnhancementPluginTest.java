@@ -67,10 +67,10 @@ public class DockerContainerEnhancementPluginTest {
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
-            csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
-            appName = csarPath.getFileName().toString();
-            OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
-            instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
+        csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
+        appName = csarPath.getFileName().toString();
+        OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
+        instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
     }
 
     @AfterAll
@@ -177,9 +177,10 @@ public class DockerContainerEnhancementPluginTest {
         ClassPathResource containerInfo1 = new ClassPathResource("edmm/test-containers.json");
         List<Container> containersOnEngine1 = Arrays.stream(new ObjectMapper().readValue(containerInfo1.getFile(), Container[].class)).toList();
         ClassPathResource containerInfo2 = new ClassPathResource("edmm/test-containers-2.json");
-        Container[] containersOnEngine2 = new ObjectMapper().readValue(containerInfo2.getFile(), Container[].class);
+        List<Container> containersOnEngine2 = Arrays.stream(new ObjectMapper().readValue(containerInfo2.getFile(), Container[].class)).toList();
         DockerContainerEnhancementPlugin plugin = new DockerContainerEnhancementPlugin();
         DockerEngine engine1 = (DockerEngine) model.getComponent("DockerEngine_0").orElseThrow();
+        DockerEngine engine2 = (DockerEngine) model.getComponent("DockerEngine_1").orElseThrow();
         plugin.enhanceModel(model, new ArrayList<>(), engine1, containersOnEngine1);
         model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertEquals(2, model.getComponents().stream().filter(c -> c instanceof DockerEngine).count());
@@ -187,11 +188,24 @@ public class DockerContainerEnhancementPluginTest {
         Assertions.assertEquals(4, hostedOnEngine1.size());
         Assertions.assertEquals(4, hostedOnEngine1.stream().filter(c -> c instanceof DockerContainer).count());
         Assertions.assertEquals(2, hostedOnEngine1.stream().filter(c ->
-                c.getProperty("structuralState").orElseThrow().getType().equals(StructuralState.EXPECTED.name())).count());
+                c.getProperty("structuralState").orElseThrow().getValue().equals(StructuralState.EXPECTED.name())).count());
+        Assertions.assertEquals(1, hostedOnEngine1.stream().filter(c ->
+                c.getProperty("structuralState").orElseThrow().getValue().equals(StructuralState.NOT_EXPECTED.name())).count());
+        Assertions.assertEquals(1, hostedOnEngine1.stream().filter(c ->
+                c.getProperty("structuralState").orElseThrow().getValue().equals(StructuralState.REMOVED.name())).count());
 
-        plugin.enhanceModel(model, new ArrayList<>(), (DockerEngine) model.getComponent("DockerEngine_1").orElseThrow(), containersOnEngine1);
-
-
+        plugin.enhanceModel(model, new ArrayList<>(), engine2, containersOnEngine2);
+        model = new DeploymentModel(model.getName(), model.getGraph());
+        Assertions.assertEquals(2, model.getComponents().stream().filter(c -> c instanceof DockerEngine).count());
+        Collection<RootComponent> hostedOnEngine2 = Edmm.findDependentComponents(model, engine2, HostedOn.class);
+        Assertions.assertEquals(2, hostedOnEngine2.size());
+        Assertions.assertEquals(2, hostedOnEngine2.stream().filter(c -> c instanceof DockerContainer).count());
+        Assertions.assertEquals(1, hostedOnEngine2.stream().filter(c ->
+                c.getProperty("structuralState").orElseThrow().getValue().equals(StructuralState.EXPECTED.name())).count());
+        Assertions.assertEquals(1, hostedOnEngine2.stream().filter(c ->
+                c.getProperty("structuralState").orElseThrow().getValue().equals(StructuralState.NOT_EXPECTED.name())).count());
+        Assertions.assertEquals(0, hostedOnEngine2.stream().filter(c ->
+                c.getProperty("structuralState").orElseThrow().getValue().equals(StructuralState.REMOVED.name())).count());
     }
 
     private Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {

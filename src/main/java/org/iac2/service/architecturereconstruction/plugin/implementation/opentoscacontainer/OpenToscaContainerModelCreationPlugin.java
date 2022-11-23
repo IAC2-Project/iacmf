@@ -50,14 +50,12 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
     public OpenToscaContainerModelCreationPlugin() {
         EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
         EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
-
-        // TODO clean this up later
-        EdmmTypeResolver.putMapping("MySQL-DBMS_8.0-w1", MySqlDbms.class);
-        EdmmTypeResolver.putMapping("MySQL-DB_w1", MySqlDb.class);
-        EdmmTypeResolver.putMapping("RealWorld-Application-Backend_Java11-Spring-w1", RealWorldApplicationBackendJava11Spring.class);
-        EdmmTypeResolver.putMapping("Java_11-w1", Java11.class);
-        EdmmTypeResolver.putMapping("RealWorld-Application_Angular-w1", RealWorldAngularApp.class);
-        EdmmTypeResolver.putMapping("NGINX_latest-w1", Nginx.class);
+        EdmmTypeResolver.putMapping("mysql_dbms", MySqlDbms.class);
+        EdmmTypeResolver.putMapping("mysql_db", MySqlDb.class);
+        EdmmTypeResolver.putMapping("realworld_application_backend_java11_spring", RealWorldApplicationBackendJava11Spring.class);
+        EdmmTypeResolver.putMapping("java_11", Java11.class);
+        EdmmTypeResolver.putMapping("realworld_application_angular", RealWorldAngularApp.class);
+        EdmmTypeResolver.putMapping("nginx", Nginx.class);
     }
 
     @Override

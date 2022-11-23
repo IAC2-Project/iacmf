@@ -143,7 +143,7 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
     private static Map<String, String> generateAttributes(Container container, StructuralState state) {
         Map<String, String> props = Maps.newHashMap();
         props.put("ContainerID", container.getId());
-        props.put("StructuralState", state.name());
+        props.put("structuralState", state.name());
         props.put("Image", container.getImage());
 
         return props;

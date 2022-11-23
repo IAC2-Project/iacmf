@@ -127,7 +127,7 @@ public class Edmm {
 
     public static void addPropertyAssignments(EntityGraph graph, EntityId componentId, Map<String, String> attributeAssignments) {
         final EntityId propertiesId = componentId.extend(DefaultKeys.PROPERTIES);
-        final Entity propertiesEntity = graph.getEntity(propertiesId).orElseGet(()->{
+        final Entity propertiesEntity = graph.getEntity(propertiesId).orElseGet(() -> {
             MappingEntity properties = new MappingEntity(propertiesId, graph);
             graph.addEntity(properties);
             return properties;
@@ -145,7 +145,7 @@ public class Edmm {
         return deploymentModel.getComponents()
                 .stream()
                 .filter(c -> c.getClass().equals(type))
-                .map(c->(T)c)
+                .map(c -> (T) c)
                 .toList();
     }
 
@@ -160,7 +160,7 @@ public class Edmm {
         // next, we find the sources of these relations
         return model.getComponents()
                 .stream()
-                .filter(c -> c.getRelations().stream().anyMatch(r-> hostedOnEngineRelIds.contains(r.getEntity().getId())))
+                .filter(c -> c.getRelations().stream().anyMatch(r -> hostedOnEngineRelIds.contains(r.getEntity().getId())))
                 .toList();
     }
 
@@ -182,20 +182,41 @@ public class Edmm {
         });
     }
 
+    /***
+     * Adds a property to a type or a property assignment to a component. In the latter case, if the component already has
+     * the property, its value is replaced with the new value. If the property being assigned to does not exist in the type
+     * definition, it is also added there.
+     * @param propertiesEntity the entity that holds the list of properties within the current type/component entity.
+     * @param propertyType the type of the property
+     * @param propertyName the name of the property
+     * @param isAssignment indicates whether this is an assignment or a property definition
+     * @param value if assignment, holds the value to be assigned.
+     */
     private static void addProperty(Entity propertiesEntity, String propertyType, String propertyName, boolean isAssignment, String value) {
         final EntityGraph graph = propertiesEntity.getGraph();
         final EntityId propertiesId = propertiesEntity.getId();
         EntityId propertyId = propertiesId.extend(propertyName);
-        MappingEntity normalizedEntity = new MappingEntity(propertyId, graph);
-        ScalarEntity typeEntity = new ScalarEntity(propertyType, normalizedEntity.getId().extend(DefaultKeys.TYPE), graph);
-        graph.addEntity(normalizedEntity);
-        graph.addEntity(typeEntity);
+        MappingEntity normalizedEntity;
+        boolean propertyExists = graph.getEntity(propertyId).isPresent();
+
+        if (!propertyExists) {
+            normalizedEntity = new MappingEntity(propertyId, graph);
+            ScalarEntity typeEntity = new ScalarEntity(propertyType, normalizedEntity.getId().extend(DefaultKeys.TYPE), graph);
+            graph.addEntity(normalizedEntity);
+            graph.addEntity(typeEntity);
+        } else {
+            normalizedEntity = (MappingEntity) graph.getEntity(propertyId).get();
+        }
 
         if (isAssignment) {
             ScalarEntity valueEntity = new ScalarEntity(value, normalizedEntity.getId().extend(DefaultKeys.VALUE), graph);
-            graph.addEntity(valueEntity);
-            ScalarEntity computedEntity = new ScalarEntity("true", normalizedEntity.getId().extend(DefaultKeys.COMPUTED), graph);
-            graph.addEntity(computedEntity);
+            if (propertyExists) {
+                graph.replaceEntity(graph.getEntity(valueEntity.getId()).orElseThrow(), valueEntity);
+            } else {
+                graph.addEntity(valueEntity);
+                ScalarEntity computedEntity = new ScalarEntity("true", normalizedEntity.getId().extend(DefaultKeys.COMPUTED), graph);
+                graph.addEntity(computedEntity);
+            }
 
             final EntityId componentId = propertiesEntity.getParent().orElseThrow().getId();
 
@@ -205,7 +226,7 @@ public class Edmm {
                         .COMPONENT_TYPES
                         .extend(componentType)
                         .extend(DefaultKeys.PROPERTIES);
-                final Entity propertyDefinitionsEntity = graph.getEntity(propertyDefinitionsId).orElseGet(()->{
+                final Entity propertyDefinitionsEntity = graph.getEntity(propertyDefinitionsId).orElseGet(() -> {
                     MappingEntity properties = new MappingEntity(propertyDefinitionsId, graph);
                     graph.addEntity(properties);
                     return properties;
@@ -225,6 +246,4 @@ public class Edmm {
 
         return graph.getEntity(propertyDefinitionId).isPresent();
     }
-
-
 }
