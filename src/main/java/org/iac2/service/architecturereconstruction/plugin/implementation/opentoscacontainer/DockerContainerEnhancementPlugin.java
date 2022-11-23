@@ -96,18 +96,10 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
 
         BidiMap<String, DockerContainer> edmmDockerContainers = new DualHashBidiMap<>();
         // we find the edmm docker containers hosted on this specific docker engine
-        // first, we find the hostedOn relations on the docker engine
-        Collection<EntityId> hostedOnEngineRelIds = deploymentModel.getRelations()
+        Collection<RootComponent> components = Edmm.findDependentComponents(deploymentModel, dockerEngineComponent, HostedOn.class)
                 .stream()
-                .filter(r -> r.getTarget().equals(dockerEngineComponent.getId()))
-                .map(r -> r.getEntity().getId())
+                .filter(c -> c instanceof DockerContainer)
                 .toList();
-        // next, we find the sources of these relations
-        Collection<RootComponent> components = deploymentModel.getComponents()
-                .stream()
-                .filter(c -> c.getRelations().stream().anyMatch(r-> hostedOnEngineRelIds.contains(r.getEntity().getId())))
-                .toList();
-
         components.forEach(c -> edmmDockerContainers.put(c.getProperty("ContainerID").orElseThrow().getValue(), (DockerContainer) c));
 
         Collection<String> actualDockerContainerIds = containers

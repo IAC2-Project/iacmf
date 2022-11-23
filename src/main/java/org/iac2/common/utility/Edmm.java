@@ -149,6 +149,21 @@ public class Edmm {
                 .toList();
     }
 
+    public static Collection<RootComponent> findDependentComponents(DeploymentModel model,
+                                                                    RootComponent targetComponent,
+                                                                    Class<? extends DependsOn> relationType) {
+        Collection<EntityId> hostedOnEngineRelIds = model.getRelations()
+                .stream()
+                .filter(r -> relationType.isAssignableFrom(r.getClass()) && r.getTarget().equals(targetComponent.getId()))
+                .map(r -> r.getEntity().getId())
+                .toList();
+        // next, we find the sources of these relations
+        return model.getComponents()
+                .stream()
+                .filter(c -> c.getRelations().stream().anyMatch(r-> hostedOnEngineRelIds.contains(r.getEntity().getId())))
+                .toList();
+    }
+
     private static void addPropertyDefinition(Attribute<?> attribute, Entity propertiesEntity) {
         String propertyName = attribute.getName();
         String edmmType = switch (attribute.getType().getName()) {

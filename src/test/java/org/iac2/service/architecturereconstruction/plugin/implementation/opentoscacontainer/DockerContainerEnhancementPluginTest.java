@@ -24,6 +24,7 @@ import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.model.Container;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
+import io.github.edmm.model.relation.HostedOn;
 import io.github.edmm.model.relation.RootRelation;
 import org.assertj.core.util.Sets;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -178,9 +179,19 @@ public class DockerContainerEnhancementPluginTest {
         ClassPathResource containerInfo2 = new ClassPathResource("edmm/test-containers-2.json");
         Container[] containersOnEngine2 = new ObjectMapper().readValue(containerInfo2.getFile(), Container[].class);
         DockerContainerEnhancementPlugin plugin = new DockerContainerEnhancementPlugin();
-        plugin.enhanceModel(model, new ArrayList<>(), (DockerEngine) model.getComponent("DockerEngine_0").orElseThrow(), containersOnEngine1);
+        DockerEngine engine1 = (DockerEngine) model.getComponent("DockerEngine_0").orElseThrow();
+        plugin.enhanceModel(model, new ArrayList<>(), engine1, containersOnEngine1);
         model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertEquals(2, model.getComponents().stream().filter(c -> c instanceof DockerEngine).count());
+        Collection<RootComponent> hostedOnEngine1 = Edmm.findDependentComponents(model, engine1, HostedOn.class);
+        Assertions.assertEquals(4, hostedOnEngine1.size());
+        Assertions.assertEquals(4, hostedOnEngine1.stream().filter(c -> c instanceof DockerContainer).count());
+        Assertions.assertEquals(2, hostedOnEngine1.stream().filter(c ->
+                c.getProperty("structuralState").orElseThrow().getType().equals(StructuralState.EXPECTED.name())).count());
+
+        plugin.enhanceModel(model, new ArrayList<>(), (DockerEngine) model.getComponent("DockerEngine_1").orElseThrow(), containersOnEngine1);
+
+
     }
 
     private Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {
