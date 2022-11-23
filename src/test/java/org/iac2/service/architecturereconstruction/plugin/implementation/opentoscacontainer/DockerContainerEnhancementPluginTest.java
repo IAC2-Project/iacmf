@@ -67,7 +67,7 @@ public class DockerContainerEnhancementPluginTest {
     // set this to true if you want faster execution of this test when you probably need to run it more often
     private static boolean debugging = true;
 
-    private static boolean onlyLocal = true;
+    private static boolean onlyLocal = false;
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
