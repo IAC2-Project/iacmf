@@ -1,4 +1,4 @@
-package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
+package org.iac2.util;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
@@ -32,7 +32,7 @@ public class TestUtils {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private IRepository fetchRepository(RepositoryConfigurationObject.RepositoryProvider provider, Path repositoryInputPath, String remoteUrl) throws GitAPIException, IOException {
+    private static IRepository fetchRepository(RepositoryConfigurationObject.RepositoryProvider provider, Path repositoryInputPath, String remoteUrl) throws GitAPIException, IOException {
         Path repositoryPath = repositoryInputPath;
         LOGGER.info("Testing with repository directory '{}'", repositoryPath);
         boolean isInitializedRepo = false;
@@ -89,14 +89,14 @@ public class TestUtils {
         return RepositoryFactory.getRepository();
     }
 
-    public Path fetchCsar(String remoteUrl, QName serviceTemplateId) throws GitAPIException, IOException, AccountabilityException, RepositoryCorruptException, ExecutionException, InterruptedException {
+    public static Path fetchCsar(String remoteUrl, QName serviceTemplateId) throws GitAPIException, IOException, AccountabilityException, RepositoryCorruptException, ExecutionException, InterruptedException {
         Path repositoryPath = getRepositoryPath(remoteUrl);
         IRepository repository = fetchRepository(RepositoryConfigurationObject.RepositoryProvider.FILE, repositoryPath, remoteUrl);
         Path csarPath = exportCsarFromRepository(repository, serviceTemplateId);
         return csarPath;
     }
 
-    private Path exportCsarFromRepository(IRepository repository, QName serviceTemplateId) throws IOException, AccountabilityException, RepositoryCorruptException, ExecutionException, InterruptedException {
+    private static Path exportCsarFromRepository(IRepository repository, QName serviceTemplateId) throws IOException, AccountabilityException, RepositoryCorruptException, ExecutionException, InterruptedException {
         CsarExporter exporter = new CsarExporter(repository);
         Path csarFilePath = Files.createTempDirectory(serviceTemplateId.getLocalPart() + "_Test").resolve(serviceTemplateId.getLocalPart() + ".csar");
 
@@ -105,7 +105,7 @@ public class TestUtils {
         return csarFilePath;
     }
 
-    private void cloneRepo(Path repositoryPath, String remoteUrl) throws IOException, GitAPIException {
+    private static void cloneRepo(Path repositoryPath, String remoteUrl) throws IOException, GitAPIException {
         if (!Files.exists(repositoryPath)) {
             Files.createDirectory(repositoryPath);
         }
@@ -119,7 +119,7 @@ public class TestUtils {
                 .call();
     }
 
-    private Path getRepositoryPath(String testRemoteRepositoryUrl) {
+    private static Path getRepositoryPath(String testRemoteRepositoryUrl) {
         Path repositoryPath;
         String repoSuffix = "";
         if (testRemoteRepositoryUrl != null) {
@@ -134,7 +134,7 @@ public class TestUtils {
         return repositoryPath;
     }
 
-    public Map<String, String> getBaseInputParams() {
+    public static Map<String, String> getBaseInputParams() {
         Map<String, String> inputs = Maps.newHashMap();
         inputs.put("instanceDataAPIUrl", null);
         inputs.put("csarEntrypoint", null);
@@ -143,26 +143,26 @@ public class TestUtils {
         return inputs;
     }
 
-    public Map<String, String> getProvisioningInputParameters() {
-        Map<String, String> inputs = this.getBaseInputParams();
-        inputs.put("DockerUrl", "tcp://" + this.getDockerHost() + ":2375");
+    public static Map<String, String> getProvisioningInputParameters() {
+        Map<String, String> inputs = getBaseInputParams();
+        inputs.put("DockerUrl", "tcp://" + getDockerHost() + ":2375");
         inputs.put("FrontendPort", "80");
         inputs.put("BackendPort", "13373");
         return inputs;
     }
 
-    public Map<String, String> getTerminationPlanInputParameters(String serviceInstanceUrl) {
-        Map<String, String> inputs = this.getBaseInputParams();
+    public static Map<String, String> getTerminationPlanInputParameters(String serviceInstanceUrl) {
+        Map<String, String> inputs = getBaseInputParams();
         inputs.put("OpenTOSCAContainerAPIServiceInstanceURL", serviceInstanceUrl);
         return inputs;
     }
 
-    public String getServiceInstanceURL(String containerHost, String containerPort, String csarId, String serviceTemplateId, String serviceInstanceId) {
+    public static String getServiceInstanceURL(String containerHost, String containerPort, String csarId, String serviceTemplateId, String serviceInstanceId) {
         String url = "http://" + containerHost + ":" + containerPort + "/csars/{csarid}/servicetemplates/{servicetemplateid}/instances";
         return url.replace("{csarid}", csarId).replace("{servicetemplateid}", serviceTemplateId) + "/" + serviceInstanceId;
     }
 
-    public String getDockerHost() {
+    public static String getDockerHost() {
         String os = SystemUtils.OS_NAME;
         if (os.toLowerCase().contains("windows")) {
             return "host.docker.internal";

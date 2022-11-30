@@ -71,7 +71,7 @@
         <dependency>
             <groupId>com.github.UST-edmm</groupId>
             <artifactId>edmm</artifactId>
-            <version>v1.1.1</version>
+            <version>feature~allow-user-defined-types-SNAPSHOT</version>
             <exclusions>
                 <!-- Needed right now as TOSCin has an openstack-resteasy implementation in it which breaks the opentosca client...-->
                 <exclusion>
@@ -137,6 +137,18 @@
                     <artifactId>log4j-to-slf4j</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- deps for DockerReconstruction -->
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
+            <version>3.2.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport-httpclient5</artifactId>
+            <version>3.2.13</version>
         </dependency>
     </dependencies>
 

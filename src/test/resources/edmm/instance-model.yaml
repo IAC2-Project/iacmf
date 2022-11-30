@@ -1,0 +1,74 @@
+---
+components:
+  DockerContainer_0:
+    type: docker_container
+    relations:
+      - hosted_on: DockerEngine_0
+    properties:
+      name: DockerContainer
+      structuralState: ''
+      state: ''
+      ContainerID: container_1
+  DockerContainer_1:
+    type: docker_container
+    relations:
+      - hosted_on: DockerEngine_0
+    properties:
+      name: DockerContainer
+      structuralState: ''
+      state: ''
+      ContainerID: container_2
+  DockerEngine_0:
+    type: docker_engine
+    properties:
+      dockerEngineUrl: https://abc.com
+      name: DockerEngine
+  DockerContainer_2:
+    type: docker_container
+    relations:
+      - hosted_on: DockerEngine_0
+    properties:
+      name: DockerContainer
+      structuralState: ''
+      state: ''
+      ContainerID: container_X
+  DockerEngine_1:
+    type: docker_engine
+    properties:
+      dockerEngineUrl: https://xyz.com
+      name: DockerEngine
+  DockerContainer_3:
+    type: docker_container
+    relations:
+      - hosted_on: DockerEngine_1
+    properties:
+      name: DockerContainer
+      structuralState: ''
+      state: ''
+      ContainerID: container_4
+relation_types:
+  depends_on:
+    extends: null
+  hosted_on:
+    extends: depends_on
+multi_id: '12345'
+component_types:
+  docker_container:
+    extends: software_component
+    properties:
+      structuralState:
+        type: string
+      state:
+        type: string
+      ContainerID:
+        type: string
+  docker_engine:
+    extends: base
+    properties:
+      dockerEngineUrl:
+        type: string
+  software_component:
+    extends: base
+  base:
+    extends: null
+version: edm_1_0

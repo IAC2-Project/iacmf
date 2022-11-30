@@ -1,0 +1,5 @@
+{
+  "Id": "test_container_id",
+  "Image": "test_container_image",
+  "Status": "running"
+}
