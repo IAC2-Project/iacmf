@@ -23,7 +23,6 @@ import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.Edmm;
-import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.exception.AppInstanceNodeFoundException;
 import org.iac2.service.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
@@ -49,7 +48,6 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
     private final static int OPENTOSCA_CLIENT_TIMEOUT = 10000;
 
     public OpenToscaContainerModelCreationPlugin() {
-        EdmmTypeResolver.initDefaultMappings();
     }
 
     @Override
