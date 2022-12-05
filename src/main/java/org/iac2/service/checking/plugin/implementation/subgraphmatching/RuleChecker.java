@@ -43,22 +43,18 @@ public class RuleChecker {
                         ComponentComparisonOutcome outcome = semanticComparator.compare(instanceModelComponent, checkerComponent);
 
                         if (outcome != ComponentComparisonOutcome.MATCH) {
-                            RuleCheckingResult result = RuleCheckingResult.forOutcome(RuleCheckingOutcome.COMPLIANCE_VIOLATION);
-                            result.setDetails(checkerComponent, instanceModelComponent, String.valueOf(outcome));
-
-                            return result;
+                            return new RuleCheckingResult(RuleCheckingOutcome.COMPLIANCE_VIOLATION,
+                                    checkerComponent, instanceModelComponent, String.valueOf(outcome));
                         }
                     }
                 }
             }
 
-            return RuleCheckingResult.forOutcome(RuleCheckingOutcome.NO_VIOLATIONS);
+            return new RuleCheckingResult(RuleCheckingOutcome.NO_VIOLATIONS);
         }
 
-        RuleCheckingResult result = RuleCheckingResult.forOutcome(RuleCheckingOutcome.INVALID_RULE);
-        result.setDetails(null, null, String.valueOf(validationResult.getOutcome()));
-
-        return result;
+        return new RuleCheckingResult(RuleCheckingOutcome.INVALID_RULE,
+                null, null, String.valueOf(validationResult.getOutcome()));
     }
 
 }
