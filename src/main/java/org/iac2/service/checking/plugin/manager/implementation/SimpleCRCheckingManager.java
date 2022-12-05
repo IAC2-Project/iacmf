@@ -4,11 +4,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 import org.iac2.common.exception.PluginNotFoundException;
 import org.iac2.common.exception.PluginType;
 import org.iac2.common.model.compliancerule.ComplianceRule;
-import org.iac2.service.checking.plugin.implementation.SimplePropertyValueCheckingPlugin;
+import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.SubgraphMatchingCheckingPlugin;
 import org.iac2.service.checking.plugin.manager.ComplianceRuleCheckingPluginManager;
 
 /**
@@ -20,9 +20,10 @@ public class SimpleCRCheckingManager implements ComplianceRuleCheckingPluginMana
     private final Map<String, ComplianceRuleCheckingPlugin> allPlugins;
 
     private SimpleCRCheckingManager() {
-        SimplePropertyValueCheckingPlugin isomorphismCheckerPlugin = new SimplePropertyValueCheckingPlugin();
+        SubgraphMatchingCheckingPlugin plugin = new SubgraphMatchingCheckingPlugin();
         allPlugins = new HashMap<>();
-        allPlugins.put(isomorphismCheckerPlugin.getIdentifier(), isomorphismCheckerPlugin);
+        allPlugins.put(plugin.getIdentifier(), plugin);
+
     }
 
     public static SimpleCRCheckingManager getInstance() {

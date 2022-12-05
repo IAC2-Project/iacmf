@@ -1,0 +1,290 @@
+---
+components:
+  MySQL-DB_w1_0:
+    relations:
+      - '0':
+          hosted_on:
+            type: hosted_on
+            target: MySQL-DBMS_8.0-w1_0
+    type: mysql_database
+    properties:
+      DBPassword:
+        computed: 'true'
+        type: string
+        value: pass
+      DBName:
+        computed: 'true'
+        type: string
+        value: realWorld
+      DBUser:
+        computed: 'true'
+        type: string
+        value: user
+  DockerContainer:
+    type: docker_container
+    relations:
+      - '0':
+          hosted_on:
+            type: hosted_on
+            target: DockerEngine
+    properties:
+      ContainerIP:
+        computed: 'true'
+        type: string
+        value: 172.17.0.1
+      ContainerID:
+        computed: 'true'
+        type: string
+        value: c80a924ae881883d418c699767f188b412c583bb4a186aa997bb18055ecb9269
+      Port:
+        computed: 'true'
+        type: string
+        value: '13373'
+      ContainerPort:
+        computed: 'true'
+        type: string
+        value: '13373'
+      ImageID:
+        computed: 'true'
+        type: string
+        value: ubuntu:22.04
+      structuralState:
+        computed: 'true'
+        type: string
+        value: EXPECTED
+      Image:
+        computed: 'true'
+        type: string
+        value: sha256:cdb68b455a141ed921945f6d39a8c0694a7e21a37b2b030488d73e38875a26cc
+  Java_11-w1_0:
+    relations:
+      - '0':
+          hosted_on:
+            type: hosted_on
+            target: DockerContainer
+    type: java_11
+  RealWorld-Application_Angular-w1:
+    type: realworld_application_angular
+    relations:
+      - '0':
+          hosted_on:
+            type: hosted_on
+            target: NGINX_latest-w1
+      - '1':
+          connects_to:
+            type: connects_to
+            target: RealWorld-Application-Backend_Java11-Spring-w1_0
+    properties:
+      Properties:
+        computed: 'true'
+        type: string
+        value: RealWorldApplication-Angular
+      AppName:
+        computed: 'true'
+        type: string
+        value: RealWorldApplication-Angular
+  DockerContainer_2:
+    type: docker_container
+    relations:
+      - '0':
+          hosted_on:
+            type: hosted_on
+            target: DockerEngine
+    properties:
+      ContainerIP:
+        computed: 'true'
+        type: string
+        value: 172.17.0.1
+      ContainerID:
+        computed: 'true'
+        type: string
+        value: 4d2b19cbed6674bfb6ab2ebda2cb336adf20d24bafa967fc5313780856676e88
+      Port:
+        computed: 'true'
+        type: string
+        value: '80'
+      ContainerPort:
+        computed: 'true'
+        type: string
+        value: '80'
+      ImageID:
+        computed: 'true'
+        type: string
+        value: ubuntu:22.04
+      structuralState:
+        computed: 'true'
+        type: string
+        value: EXPECTED
+      Image:
+        computed: 'true'
+        type: string
+        value: sha256:cdb68b455a141ed921945f6d39a8c0694a7e21a37b2b030488d73e38875a26cc
+  DockerEngine:
+    type: docker_engine
+    properties:
+      DockerEngineURL:
+        computed: 'true'
+        type: string
+        value: tcp://172.17.0.1:2375
+  NGINX_latest-w1:
+    relations:
+      - '0':
+          hosted_on:
+            type: hosted_on
+            target: DockerContainer_2
+    type: nginx
+  RealWorld-Application-Backend_Java11-Spring-w1_0:
+    type: realworld_application_backend_java11_spring
+    relations:
+      - '0':
+          hosted_on:
+            type: hosted_on
+            target: Java_11-w1_0
+      - '1':
+          connects_to:
+            type: connects_to
+            target: MySQL-DB_w1_0
+    properties:
+      Port:
+        computed: 'true'
+        type: string
+        value: '13373'
+      AppName:
+        computed: 'true'
+        type: string
+        value: RealWorldApplication
+  MySQL-DBMS_8.0-w1_0:
+    relations:
+      - '0':
+          hosted_on:
+            type: hosted_on
+            target: DockerContainer
+    type: mysql_dbms
+    properties:
+      DBMSUser:
+        computed: 'true'
+        type: string
+        value: root
+      DBMSPort:
+        computed: 'true'
+        type: string
+        value: '3306'
+      DBMSPassword:
+        computed: 'true'
+        type: string
+        value: root
+component_types:
+  mysql_database:
+    extends: database
+    properties:
+      DBPassword:
+        type: string
+      port:
+        type: string
+      name:
+        type: string
+      DBName:
+        type: string
+      DBUser:
+        type: string
+  depends_on:
+    extends: null
+  nginx:
+    extends: web_server
+  web_server:
+    extends: software_component
+    properties:
+      port:
+        type: integer
+  docker_engine:
+    extends: base
+    properties:
+      DockerEngineCertificate:
+        type: string
+      DockerEngineURL:
+        type: string
+  dbms:
+    extends: software_component
+    properties:
+      port:
+        type: integer
+      root_password:
+        type: string
+  realworld_application_backend_java11_spring:
+    extends: web_application
+    properties:
+      context_root:
+        type: string
+      Port:
+        type: string
+      AppName:
+        type: string
+  web_application:
+    extends: base
+  database:
+    extends: base
+    properties:
+      password:
+        type: string
+      schema_name:
+        type: string
+      user:
+        type: string
+  docker_container:
+    extends: software_component
+    properties:
+      HostMountFiles:
+        type: string
+      ContainerIP:
+        type: string
+      PrivilegedMode:
+        type: string
+      ContainerMountPath:
+        type: string
+      ContainerID:
+        type: string
+      State:
+        type: string
+      Port:
+        type: string
+      ContainerPort:
+        type: string
+      ImageId:
+        type: string
+      ImageID:
+        type: string
+      structuralState:
+        type: string
+      Image:
+        type: string
+  mysql_dbms:
+    extends: dbms
+    properties:
+      DBMSUser:
+        type: string
+      DBMSPort:
+        type: string
+      DBMSPassword:
+        type: string
+  software_component:
+    extends: base
+  java_11:
+    extends: software_component
+    properties:
+      admin_credential:
+        type: string
+      component_version:
+        type: string
+  hosted_on:
+    extends: depends_on
+  connects_to:
+    extends: depends_on
+  realworld_application_angular:
+    extends: web_application
+    properties:
+      Properties:
+        type: string
+      AppName:
+        type: string
+  base:
+    extends: null
