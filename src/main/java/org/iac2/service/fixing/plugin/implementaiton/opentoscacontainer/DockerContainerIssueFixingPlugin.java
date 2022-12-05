@@ -30,7 +30,9 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
 
     @Override
     public boolean isSuitableForIssue(ComplianceIssue issue) {
-        return issue.getType().equalsIgnoreCase("instance-matches-model");
+        return issue.getType().equalsIgnoreCase("WrongAttributeValueIssue")
+                && issue.getProperties().containsKey("INSTANCE_MODEL_COMPONENT_ID")
+                && issue.getProperties().containsKey("CHECKER_COMPONENT_ID");
     }
 
     @Override
@@ -61,10 +63,14 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
 
         Map<DockerEngine, Collection<DockerContainer>> dockerEngineCollectionMap = Maps.newHashMap();
 
+
         instanceModel.getDeploymentModel().getComponents().stream()
                 .filter(c -> c instanceof DockerContainer)
                 .filter(c -> c.getProperties().containsKey("structuralState"))
-                .filter(c -> c.getProperty("structuralState").equals(StructuralState.NOT_EXPECTED) | c.getProperty("structuralState").equals(StructuralState.REMOVED))
+                .filter(c -> {
+                    String structuralState = c.getProperties().get("structuralState").getValue();
+                    return structuralState.equals(StructuralState.NOT_EXPECTED.toString()) | structuralState.equals(StructuralState.REMOVED.toString());
+                })
                 .map(c -> (DockerContainer) c)
                 .forEach(c -> {
                     DockerEngine dockerEngine = this.findDockerEngine(instanceModel.getDeploymentModel().getComponents(), c);
@@ -106,6 +112,6 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
     }
 
     public DockerEngine findDockerEngine(Collection<RootComponent> components, DockerContainer dockerContainer) {
-        return dockerContainer.getRelations().stream().filter(r -> r instanceof HostedOn).map(r -> r.getTarget()).map(t -> components.stream().filter(c -> c.getId().equals(t))).filter(c -> c instanceof DockerEngine).map(c -> (DockerEngine) c).findFirst().get();
+        return dockerContainer.getRelations().stream().filter(r -> r instanceof HostedOn).filter(r -> r.getTarget() != null).map(r -> r.getTarget()).map(t -> components.stream().filter(c -> c.getId().equals(t))).filter(c -> c instanceof DockerEngine).map(c -> (DockerEngine) c).findFirst().get();
     }
 }

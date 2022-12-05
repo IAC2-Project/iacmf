@@ -26,6 +26,7 @@ import org.iac2.service.architecturereconstruction.plugin.implementation.opentos
 import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
 import org.iac2.service.checking.plugin.implementation.subgraphmatching.SubgraphMatchingCheckingPlugin;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
+import org.iac2.service.fixing.common.model.IssueFixingReport;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -71,6 +72,8 @@ class DockerIssueFixingPluginManagerTest {
     private static ProductionSystem productionSystem;
     private static InstanceModel instanceModel;
 
+    private static ComplianceIssue issue;
+
     private static final String RULE_PATH = "http://localhost:8080/winery/compliancerules/http%253A%252F%252Fwww.example.org%252Ftosca%252Fcompliancerules/no-unexpected-docker-containers_w1-wip1";
 
 
@@ -106,24 +109,23 @@ class DockerIssueFixingPluginManagerTest {
     @Test
     void testFixingDockerContainers() {
         SimpleIssueFixingPluginManager instance = SimpleIssueFixingPluginManager.getInstance();
-        ComplianceRule rule = new ComplianceRule();
-
-        ComplianceIssue issue = new ComplianceIssue(
-                "I have a bad feeling about this!",
-                rule,
-                "instance-matches-model",
-                new HashMap<>());
         ProductionSystem productionSystem = new ProductionSystem(
                 "opentoscacontainer",
                 "bla bla",
                 new HashMap<>());
+
         Collection<IssueFixingPlugin> plugins = instance.getSuitablePlugins(issue, productionSystem);
         assertNotNull(plugins);
         assertEquals(1, plugins.size());
 
         IssueFixingPlugin plugin = plugins.iterator().next();
         assertNotNull(plugin);
+        assertNotNull(issue);
 
+        IssueFixingReport report = plugin.fixIssue(issue, instanceModel, productionSystem);
+
+        assertNotNull(report);
+        assertTrue(report.isSuccessful());
 
     }
 
@@ -185,9 +187,10 @@ class DockerIssueFixingPluginManagerTest {
         SubgraphMatchingCheckingPlugin checkingPlugin = new SubgraphMatchingCheckingPlugin();
 
         ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", RULE_PATH);
-        rule.addStringParameter("ENGINE_URL", "tcp://172.17.0.1:2375");
+        rule.addStringParameter("ENGINE_URL", "tcp://host.docker.internal:2375");
         Collection<ComplianceIssue> issues = checkingPlugin.findIssues(instanceModel, rule);
         Assertions.assertEquals(1, issues.size());
+        issue = issues.iterator().next();
     }
 
     private static Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {
