@@ -51,6 +51,7 @@ import org.opentosca.container.client.ContainerClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.junit.jupiter.DisabledIf;
 
 public class DockerContainerEnhancementPluginTest {
 
@@ -65,29 +66,37 @@ public class DockerContainerEnhancementPluginTest {
     private static final ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(20, TimeUnit.MINUTES).build();
 
     // set this to true if you want faster execution of this test when you probably need to run it more often
-    private static boolean debugging = true;
+    private static final boolean cleanupAfterTests = true;
+
+    public static final boolean onlyLocal = false;
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
-        csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
-        appName = csarPath.getFileName().toString();
-        OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
-        instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
+        // The test class does not load the spring boot context. Therefore, we need to manually initialize type mappings.
+        EdmmTypeResolver.initDefaultMappings();
+
+        if (!onlyLocal) {
+            csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
+            appName = csarPath.getFileName().toString();
+            OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
+            instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
+        }
     }
 
     @AfterAll
     public static void cleanupContainer() {
-        if (!debugging) {
+        if (!cleanupAfterTests && !onlyLocal) {
             OpenTOSCATestUtils.terminateApp(client, appName, hostName, port);
-            client.getApplications().forEach(a -> client.removeApplication(a));
+            client.getApplications().forEach(client::removeApplication);
         }
     }
 
     @Test
+    @DisabledIf("#{T(org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.DockerContainerEnhancementPluginTest).onlyLocal}")
     public void testAddDockerContainerToModel() throws IOException, IllegalAccessException {
         ClassPathResource resource = new ClassPathResource("edmm/four-components-hosted-on.yml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
-        ClassPathResource containerInfo = new ClassPathResource("edmm/test-container.json");
+        ClassPathResource containerInfo = new ClassPathResource("DockerContainers/test-container.json");
         Container container = new ObjectMapper().readValue(containerInfo.getFile(), Container.class);
         RootComponent engine = model.getComponent("tomcat").orElseThrow();
         DockerContainerEnhancementPlugin.addDockerContainerToEntityGraph(model.getGraph(), engine, container);
@@ -96,6 +105,7 @@ public class DockerContainerEnhancementPluginTest {
     }
 
     @Test
+    @DisabledIf("#{T(org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.DockerContainerEnhancementPluginTest).onlyLocal}")
     public void testDockerReconstruction() {
         ProductionSystem productionSystem = OpenTOSCATestUtils.createProductionSystem(hostName, port, appName, instanceId);
         ModelCreationPlugin plugin = OpenTOSCATestUtils.getOpenTOSCAModelCreationPlugin();
@@ -112,9 +122,6 @@ public class DockerContainerEnhancementPluginTest {
 
         StringWriter writer1 = new StringWriter();
         instanceModel.getDeploymentModel().getGraph().generateYamlOutput(writer1);
-        LOGGER.info(writer1.toString());
-        writer1 = new StringWriter();
-        instanceModel1.getDeploymentModel().getGraph().generateYamlOutput(writer1);
         LOGGER.info(writer1.toString());
         Assertions.assertEquals(comps.size(), newComps.size());
         Assertions.assertEquals(rels.size(), newRels.size());
@@ -172,13 +179,11 @@ public class DockerContainerEnhancementPluginTest {
 
     @Test
     void testRefinementLocally() throws IOException, IllegalAccessException {
-        EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
-        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
         ClassPathResource resource = new ClassPathResource("edmm/instance-model.yaml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
-        ClassPathResource containerInfo1 = new ClassPathResource("edmm/test-containers.json");
+        ClassPathResource containerInfo1 = new ClassPathResource("DockerContainers/test-containers.json");
         List<Container> containersOnEngine1 = Arrays.stream(new ObjectMapper().readValue(containerInfo1.getFile(), Container[].class)).toList();
-        ClassPathResource containerInfo2 = new ClassPathResource("edmm/test-containers-2.json");
+        ClassPathResource containerInfo2 = new ClassPathResource("DockerContainers/test-containers-2.json");
         List<Container> containersOnEngine2 = Arrays.stream(new ObjectMapper().readValue(containerInfo2.getFile(), Container[].class)).toList();
         DockerContainerEnhancementPlugin plugin = new DockerContainerEnhancementPlugin();
         DockerEngine engine1 = (DockerEngine) model.getComponent("DockerEngine_0").orElseThrow();

@@ -118,7 +118,7 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
         for (String deploymentModelContainerId : edmmDockerContainers.keySet()) {
             if (!actualDockerContainerIds.contains(deploymentModelContainerId)) {
                 current = edmmDockerContainers.get(deploymentModelContainerId);
-                Map<String, String> props = new HashMap<>();
+                Map<String, Object> props = new HashMap<>();
                 props.put("structuralState", StructuralState.REMOVED.name());
                 Edmm.addPropertyAssignments(graph,
                         current.getEntity().getId(),
@@ -130,13 +130,13 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
     public static void addDockerContainerToEntityGraph(EntityGraph graph, RootComponent dockerEngineComponent, Container container) throws IllegalAccessException {
         // here we need to setup a proper mapping to the properties of a dockercontainer Node Type and so..
         // todo we need to ensure that we do not add components with the same id (...multiple engines)
-        Map<String, String> props = generateAttributes(container, StructuralState.NOT_EXPECTED);
+        Map<String, Object> props = generateAttributes(container, StructuralState.NOT_EXPECTED);
         EntityId entityId = Edmm.addComponent(graph, container.getId(), props, DockerContainer.class);
         Edmm.addRelation(graph, entityId, dockerEngineComponent.getEntity().getId(), HostedOn.class);
     }
 
-    private static Map<String, String> generateAttributes(Container container, StructuralState state) {
-        Map<String, String> props = Maps.newHashMap();
+    private static Map<String, Object> generateAttributes(Container container, StructuralState state) {
+        Map<String, Object> props = Maps.newHashMap();
         props.put("ContainerID", container.getId());
         props.put("structuralState", state.name());
         props.put("Image", container.getImage());

@@ -10,18 +10,19 @@ import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterEntity;
 
 @Entity
-@DiscriminatorValue(value = IntegerParameterAssignmentEntity.TYPE_ID)
+@DiscriminatorValue(value = DoubleParameterAssignmentEntity.TYPE_ID)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class IntegerParameterAssignmentEntity extends ComplianceRuleParameterAssignmentEntity {
-    public static final String TYPE_ID = "1";
-    private Integer intValue;
+public class DoubleParameterAssignmentEntity extends ComplianceRuleParameterAssignmentEntity {
+    private Double doubleValue;
+    public static final String TYPE_ID = "3";
 
-    public IntegerParameterAssignmentEntity(ComplianceRuleParameterEntity parameter,
+    public DoubleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter,
                                             ComplianceJobEntity complianceJob,
-                                            int value) {
+                                            double value) {
         super(parameter, complianceJob);
-        this.intValue = value;
+        this.doubleValue = value;
     }
+
 }

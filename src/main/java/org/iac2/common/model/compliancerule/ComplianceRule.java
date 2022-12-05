@@ -10,16 +10,19 @@ import org.iac2.common.model.compliancerule.parameter.BooleanComplianceRuleParam
 import org.iac2.common.model.compliancerule.parameter.ComplianceRuleParameter;
 import org.iac2.common.model.compliancerule.parameter.DoubleComplianceRuleParameter;
 import org.iac2.common.model.compliancerule.parameter.IntegerComplianceRuleParameter;
+import org.iac2.common.model.compliancerule.parameter.StringCollectionComplianceRuleParameter;
 import org.iac2.common.model.compliancerule.parameter.StringComplianceRuleParameter;
 
 @Setter
 @Getter
 @NoArgsConstructor
 public class ComplianceRule {
+    private Long id;
     private String type;
     private String location;
     private Collection<ComplianceRuleParameter> parameterAssignments;
-    public ComplianceRule(String type, String location) {
+    public ComplianceRule(Long id, String type, String location) {
+        this.id = id;
         this.type = type;
         this.location = location;
         parameterAssignments = new ArrayList<>();
@@ -44,6 +47,11 @@ public class ComplianceRule {
 
     public ComplianceRule addDoubleParameter(String name, double value) {
         this.parameterAssignments.add(new DoubleComplianceRuleParameter(name, value));
+        return this;
+    }
+
+    public ComplianceRule addStringCollectionParameter(String name, Collection<String> value) {
+        this.parameterAssignments.add(new StringCollectionComplianceRuleParameter(name, value));
         return this;
     }
 

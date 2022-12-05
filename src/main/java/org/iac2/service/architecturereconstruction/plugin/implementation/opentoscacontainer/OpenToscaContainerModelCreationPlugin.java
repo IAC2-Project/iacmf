@@ -1,6 +1,7 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -22,7 +23,6 @@ import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.Edmm;
-import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.exception.AppInstanceNodeFoundException;
 import org.iac2.service.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
@@ -48,14 +48,6 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
     private final static int OPENTOSCA_CLIENT_TIMEOUT = 10000;
 
     public OpenToscaContainerModelCreationPlugin() {
-        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
-        EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
-        EdmmTypeResolver.putMapping("mysql_dbms", MySqlDbms.class);
-        EdmmTypeResolver.putMapping("mysql_db", MySqlDb.class);
-        EdmmTypeResolver.putMapping("realworld_application_backend_java11_spring", RealWorldApplicationBackendJava11Spring.class);
-        EdmmTypeResolver.putMapping("java_11", Java11.class);
-        EdmmTypeResolver.putMapping("realworld_application_angular", RealWorldAngularApp.class);
-        EdmmTypeResolver.putMapping("nginx", Nginx.class);
     }
 
     @Override
@@ -161,7 +153,9 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         return entityGraph;
     }
 
+
     private static Class<? extends RootRelation> getRelationClass(RelationInstance relationInstance) {
+
         return switch (relationInstance.getTemplateType()) {
             case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}HostedOn" -> HostedOn.class;
             case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ConnectsTo" -> ConnectsTo.class;
@@ -169,9 +163,12 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         };
     }
 
+
     private static EntityId addNodeInstanceAsComp(EntityGraph entityGraph, NodeInstance nodeInstance) throws IllegalAccessException {
-        return Edmm.addComponent(entityGraph, nodeInstance.getTemplate(), nodeInstance.getProperties(), getClassForTemplateId(nodeInstance.getTemplateType()));
+        Map<String, Object> properties = new HashMap<>(nodeInstance.getProperties());
+        return Edmm.addComponent(entityGraph, nodeInstance.getTemplate(),properties, getClassForTemplateId(nodeInstance.getTemplateType()));
     }
+
 
     private static Class<? extends RootComponent> getClassForTemplateId(String templateType) {
         return switch (QName.valueOf(templateType).getLocalPart()) {

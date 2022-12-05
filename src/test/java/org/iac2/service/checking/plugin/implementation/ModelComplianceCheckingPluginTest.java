@@ -40,6 +40,7 @@ import org.opentosca.container.client.ContainerClientBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+// todo probably remove!
 @Disabled
 public class ModelComplianceCheckingPluginTest {
 

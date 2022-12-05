@@ -20,6 +20,7 @@ import io.github.edmm.model.relation.RootRelation;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
+import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
@@ -50,10 +51,11 @@ public class OpenToscaContainerPluginTest {
     private static final ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(20, TimeUnit.MINUTES).build();
 
     // set this to true if you want faster execution of this test when you probably need to run it more often
-    private static boolean debugging = true;
+    private static final boolean cleanupAfterTests = true;
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
+        EdmmTypeResolver.initDefaultMappings();
         csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
         appName = csarPath.getFileName().toString();
         OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
@@ -62,7 +64,7 @@ public class OpenToscaContainerPluginTest {
 
     @AfterAll
     public static void cleanupContainer() {
-        if (!debugging) {
+        if (!cleanupAfterTests) {
             OpenTOSCATestUtils.terminateApp(client, appName, hostName, port);
             client.getApplications().forEach(client::removeApplication);
         }

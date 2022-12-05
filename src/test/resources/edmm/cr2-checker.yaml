@@ -1,0 +1,31 @@
+---
+components:
+  MySQL_Database_0:
+    operations:
+      configure: C:\Users\falazigb\winery-repositories\modeling-repository/artifacttemplates/https%3A%2F%2Fedmm.uni-stuttgart.de%2Fartifacttemplates/MySQL_Database-Configure/files/configure.sh
+    type: mysql_database
+    properties:
+      password: ""
+      name: MySQL_Database
+      componentName: ""
+      schema_name: ""
+      user: "#ALLOWED_USERS.containsAll(value)"
+multi_id: "12345"
+component_types:
+  database:
+    extends: base
+    properties:
+      password:
+        type: string
+      schema_name:
+        type: string
+      user:
+        type: string
+  mysql_database:
+    extends: database
+  base:
+    extends: null
+    properties:
+      componentName:
+        type: string
+version: edm_1_0

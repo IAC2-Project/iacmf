@@ -99,7 +99,7 @@ public class Edmm {
 
     public static EntityId addComponent(EntityGraph graph,
                                         String componentId,
-                                        Map<String, String> attributeAssignments,
+                                        Map<String, Object> attributeAssignments,
                                         Class<? extends RootComponent> componentType) throws IllegalAccessException {
         final Entity typeEntity = addType(graph, componentType);
         EntityId componentEntityId = EntityGraph.COMPONENTS.extend(componentId);
@@ -125,15 +125,15 @@ public class Edmm {
         return componentEntityId;
     }
 
-    public static void addPropertyAssignments(EntityGraph graph, EntityId componentId, Map<String, String> attributeAssignments) {
-        final EntityId propertiesId = componentId.extend(DefaultKeys.PROPERTIES);
-        final Entity propertiesEntity = graph.getEntity(propertiesId).orElseGet(() -> {
-            MappingEntity properties = new MappingEntity(propertiesId, graph);
-            graph.addEntity(properties);
-            return properties;
-        });
+    public static void addPropertyAssignments(EntityGraph graph, EntityId componentId, Map<String, Object> attributeAssignments) {
+        final Entity propertiesEntity = ensurePropertiesEntityExists(graph, componentId);
 
         addPropertyAssignments(propertiesEntity, attributeAssignments);
+    }
+
+    public static void addPropertyExpressionAssignment(EntityGraph graph, EntityId componentId, String name, String type, String expression) {
+        final Entity propertiesEntity = ensurePropertiesEntityExists(graph, componentId);
+        addProperty(propertiesEntity, type, name, true, expression);
     }
 
     public static String getComponentType(EntityGraph graph, EntityId componentId) {
@@ -175,10 +175,28 @@ public class Edmm {
         addProperty(propertiesEntity, edmmType, propertyName, false, null);
     }
 
-    private static void addPropertyAssignments(Entity propertiesEntity, Map<String, String> attributeAssignments) {
+    private static void addPropertyAssignments(Entity propertiesEntity, Map<String, Object> attributeAssignments) {
 
         attributeAssignments.forEach((key, value) -> {
-            addProperty(propertiesEntity, DefaultKeys.STRING, key, true, value);
+            String type = EdmmTypeResolver.resolveBasicType(value.getClass());
+            addProperty(propertiesEntity, type, key, true, convertAttributeValue(type, value));
+        });
+    }
+
+    private static String convertAttributeValue(String edmmBasicType, Object value) {
+        if (edmmBasicType.equals("list")) {
+            return String.join(",", (Collection<String>)value);
+        }
+
+        return String.valueOf(value);
+    }
+
+    private static Entity ensurePropertiesEntityExists(EntityGraph graph, EntityId componentId) {
+        final EntityId propertiesId = componentId.extend(DefaultKeys.PROPERTIES);
+        return graph.getEntity(propertiesId).orElseGet(() -> {
+            MappingEntity properties = new MappingEntity(propertiesId, graph);
+            graph.addEntity(properties);
+            return properties;
         });
     }
 
@@ -222,15 +240,10 @@ public class Edmm {
 
             if (!doesPropertyDefinitionExist(graph, componentId, propertyName)) {
                 final String componentType = getComponentType(graph, componentId);
-                final EntityId propertyDefinitionsId = EntityGraph
+                final Entity propertyDefinitionsEntity = ensurePropertiesEntityExists(graph, EntityGraph
                         .COMPONENT_TYPES
                         .extend(componentType)
-                        .extend(DefaultKeys.PROPERTIES);
-                final Entity propertyDefinitionsEntity = graph.getEntity(propertyDefinitionsId).orElseGet(() -> {
-                    MappingEntity properties = new MappingEntity(propertyDefinitionsId, graph);
-                    graph.addEntity(properties);
-                    return properties;
-                });
+                        .extend(DefaultKeys.PROPERTIES));
                 addProperty(propertyDefinitionsEntity, propertyType, propertyName, false, null);
             }
         }

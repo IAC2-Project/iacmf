@@ -29,6 +29,7 @@ import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,11 @@ import org.springframework.core.io.ClassPathResource;
 
 class EdmmTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(EdmmTest.class);
+
+    @BeforeAll
+    static void init() {
+        EdmmTypeResolver.initDefaultMappings();
+    }
 
     @Test
     void testAddType() throws IOException, IllegalAccessException {
@@ -125,8 +131,6 @@ class EdmmTest {
 
     @Test
     void testBuildGraphFromScratch() throws IllegalAccessException {
-        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
-        EdmmTypeResolver.putMapping("docker_container", DockerContainer.class);
         EntityGraph graph = new EntityGraph();
         final EntityId engineId = Edmm.addComponent(
                 graph,
@@ -186,7 +190,6 @@ class EdmmTest {
 
     @Test
     void testAddingPropertyProgrammatically() throws IllegalAccessException {
-        EdmmTypeResolver.putMapping("docker_engine", DockerEngine.class);
         EntityGraph graph = new EntityGraph();
         final EntityId engineId = Edmm.addComponent(
                 graph,
@@ -201,18 +204,19 @@ class EdmmTest {
         Edmm.addPropertyAssignments(graph, stuff, Map.of("aKey", "aValue", "bKey", "bValue"));
         DeploymentModel model = new DeploymentModel("myModel", graph);
         Map<String, Property> engineProperties = model.getComponent(engineId.getName()).orElseThrow().getProperties();
+        Assertions.assertEquals(1, engineProperties.values().stream().filter(Property::isComputed).count());
         Assertions.assertTrue(engineProperties.containsKey(DockerEngine.DOCKER_ENGINE_URL.getName()));
         Assertions.assertEquals("http://docker.engine.com",
                 engineProperties.get(DockerEngine.DOCKER_ENGINE_URL.getName()).getValue());
-
         Map<String, Property> stuffProperties = model.getComponent(stuff.getName()).orElseThrow().getProperties();
+
         Assertions.assertTrue(stuffProperties.containsKey("aKey"));
         Assertions.assertEquals("aValue",
                 stuffProperties.get("aKey").getValue());
         Assertions.assertTrue(stuffProperties.containsKey("bKey"));
         Assertions.assertEquals("bValue",
                 stuffProperties.get("bKey").getValue());
-
+        Assertions.assertEquals(2, stuffProperties.values().stream().filter(Property::isComputed).count());
         StringWriter writer = new StringWriter();
         graph.generateYamlOutput(writer);
         LOGGER.info(writer.toString());

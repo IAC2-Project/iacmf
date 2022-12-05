@@ -7,17 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.github.edmm.model.support.ModelEntity;
 import org.iac2.common.exception.PluginNotFoundException;
 import org.iac2.common.exception.PluginType;
 import org.iac2.common.model.ProductionSystem;
-import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.interfaces.ArchitectureReconstructionPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
-import org.iac2.service.architecturereconstruction.plugin.implementation.manual.ManualModelCreatorPlugin;
 import org.iac2.service.architecturereconstruction.plugin.implementation.docker.DockerContainerEnhancementPlugin;
+import org.iac2.service.architecturereconstruction.plugin.implementation.manual.ManualModelCreatorPlugin;
 import org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.OpenToscaContainerModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 
@@ -52,18 +49,6 @@ public class SimpleARPluginManager implements ArchitectureReconstructionPluginMa
         this.modelCreationPluginMap.put(manualPlugin.getIdentifier(), manualPlugin);
         this.modelCreationPluginMap.put(openToscaContainerPlugin.getIdentifier(), openToscaContainerPlugin);
         this.modelEnhancementPluginMap.put(dockerContainerEnhancementPlugin.getIdentifier(), dockerContainerEnhancementPlugin);
-
-        // now we add the types that the edmm types that all plugins need.
-        Map<String, Class<? extends ModelEntity>> edmmTypesToAdd = Map.of(
-                "docker_container", DockerContainer.class
-        );
-
-        edmmTypesToAdd.forEach((k, v) -> {
-            try {
-                EdmmTypeResolver.putMapping(k, v);
-            } catch (IllegalArgumentException ignored) {
-            }
-        });
     }
 
     @Override

@@ -16,7 +16,7 @@ class SimpleCRCheckingManagerTest {
     @Test
     void getPossiblePluginsForComplianceRule() {
         SimpleCRCheckingManager instance = SimpleCRCheckingManager.getInstance();
-        ComplianceRuleCheckingPlugin plugin = instance.getPlugin("property-value-checker-plugin");
+        ComplianceRuleCheckingPlugin plugin = instance.getPlugin("subgraph-matching-checking-plugin");
         assertNotNull(plugin);
         Assertions.assertThrows(PluginNotFoundException.class,()->instance.getPlugin("abc"));
     }
@@ -24,7 +24,7 @@ class SimpleCRCheckingManagerTest {
     @Test
     void getPlugin() {
         SimpleCRCheckingManager instance = SimpleCRCheckingManager.getInstance();
-        ComplianceRule cr = new ComplianceRule("ensure-property-value", "https://nowhere.no");
+        ComplianceRule cr = new ComplianceRule(1L,"subgraph-matching", "https://nowhere.no");
         Collection<ComplianceRuleCheckingPlugin> plugins = instance.getPossiblePluginsForComplianceRule(cr);
         assertNotNull(plugins);
         assertEquals(1, plugins.size());
