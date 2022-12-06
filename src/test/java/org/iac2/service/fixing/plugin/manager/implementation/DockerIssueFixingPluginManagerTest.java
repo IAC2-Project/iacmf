@@ -132,7 +132,7 @@ class DockerIssueFixingPluginManagerTest {
         SubgraphMatchingCheckingPlugin checkingPlugin = new SubgraphMatchingCheckingPlugin();
 
         ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", RULE_PATH);
-        rule.addStringParameter("ENGINE_URL", "tcp://172.17.0.1:2375");
+        rule.addStringParameter("ENGINE_URL", "tcp://" + TestUtils.getDockerHost() + ":2375");
         Collection<ComplianceIssue> issues = checkingPlugin.findIssues(instanceModel, rule);
         Assertions.assertEquals(1, issues.size());
         issue = issues.iterator().next();
