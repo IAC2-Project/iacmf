@@ -3,8 +3,10 @@ package org.iac2.service.fixing.plugin.manager.implementation;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.google.common.collect.Maps;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
@@ -38,11 +40,15 @@ class SimpleIssueFixingPluginManagerTest {
     void getSuitablePlugins() {
         SimpleIssueFixingPluginManager instance = SimpleIssueFixingPluginManager.getInstance();
         ComplianceRule rule = new ComplianceRule();
+
+        Map<String, String> issueProps = Maps.newHashMap();
+        issueProps.put("INSTANCE_MODEL_COMPONENT_ID", "bla");
+        issueProps.put("CHECKER_COMPONENT_ID","blub");
         ComplianceIssue issue = new ComplianceIssue(
                 "I have a bad feeling about this!",
                 rule,
-                "instance-matches-model",
-                new HashMap<>());
+                "WrongAttributeValueIssue",
+                issueProps);
         ProductionSystem productionSystem = new ProductionSystem(
                 "opentoscacontainer",
                 "bla bla",
