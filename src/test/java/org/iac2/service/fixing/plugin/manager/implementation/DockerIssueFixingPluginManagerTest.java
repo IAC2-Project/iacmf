@@ -122,36 +122,32 @@ class DockerIssueFixingPluginManagerTest {
         assertNotNull(plugin);
         assertNotNull(issue);
 
+        int compsOrigSize = instanceModel.getDeploymentModel().getComponents().size();
+        int relationsOrigSize = instanceModel.getDeploymentModel().getRelations().size();
+
         IssueFixingReport report = plugin.fixIssue(issue, instanceModel, productionSystem);
 
         assertNotNull(report);
         assertTrue(report.isSuccessful());
 
+
+        int compsFixedSize = instanceModel.getDeploymentModel().getComponents().size();
+        int relationsFixedSize = instanceModel.getDeploymentModel().getRelations().size();
+
+        assertNotEquals(compsOrigSize, compsFixedSize);
+        assertNotEquals(relationsOrigSize, relationsFixedSize);
+
+        assertEquals(compsFixedSize , compsOrigSize - 1);
+        assertEquals(relationsFixedSize , relationsOrigSize - 1);
     }
 
     static void setupIssues() {
         productionSystem = OpenTOSCATestUtils.createProductionSystem(hostName, port, appName, instanceId);
         ModelCreationPlugin plugin = OpenTOSCATestUtils.getOpenTOSCAModelCreationPlugin();
         instanceModel = plugin.reconstructInstanceModel(productionSystem);
-        Set<RootComponent> comps = instanceModel.getDeploymentModel().getComponents();
-        Set<RootRelation> rels = instanceModel.getDeploymentModel().getRelations();
 
         SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
         ModelEnhancementPlugin enhancementPlugin = instance.getModelEnhancementPlugin("docker-enhancement-plugin");
-        InstanceModel instanceModel1 = enhancementPlugin.enhanceModel(instanceModel, productionSystem);
-
-        Set<RootComponent> newComps = instanceModel1.getDeploymentModel().getComponents();
-        Set<RootRelation> newRels = instanceModel1.getDeploymentModel().getRelations();
-
-        StringWriter writer1 = new StringWriter();
-        instanceModel.getDeploymentModel().getGraph().generateYamlOutput(writer1);
-        LOGGER.info(writer1.toString());
-
-        Collection<RootComponent> dockerContainersBeforeEnhancement = getDockerContainers(comps);
-        Collection<RootComponent> dockerContainersAfterEnhancement = getDockerContainers(newComps);
-
-        // up to this point the enhanced deployment model should be equal to the deployment
-        // now we introduce a new docker container per engine therefore try to create compliance issues
 
         Collection<String> newContainerIds = Sets.newHashSet();
         Collection<DockerEngine> dockerEngineComponents =
@@ -191,12 +187,5 @@ class DockerIssueFixingPluginManagerTest {
         Collection<ComplianceIssue> issues = checkingPlugin.findIssues(instanceModel, rule);
         Assertions.assertEquals(1, issues.size());
         issue = issues.iterator().next();
-    }
-
-    private static Collection<RootComponent> getDockerContainers(Collection<RootComponent> comps) {
-        return comps
-                .stream()
-                .filter(c -> c instanceof DockerContainer)
-                .collect(Collectors.toList());
     }
 }
