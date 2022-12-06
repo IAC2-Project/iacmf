@@ -5,6 +5,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.model.Container;
+import com.google.common.collect.Maps;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
@@ -126,9 +127,10 @@ public class DockerContainerEnhancementPluginTest {
         // up to this point the enhanced deployment model should be equal to the deployment
         // now we introduce a new docker container per engine therefore try to create compliance issues
 
-        Collection<String> newContainerIds = Sets.newHashSet();
         Collection<DockerEngine> dockerEngineComponents =
                 Edmm.getAllComponentsOfType(instanceModel.getDeploymentModel(), DockerEngine.class);
+
+        Map<RootComponent, Collection<String>> dockerEngineToContainersMap = Maps.newHashMap();
         for (RootComponent d : dockerEngineComponents) {
             String dockerEngineUrl = d.getProperty("DockerEngineURL").orElseThrow().getValue();
 
@@ -151,7 +153,14 @@ public class DockerContainerEnhancementPluginTest {
 
             CreateContainerResponse newContainer = dockerClient.createContainerCmd("strm/helloworld-http").exec();
             dockerClient.startContainerCmd(newContainer.getId()).exec();
-            newContainerIds.add(newContainer.getId());
+
+            if (dockerEngineToContainersMap.containsKey(d)) {
+                dockerEngineToContainersMap.get(d).add(newContainer.getId());
+            } else {
+                Collection<String> newContainerIds = Sets.newHashSet();
+                newContainerIds.add(newContainer.getId());
+                dockerEngineToContainersMap.put(d, newContainerIds);
+            }
         }
 
         // now the enhanced model should not be the model given by opentosca
@@ -167,6 +176,27 @@ public class DockerContainerEnhancementPluginTest {
         dockerContainersAfterEnhancement = this.getDockerContainers(newComps);
 
         Assertions.assertNotEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
+
+
+        dockerEngineToContainersMap.forEach((dockerEngine, dockerContainers) -> {
+            String dockerEngineUrl = dockerEngine.getProperty("DockerEngineURL").orElseThrow().getValue();
+
+            if (dockerEngineUrl.contains("host.docker.internal")) {
+                // this is a little dirty, as we use such an URL in the test environment,
+                // we assume this URL is never like this but only a proper URL/IP
+                // => TODO: FIXME
+                dockerEngineUrl = dockerEngineUrl.replace("host.docker.internal", "localhost");
+            }
+
+            DockerClient dockerClient = Utils.createDockerClient(dockerEngineUrl);
+
+            dockerContainers.forEach(containerId -> {
+                Container container = dockerClient.listContainersCmd().exec().stream().filter(c -> c.getId().equals(containerId)).findFirst().get();
+                dockerClient.stopContainerCmd(container.getId()).exec();
+                dockerClient.removeContainerCmd(container.getId()).exec();
+            });
+
+        });
     }
 
     @Test

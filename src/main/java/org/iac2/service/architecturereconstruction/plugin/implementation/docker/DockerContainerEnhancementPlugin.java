@@ -106,7 +106,7 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
                 .filter(c -> "running".equals(c.getState()))
                 .collect(Collectors.toList());
 
-        BidiMap<String, DockerContainer> edmmDockerContainers = new DualHashBidiMap<>();
+        Map<String, DockerContainer> edmmDockerContainers = Maps.newHashMap();
         // we find the edmm docker containers hosted on this specific docker engine
         Collection<RootComponent> components = Edmm.findDependentComponents(deploymentModel, dockerEngineComponent, HostedOn.class)
                 .stream()
