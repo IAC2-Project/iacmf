@@ -8,6 +8,7 @@ import io.github.edmm.model.visitor.ComponentVisitor;
 public class TestComponentType extends SoftwareComponent {
 
     public static final Attribute<String> WOW = new Attribute<>("wow", String.class);
+
     public TestComponentType(MappingEntity mappingEntity) {
         super(mappingEntity);
     }

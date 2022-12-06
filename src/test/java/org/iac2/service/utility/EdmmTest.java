@@ -1,26 +1,10 @@
 package org.iac2.service.utility;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import io.github.edmm.core.parser.Entity;
-import io.github.edmm.core.parser.EntityGraph;
-import io.github.edmm.core.parser.EntityId;
-import io.github.edmm.core.parser.MappingEntity;
-import io.github.edmm.core.parser.ScalarEntity;
+import io.github.edmm.core.parser.*;
 import io.github.edmm.core.parser.support.DefaultKeys;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.Property;
-import io.github.edmm.model.component.AwsBeanstalk;
-import io.github.edmm.model.component.Compute;
-import io.github.edmm.model.component.MysqlDatabase;
-import io.github.edmm.model.component.MysqlDbms;
-import io.github.edmm.model.component.Paas;
-import io.github.edmm.model.component.Platform;
-import io.github.edmm.model.component.RootComponent;
+import io.github.edmm.model.component.*;
 import io.github.edmm.model.relation.ConnectsTo;
 import io.github.edmm.model.relation.DependsOn;
 import io.github.edmm.model.relation.HostedOn;
@@ -34,6 +18,12 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 class EdmmTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(EdmmTest.class);
@@ -145,7 +135,7 @@ class EdmmTest {
                         DockerContainer.IMAGE_ID.getName(), "awsome.com/theImage"),
                 DockerContainer.class
         );
-        final EntityId vmId =  Edmm.addComponent(
+        final EntityId vmId = Edmm.addComponent(
                 graph,
                 "ubuntu-1",
                 Map.of(Compute.TYPE.getName(), "ubuntu",

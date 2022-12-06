@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class ComplianceRuleTypeNotSupportedException extends ComplianceRuleCheckingException{
+public class ComplianceRuleTypeNotSupportedException extends ComplianceRuleCheckingException {
     private String complianceRuleType;
 
     public ComplianceRuleTypeNotSupportedException(String complianceRuleType) {

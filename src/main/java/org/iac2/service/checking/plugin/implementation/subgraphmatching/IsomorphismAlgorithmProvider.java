@@ -1,18 +1,14 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
-import java.util.Comparator;
-
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
 import org.iac2.common.model.compliancerule.ComplianceRule;
-import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.ComponentComparatorForMatchingWithInstanceModel;
-import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.ComponentComparatorForRuleValidation;
-import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.ComponentComparisonOutcome;
-import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.RelationComparator;
-import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.SemanticComponentComparator;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.isomorphism.IsomorphismInspector;
 import org.jgrapht.alg.isomorphism.VF2SubgraphIsomorphismInspector;
+
+import java.util.Comparator;
 
 public abstract class IsomorphismAlgorithmProvider {
     public static IsomorphismInspector<RootComponent, RootRelation> forRuleValidation(

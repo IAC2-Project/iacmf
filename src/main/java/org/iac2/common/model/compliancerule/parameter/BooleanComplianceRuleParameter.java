@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class BooleanComplianceRuleParameter extends ComplianceRuleParameter{
+public class BooleanComplianceRuleParameter extends ComplianceRuleParameter {
     private boolean value;
 
     public BooleanComplianceRuleParameter(String name, boolean value) {

@@ -1,13 +1,13 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
-import java.util.Set;
-
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.SimpleDirectedGraph;
+
+import java.util.Set;
 
 public class EdmmGraphCreator {
 

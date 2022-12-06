@@ -1,9 +1,5 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import io.github.edmm.model.Property;
 import io.github.edmm.model.component.RootComponent;
 import lombok.Getter;
@@ -14,19 +10,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.expression.ExpressionException;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 @Getter
-public class ComponentComparatorForMatchingWithInstanceModel implements  SemanticComponentComparator{
+public class ComponentComparatorForMatchingWithInstanceModel implements SemanticComponentComparator {
     // todo rethink this if rules are to be modelled based on component names
     private final static List<String> PROPERTIES_TO_IGNORE = new ArrayList<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComponentComparatorForMatchingWithInstanceModel.class);
 
     static {
         PROPERTIES_TO_IGNORE.add("name");
     }
-    private static final Logger LOGGER = LoggerFactory.getLogger(ComponentComparatorForMatchingWithInstanceModel.class);
+
     private final ComplianceRule rule;
 
     public ComponentComparatorForMatchingWithInstanceModel(ComplianceRule rule) {
         this.rule = rule;
+    }
+
+    private static boolean areEqualPropertyNames(String prop1, String prop2) {
+        final String uniform1 = convertToCamelCase(prop1);
+        final String uniform2 = convertToCamelCase(prop2);
+        return uniform1.equalsIgnoreCase(uniform2);
+    }
+
+    private static String convertToCamelCase(String property) {
+        return CaseUtils.toCamelCase(property, false, '_');
     }
 
     public ComponentComparisonOutcome compare(RootComponent instanceModelComponent, RootComponent ruleComponent) {
@@ -89,15 +100,5 @@ public class ComponentComparatorForMatchingWithInstanceModel implements  Semanti
 
         // no problems found! the components match!
         return ComponentComparisonOutcome.MATCH;
-    }
-
-    private static boolean areEqualPropertyNames(String prop1, String prop2) {
-        final String uniform1 = convertToCamelCase(prop1);
-        final String uniform2 = convertToCamelCase(prop2);
-        return uniform1.equalsIgnoreCase(uniform2);
-    }
-
-    private static String convertToCamelCase(String property) {
-        return CaseUtils.toCamelCase(property, false, '_');
     }
 }

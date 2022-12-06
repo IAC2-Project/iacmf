@@ -1,8 +1,5 @@
 package org.iac2.repository.compliancejob;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.trigger.CronTriggerEntity;
@@ -15,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -62,8 +62,8 @@ class TriggerRepositoryTest {
         this.triggerRepository.save(trigger2);
         this.triggerRepository.save(trigger3);
 
-        List<TriggerEntity> triggers1 = Arrays.asList(new TriggerEntity[] {trigger1, trigger3});
-        List<TriggerEntity> triggers2 = Arrays.asList(new TriggerEntity[] {trigger2});
+        List<TriggerEntity> triggers1 = Arrays.asList(new TriggerEntity[]{trigger1, trigger3});
+        List<TriggerEntity> triggers2 = Arrays.asList(new TriggerEntity[]{trigger2});
 
         ModelEnhancementStrategyEntity strategy1 = new ModelEnhancementStrategyEntity(List.of("p1", "p2"));
         ModelEnhancementStrategyEntity strategy2 = new ModelEnhancementStrategyEntity(List.of("p3", "p4"));

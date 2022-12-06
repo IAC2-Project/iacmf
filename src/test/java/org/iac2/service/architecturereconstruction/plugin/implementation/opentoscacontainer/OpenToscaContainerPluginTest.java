@@ -1,23 +1,11 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
-import javax.xml.namespace.QName;
-
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
-
 import com.google.common.collect.Maps;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.EdmmTypeResolver;
@@ -35,9 +23,17 @@ import org.opentosca.container.client.model.RelationInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OpenToscaContainerPluginTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenToscaContainerPluginTest.class);
@@ -45,13 +41,12 @@ public class OpenToscaContainerPluginTest {
     private static final QName csarId = new QName("http://opentosca.org/example/applications/servicetemplates", "RealWorld-Application_Angular-Spring-MySQL-w1");
     private static final String hostName = "localhost";
     private static final String port = "1337";
+    private static final ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(20, TimeUnit.MINUTES).build();
+    // set this to true if you want faster execution of this test when you probably need to run it more often
+    private static final boolean cleanupAfterTests = true;
     private static Path csarPath;
     private static String appName = "RealWorld-Application_Angular-Spring-MySQL-w1";
     private static String instanceId = "";
-    private static final ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(20, TimeUnit.MINUTES).build();
-
-    // set this to true if you want faster execution of this test when you probably need to run it more often
-    private static final boolean cleanupAfterTests = true;
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
@@ -68,6 +63,14 @@ public class OpenToscaContainerPluginTest {
             OpenTOSCATestUtils.terminateApp(client, appName, hostName, port);
             client.getApplications().forEach(client::removeApplication);
         }
+    }
+
+    private static NodeInstance findNodeInstanceById(String id, ApplicationInstance applicationInstance) {
+        return applicationInstance.getNodeInstances()
+                .stream()
+                .filter(ni -> ni.getId().equals(id))
+                .findFirst()
+                .orElseThrow();
     }
 
     @Test
@@ -146,13 +149,5 @@ public class OpenToscaContainerPluginTest {
 
     private ApplicationInstance getInstance() {
         return client.getApplicationInstances(client.getApplication(appName).get()).get(0);
-    }
-
-    private static NodeInstance findNodeInstanceById(String id, ApplicationInstance applicationInstance) {
-        return applicationInstance.getNodeInstances()
-                .stream()
-                .filter(ni -> ni.getId().equals(id))
-                .findFirst()
-                .orElseThrow();
     }
 }

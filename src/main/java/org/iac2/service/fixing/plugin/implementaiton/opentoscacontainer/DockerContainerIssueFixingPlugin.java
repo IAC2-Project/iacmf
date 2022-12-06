@@ -5,26 +5,21 @@ import com.github.dockerjava.api.model.Container;
 import com.google.common.collect.Maps;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
-import io.github.edmm.model.relation.RootRelation;
 import org.assertj.core.util.Lists;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.common.exception.IssueNotSupportedException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
-import org.iac2.common.utility.Edmm;
 import org.iac2.common.utility.Utils;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.iac2.service.architecturereconstruction.common.model.StructuralState;
-import org.iac2.service.checking.plugin.implementation.subgraphmatching.EdmmGraphCreator;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
-import org.jgrapht.Graph;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
     @Override
@@ -123,13 +118,12 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
         });
 
 
-
         IssueFixingReport report = new IssueFixingReport(true, strB.toString());
 
         return report;
     }
 
     public DockerEngine findDockerEngine(Collection<RootComponent> components, DockerContainer dockerContainer) {
-        return dockerContainer.getRelations().stream().filter(r -> r instanceof HostedOn).map(r -> (HostedOn)r).map(r -> r.getTarget()).map(t -> components.stream().filter(c -> c.getId().equals(t)).findFirst().orElse(null)).filter(c -> c != null).filter(c -> c instanceof DockerEngine).map(c -> (DockerEngine) c).findFirst().get();
+        return dockerContainer.getRelations().stream().filter(r -> r instanceof HostedOn).map(r -> (HostedOn) r).map(r -> r.getTarget()).map(t -> components.stream().filter(c -> c.getId().equals(t)).findFirst().orElse(null)).filter(c -> c != null).filter(c -> c instanceof DockerEngine).map(c -> (DockerEngine) c).findFirst().get();
     }
 }

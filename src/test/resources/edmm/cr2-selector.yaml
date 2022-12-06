@@ -4,7 +4,7 @@ components:
     operations:
       configure: C:\Users\falazigb\winery-repositories\modeling-repository/artifacttemplates/https%3A%2F%2Fedmm.uni-stuttgart.de%2Fartifacttemplates/MySQL_Database-Configure/files/configure.sh
     relations:
-    - hosted_on: MySQL_DBMS_0
+      - hosted_on: MySQL_DBMS_0
     type: mysql_database
     properties:
       password: ''

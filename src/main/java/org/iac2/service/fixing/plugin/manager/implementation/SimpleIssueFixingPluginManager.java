@@ -1,9 +1,5 @@
 package org.iac2.service.fixing.plugin.manager.implementation;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.iac2.common.exception.PluginNotFoundException;
 import org.iac2.common.exception.PluginType;
 import org.iac2.common.model.ProductionSystem;
@@ -11,6 +7,10 @@ import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.plugin.implementaiton.opentoscacontainer.DockerContainerIssueFixingPlugin;
 import org.iac2.service.fixing.plugin.manager.IssueFixingPluginManager;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SimpleIssueFixingPluginManager implements IssueFixingPluginManager {
     private static SimpleIssueFixingPluginManager instance;

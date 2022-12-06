@@ -1,7 +1,5 @@
 package org.iac2.service.checking.service;
 
-import java.util.Collection;
-
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
@@ -13,6 +11,8 @@ import org.iac2.service.checking.plugin.manager.ComplianceRuleCheckingPluginMana
 import org.iac2.service.utility.EntityToPojo;
 import org.iac2.service.utility.PojoToEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Collection;
 
 @Service
 public class ComplianceRuleCheckingService {
