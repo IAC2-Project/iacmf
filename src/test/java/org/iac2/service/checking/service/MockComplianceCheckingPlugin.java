@@ -30,7 +30,7 @@ public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugi
 
     @Override
     public RuleValidationResult isComplianceRuleValid(ComplianceRule complianceRule) throws ComplianceRuleTypeNotSupportedException {
-        return new RuleValidationResult() {
+        return new RuleValidationResult("everything is fine!!") {
             @Override
             public boolean isValid() {
                 return true;

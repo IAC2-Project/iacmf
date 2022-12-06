@@ -17,7 +17,7 @@ import org.springframework.expression.ExpressionException;
 @Getter
 public class ComponentComparatorForMatchingWithInstanceModel implements  SemanticComponentComparator{
     // todo rethink this if rules are to be modelled based on component names
-    private static List<String> PROPERTIES_TO_IGNORE = new ArrayList<>();
+    private final static List<String> PROPERTIES_TO_IGNORE = new ArrayList<>();
 
     static {
         PROPERTIES_TO_IGNORE.add("name");

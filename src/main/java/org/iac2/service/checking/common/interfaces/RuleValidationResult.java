@@ -1,12 +1,14 @@
 package org.iac2.service.checking.common.interfaces;
 
 import lombok.Getter;
-import lombok.Setter;
 
 public abstract class RuleValidationResult {
     @Getter
-    @Setter
-    private String description;
+    private final String description;
+
+    public RuleValidationResult(String description) {
+        this.description = description;
+    }
 
 
     public abstract boolean isValid();

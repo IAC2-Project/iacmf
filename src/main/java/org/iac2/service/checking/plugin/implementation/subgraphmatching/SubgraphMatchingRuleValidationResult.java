@@ -14,10 +14,20 @@ public class SubgraphMatchingRuleValidationResult extends RuleValidationResult {
     @Setter
     private GraphMapping<RootComponent, RootRelation> ruleMapping;
 
-    private SubgraphMatchingRuleValidationResult(RuleValidationOutcome outcome) {
-        this.setDescription(String.valueOf(outcome));
+    public SubgraphMatchingRuleValidationResult(String description, RuleValidationOutcome outcome, GraphMapping<RootComponent, RootRelation> ruleMapping) {
+        super(description);
         this.outcome = outcome;
+        this.ruleMapping = ruleMapping;
     }
+
+    public SubgraphMatchingRuleValidationResult(RuleValidationOutcome outcome, GraphMapping<RootComponent, RootRelation> ruleMapping) {
+        this(String.valueOf(outcome), outcome, ruleMapping);
+    }
+
+    public SubgraphMatchingRuleValidationResult(RuleValidationOutcome outcome) {
+        this(outcome, null);
+    }
+
 
     public static SubgraphMatchingRuleValidationResult forOutcome(RuleValidationOutcome outcome) {
         return new SubgraphMatchingRuleValidationResult(outcome);

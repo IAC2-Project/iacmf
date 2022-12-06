@@ -10,7 +10,6 @@ import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.Go;
 import io.github.edmm.model.component.MysqlDatabase;
-import io.github.edmm.model.component.MysqlDbms;
 import io.github.edmm.model.component.Paas;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.component.SoftwareComponent;
@@ -25,6 +24,7 @@ import org.iac2.common.utility.Edmm;
 import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
 import org.iac2.service.checking.common.interfaces.RuleValidationResult;
 import org.jgrapht.Graph;
 import org.junit.jupiter.api.Assertions;
@@ -67,7 +67,7 @@ class RuleCheckerTest {
         final EntityId app3Id = Edmm.addComponent(selector2, "app-3", new HashMap<>(), SoftwareComponent.class);
         final EntityId webServerId = Edmm.addComponent(selector2, "web-server", new HashMap<>(), WebServer.class);
         Edmm.addRelation(selector2, app3Id, webServerId, HostedOn.class);
-        Edmm.addComponent(selector2, "dbms", new HashMap<>(), MysqlDbms.class);
+        Edmm.addComponent(selector2, "dbms", new HashMap<>(), MySqlDbms.class);
         Edmm.addPropertyExpressionAssignment(selector2, app3Id, "a", "string", "value.length()");
         final Graph<RootComponent, RootRelation> selectorGraph2 = EdmmGraphCreator.of(selector2);
 
@@ -78,7 +78,7 @@ class RuleCheckerTest {
         final EntityId app4Id = Edmm.addComponent(selector3, "app-4", new HashMap<>(), SoftwareComponent.class);
         final EntityId webServer2Id = Edmm.addComponent(selector3, "web-server-2", new HashMap<>(), WebServer.class);
         Edmm.addRelation(selector3, app4Id, webServer2Id, HostedOn.class);
-        Edmm.addComponent(selector3, "dbms", new HashMap<>(), MysqlDbms.class);
+        Edmm.addComponent(selector3, "dbms", new HashMap<>(), MySqlDbms.class);
         Edmm.addPropertyExpressionAssignment(selector3, app4Id, "a", "string", "value.length() > 0");
         final Graph<RootComponent, RootRelation> selectorGraph3 = EdmmGraphCreator.of(selector3);
 
@@ -172,7 +172,7 @@ class RuleCheckerTest {
                 instanceGraph,
                 "dbms",
                 Map.of("componentName", "production"),
-                MysqlDbms.class
+                MySqlDbms.class
         );
         EntityId databaseId = Edmm.addComponent(
                 instanceGraph,

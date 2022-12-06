@@ -19,7 +19,6 @@ import io.github.edmm.model.relation.RootRelation;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
-import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.checking.common.exception.ComplianceRuleMalformattedException;
 import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupportedException;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
@@ -38,7 +37,6 @@ public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlu
     private static final String identifierSegment = "/identifier/edmm/export?edmmUseAbsolutePaths=true";
 
     public SubgraphMatchingCheckingPlugin() {
-        EdmmTypeResolver.initDefaultMappings();
     }
 
     @Override

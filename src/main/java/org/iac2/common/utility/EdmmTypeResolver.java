@@ -9,6 +9,8 @@ import io.github.edmm.model.support.TypeResolver;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Java11;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDb;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Nginx;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.RealWorldAngularApp;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.RealWorldApplicationBackendJava11Spring;
@@ -58,8 +60,8 @@ public class EdmmTypeResolver {
     public static void initDefaultMappings() {
         putMapping("docker_engine", DockerEngine.class);
         putMapping("docker_container", DockerContainer.class);
-        // putMapping("mysql_dbms", MySqlDbms.class);
-        // putMapping("mysql_db", MySqlDb.class);
+        putMapping("mysql_dbms", MySqlDbms.class);
+        putMapping("mysql_db", MySqlDb.class);
         putMapping("realworld_application_backend_java11_spring", RealWorldApplicationBackendJava11Spring.class);
         putMapping("java_11", Java11.class);
         putMapping("realworld_application_angular", RealWorldAngularApp.class);

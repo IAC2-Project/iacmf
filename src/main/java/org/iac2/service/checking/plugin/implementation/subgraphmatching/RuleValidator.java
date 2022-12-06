@@ -3,7 +3,9 @@ package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
@@ -23,47 +25,49 @@ import org.springframework.expression.ExpressionException;
 
 public abstract class RuleValidator {
     // todo rethink this if rules are to be modelled based on component names
-    private static List<String> PROPERTIES_TO_IGNORE = new ArrayList<>();
+    private static final List<String> PROPERTIES_TO_IGNORE = new ArrayList<>();
 
     static {
         PROPERTIES_TO_IGNORE.add("name");
     }
+
     public static SubgraphMatchingRuleValidationResult validateComplianceRule(ComplianceRule rule, Graph<RootComponent, RootRelation> selector,
-                                                                       Graph<RootComponent, RootRelation> checker) {
+                                                                              Graph<RootComponent, RootRelation> checker) {
         final IsomorphismInspector<RootComponent, RootRelation> inspector1 = IsomorphismAlgorithmProvider.forRuleValidation(
                 rule, selector, checker);
         List<GraphMapping<RootComponent, RootRelation>> ruleMappingList = IteratorUtils.toList(inspector1.getMappings());
 
+        // check that there is exactly one mapping from the checker to the selector
         if (ruleMappingList.size() != 1) {
-            return SubgraphMatchingRuleValidationResult.forOutcome(RuleValidationOutcome.NO_MAPPING_FROM_CHECKER_TO_SELECTOR);
+            return new SubgraphMatchingRuleValidationResult(RuleValidationOutcome.NO_MAPPING_FROM_CHECKER_TO_SELECTOR);
         }
 
-        for (RootComponent component:selector.vertexSet()) {
-            if(!testPropertiesOfRuleComponent(component, rule)) {
-                return SubgraphMatchingRuleValidationResult.forOutcome(RuleValidationOutcome.INVALID_PROPERTY_EXPRESSION);
+        // check properties (expressions) of all nodes in the rule (checker and selector)
+        Set<RootComponent> allNodes = new HashSet<>(selector.vertexSet());
+        allNodes.addAll(checker.vertexSet());
+
+        try {
+            for (RootComponent component : allNodes) {
+                validatePropertiesOfRuleComponent(component, rule);
             }
+        } catch (RuntimeException e) {
+            return new SubgraphMatchingRuleValidationResult(e.getMessage(),
+                    RuleValidationOutcome.INVALID_PROPERTY_EXPRESSION, null);
         }
 
-        for (RootComponent component:checker.vertexSet()) {
-            if(!testPropertiesOfRuleComponent(component, rule)) {
-                return SubgraphMatchingRuleValidationResult.forOutcome(RuleValidationOutcome.INVALID_PROPERTY_EXPRESSION);
-            }
-        }
-
-        GraphMapping<RootComponent, RootRelation> ruleMapping = ruleMappingList.get(0);
-        SubgraphMatchingRuleValidationResult result = SubgraphMatchingRuleValidationResult.forOutcome(RuleValidationOutcome.VALID);
-        result.setRuleMapping(ruleMapping);
-
-        return result;
+        // everything is fine!
+        return new SubgraphMatchingRuleValidationResult(RuleValidationOutcome.VALID, ruleMappingList.get(0));
     }
 
-    private static boolean testPropertiesOfRuleComponent(RootComponent component, ComplianceRule rule)  {
+    private static void validatePropertiesOfRuleComponent(RootComponent component, ComplianceRule rule)
+    throws ExpressionException, RuntimeException {
+        // if something goes wrong here, an ExpressionException is thrown.
         try {
             Collection<Property> propertyCollection = component
                     .getProperties()
                     .values()
                     .stream()
-                    .filter(p->!PROPERTIES_TO_IGNORE.contains(p.getName()))
+                    .filter(p -> !PROPERTIES_TO_IGNORE.contains(p.getName()))
                     .toList();
             for (Property p : propertyCollection) {
                 String type = p.getType();
@@ -74,10 +78,6 @@ public abstract class RuleValidator {
                     AttributeComparator.evaluateAttribute(expression, property, rule);
                 }
             }
-
-            return true;
-        } catch (ExpressionException e) {
-            return false;
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }

@@ -51,6 +51,7 @@ import org.opentosca.container.client.ContainerClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.junit.jupiter.DisabledIf;
 
 public class DockerContainerEnhancementPluginTest {
 
@@ -65,13 +66,15 @@ public class DockerContainerEnhancementPluginTest {
     private static final ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(20, TimeUnit.MINUTES).build();
 
     // set this to true if you want faster execution of this test when you probably need to run it more often
-    private static boolean debugging = true;
+    private static final boolean cleanupAfterTests = true;
 
-    private static boolean onlyLocal = false;
+    public static final boolean onlyLocal = false;
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
+        // The test class does not load the spring boot context. Therefore, we need to manually initialize type mappings.
         EdmmTypeResolver.initDefaultMappings();
+
         if (!onlyLocal) {
             csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
             appName = csarPath.getFileName().toString();
@@ -82,13 +85,14 @@ public class DockerContainerEnhancementPluginTest {
 
     @AfterAll
     public static void cleanupContainer() {
-        if (!debugging && !onlyLocal) {
+        if (!cleanupAfterTests && !onlyLocal) {
             OpenTOSCATestUtils.terminateApp(client, appName, hostName, port);
-            client.getApplications().forEach(a -> client.removeApplication(a));
+            client.getApplications().forEach(client::removeApplication);
         }
     }
 
     @Test
+    @DisabledIf("#{T(org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.DockerContainerEnhancementPluginTest).onlyLocal}")
     public void testAddDockerContainerToModel() throws IOException, IllegalAccessException {
         ClassPathResource resource = new ClassPathResource("edmm/four-components-hosted-on.yml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
@@ -101,6 +105,7 @@ public class DockerContainerEnhancementPluginTest {
     }
 
     @Test
+    @DisabledIf("#{T(org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.DockerContainerEnhancementPluginTest).onlyLocal}")
     public void testDockerReconstruction() {
         ProductionSystem productionSystem = OpenTOSCATestUtils.createProductionSystem(hostName, port, appName, instanceId);
         ModelCreationPlugin plugin = OpenTOSCATestUtils.getOpenTOSCAModelCreationPlugin();
