@@ -11,11 +11,12 @@ import lombok.NoArgsConstructor;
 import org.iac2.entity.KVEntity;
 
 @Entity
-@DiscriminatorValue(value = "1")
+@DiscriminatorValue(value = ProductionSystemProperty.TYPE_ID)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class ProductionSystemProperty extends KVEntity {
+    public static final String TYPE_ID = "1";
     @ManyToOne
     @JoinColumn(name = "production_system_id")
     private ProductionSystemEntity productionSystem;
@@ -24,5 +25,4 @@ public class ProductionSystemProperty extends KVEntity {
         super(key, value);
         this.productionSystem = productionSystem;
     }
-
 }

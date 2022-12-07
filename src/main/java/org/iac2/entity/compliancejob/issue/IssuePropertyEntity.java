@@ -11,11 +11,12 @@ import lombok.NoArgsConstructor;
 import org.iac2.entity.KVEntity;
 
 @Entity
-@DiscriminatorValue(value = "2")
+@DiscriminatorValue(value = IssuePropertyEntity.TYPE_ID)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class IssuePropertyEntity extends KVEntity {
+    public static final String TYPE_ID = "2";
     @ManyToOne
     @JoinColumn(name = "compliance_issue_id")
     private ComplianceIssueEntity complianceIssue;

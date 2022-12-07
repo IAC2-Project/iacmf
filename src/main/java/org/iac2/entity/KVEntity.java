@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.INTEGER)
-public class KVEntity {
+public abstract class KVEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
