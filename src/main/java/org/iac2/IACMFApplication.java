@@ -1,5 +1,8 @@
 package org.iac2;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
@@ -10,8 +13,8 @@ import org.iac2.service.fixing.plugin.manager.implementation.SimpleIssueFixingPl
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
@@ -41,6 +44,15 @@ public class IACMFApplication {
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public IssueFixingPluginManager theIssueFixingPluginManager() {
         return SimpleIssueFixingPluginManager.getInstance();
+    }
+
+    @Bean
+    public OpenAPI iacmfOpenAPI() {
+        return new OpenAPI()
+                .info(new Info().title("IACMF")
+                        .description("IaC Compliance Management Framework")
+                        .version("1.0.0")
+                        .license(new License().name("Apache 2.0").url("https://www.apache.org/licenses/LICENSE-2.0")));
     }
 
     @Bean
