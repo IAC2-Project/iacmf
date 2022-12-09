@@ -2,6 +2,7 @@ package org.iac2.repository.compliancejob;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -10,6 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 @RepositoryRestResource(path = "triggers")
+@Tag(name = "trigger")
 public interface TriggerRepository extends CrudRepository<TriggerEntity, Long> {
     @Query("""
             SELECT t FROM TriggerEntity t

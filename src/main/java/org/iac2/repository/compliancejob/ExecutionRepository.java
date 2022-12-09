@@ -2,6 +2,7 @@ package org.iac2.repository.compliancejob;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
 import org.iac2.common.model.compliancejob.execution.ExecutionStep;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
@@ -11,6 +12,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 @RepositoryRestResource(path = "executions")
+@Tag(name = "execution")
 public interface ExecutionRepository extends CrudRepository<ExecutionEntity, Long> {
     List<ExecutionEntity> findByStatus(ExecutionStatus status);
 
