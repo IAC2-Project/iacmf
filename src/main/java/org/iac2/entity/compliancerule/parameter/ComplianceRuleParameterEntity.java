@@ -29,7 +29,7 @@ public class ComplianceRuleParameterEntity {
     @JoinColumn(name = "compliance_rule_id", nullable = false)
     private ComplianceRuleEntity complianceRule;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @NotNull
     private ParameterType type;
 

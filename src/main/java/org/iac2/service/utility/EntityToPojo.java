@@ -12,10 +12,6 @@ import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.compliancerule.parameter.assignment.ComplianceRuleParameterAssignmentEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.DoubleParameterAssignmentEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.IntegerParameterAssignmentEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.StringListParameterAssignmentEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.StringParameterAssignmentEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 
 public class EntityToPojo {
@@ -40,20 +36,12 @@ public class EntityToPojo {
 
         if (assignments != null) {
             assignments.forEach(assignment -> {
-                if (assignment instanceof IntegerParameterAssignmentEntity) {
-                    myCR.addIntParameter(assignment.getParameter().getName(),
-                            ((IntegerParameterAssignmentEntity) assignment).getIntValue());
-                } else if (assignment instanceof StringParameterAssignmentEntity) {
-                    myCR.addStringParameter(assignment.getParameter().getName(),
-                            ((StringParameterAssignmentEntity) assignment).getStringValue());
-                } else if (assignment instanceof DoubleParameterAssignmentEntity) {
-                    myCR.addDoubleParameter(assignment.getParameter().getName(),
-                            ((DoubleParameterAssignmentEntity) assignment).getDoubleValue());
-                } else if (assignment instanceof StringListParameterAssignmentEntity) {
-                    myCR.addStringCollectionParameter(assignment.getParameter().getName(),
-                            ((StringListParameterAssignmentEntity) assignment).getValue());
-                } else {
-                    throw new IllegalArgumentException("Assignment type is not supported!");
+                switch (assignment.getType()) {
+                    case STRING -> myCR.addStringParameter(assignment.getName(), assignment.getValue());
+                    case INT -> myCR.addIntParameter(assignment.getName(), assignment.getIntegerValue().orElseThrow());
+                    case DECIMAL -> myCR.addDoubleParameter(assignment.getName(), assignment.getDoubleValue().orElseThrow());
+                    case STRING_LIST -> myCR.addStringCollectionParameter(assignment.getName(), assignment.getStringListValue().orElseThrow());
+                    case BOOLEAN -> myCR.addBooleanParameter(assignment.getName(), assignment.getBooleanValue().orElseThrow());
                 }
             });
         }
