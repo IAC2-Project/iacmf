@@ -3,7 +3,7 @@ package org.iac2.common.exception;
 import lombok.Getter;
 
 @Getter
-public class PluginNotFoundException extends IacmfException{
+public class PluginNotFoundException extends IacmfException {
     private final String pluginId;
     private final PluginType pluginType;
 

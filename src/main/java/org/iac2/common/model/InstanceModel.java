@@ -1,10 +1,10 @@
 package org.iac2.common.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import io.github.edmm.model.DeploymentModel;
 import lombok.Getter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 public class InstanceModel {

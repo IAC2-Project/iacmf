@@ -1,16 +1,16 @@
 package org.iac2.service.checking.service;
 
+import org.iac2.common.model.InstanceModel;
+import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
+import org.iac2.common.model.compliancerule.ComplianceRule;
+import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupportedException;
+import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
+import org.iac2.service.checking.common.interfaces.RuleValidationResult;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
-import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupportedException;
-import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
-import org.iac2.common.model.compliancerule.ComplianceRule;
-import org.iac2.common.model.InstanceModel;
-import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
-import org.iac2.service.checking.common.interfaces.RuleValidationResult;
 
 public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugin {
     @Override

@@ -1,8 +1,8 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison;
 
-import java.util.Comparator;
-
 import io.github.edmm.model.component.RootComponent;
+
+import java.util.Comparator;
 
 public class ComponentComparatorForRuleValidation implements Comparator<RootComponent> {
     /***
@@ -16,6 +16,6 @@ public class ComponentComparatorForRuleValidation implements Comparator<RootComp
      */
     public int compare(RootComponent selectorComponent, RootComponent checkerComponent) {
         boolean compatible = selectorComponent.getClass().isAssignableFrom(checkerComponent.getClass());
-        return compatible? 0 : -1;
+        return compatible ? 0 : -1;
     }
 }

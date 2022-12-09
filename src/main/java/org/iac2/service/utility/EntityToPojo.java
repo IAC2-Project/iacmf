@@ -1,9 +1,5 @@
 package org.iac2.service.utility;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
@@ -11,12 +7,12 @@ import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.ComplianceRuleParameterAssignmentEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.DoubleParameterAssignmentEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.IntegerParameterAssignmentEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.StringListParameterAssignmentEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.StringParameterAssignmentEntity;
+import org.iac2.entity.compliancerule.parameter.assignment.*;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EntityToPojo {
 

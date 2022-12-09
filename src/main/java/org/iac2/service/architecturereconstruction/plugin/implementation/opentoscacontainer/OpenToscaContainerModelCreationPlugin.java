@@ -1,14 +1,5 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import javax.xml.namespace.QName;
-
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
@@ -26,14 +17,7 @@ import org.iac2.common.utility.Edmm;
 import org.iac2.service.architecturereconstruction.common.exception.AppInstanceNodeFoundException;
 import org.iac2.service.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Java11;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDb;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Nginx;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.RealWorldAngularApp;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.RealWorldApplicationBackendJava11Spring;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.*;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.Application;
@@ -43,11 +27,56 @@ import org.opentosca.container.client.model.RelationInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.namespace.QName;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenToscaContainerModelCreationPlugin.class);
     private final static int OPENTOSCA_CLIENT_TIMEOUT = 10000;
 
     public OpenToscaContainerModelCreationPlugin() {
+    }
+
+    private static Class<? extends RootRelation> getRelationClass(RelationInstance relationInstance) {
+
+        return switch (relationInstance.getTemplateType()) {
+            case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}HostedOn" -> HostedOn.class;
+            case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ConnectsTo" -> ConnectsTo.class;
+            default -> DependsOn.class;
+        };
+    }
+
+    private static EntityId addNodeInstanceAsComp(EntityGraph entityGraph, NodeInstance nodeInstance) throws IllegalAccessException {
+        Map<String, Object> properties = new HashMap<>(nodeInstance.getProperties());
+        return Edmm.addComponent(entityGraph, nodeInstance.getTemplate(), properties, getClassForTemplateId(nodeInstance.getTemplateType()));
+    }
+
+    private static Class<? extends RootComponent> getClassForTemplateId(String templateType) {
+        return switch (QName.valueOf(templateType).getLocalPart()) {
+            case "MySQL-DBMS_8.0-w1" -> MySqlDbms.class;
+            case "MySQL-DB_w1" -> MySqlDb.class;
+            case "RealWorld-Application-Backend_Java11-Spring-w1" -> RealWorldApplicationBackendJava11Spring.class;
+            case "Java_11-w1" -> Java11.class;
+            case "RealWorld-Application_Angular-w1" -> RealWorldAngularApp.class;
+            case "NGINX_latest-w1" -> Nginx.class;
+            case "DockerContainer_w1" -> DockerContainer.class;
+            case "DockerEngine_w1" -> DockerEngine.class;
+            default -> SoftwareComponent.class;
+        };
+    }
+
+    private static EntityId getEntityId(Collection<EntityId> entityIds, NodeInstance instance) {
+        return entityIds.stream().filter(e -> e.getName().equals(instance.getTemplate())).findFirst().orElse(null);
+    }
+
+    private static NodeInstance findNodeInstanceByNodeInstanceId(Collection<NodeInstance> nodeInstances, String nodeInstanceId) {
+        return nodeInstances.stream()
+                .filter(n -> n.getId().equals(nodeInstanceId)).findFirst().orElseThrow(AppInstanceNodeFoundException::new);
+    }
+
+    private static NodeInstance findNodeInstanceByNodeInstanceId(ApplicationInstance applicationInstance, String nodeInstanceId) {
+        return findNodeInstanceByNodeInstanceId(applicationInstance.getNodeInstances(), nodeInstanceId);
     }
 
     @Override
@@ -151,49 +180,5 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         }
 
         return entityGraph;
-    }
-
-
-    private static Class<? extends RootRelation> getRelationClass(RelationInstance relationInstance) {
-
-        return switch (relationInstance.getTemplateType()) {
-            case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}HostedOn" -> HostedOn.class;
-            case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ConnectsTo" -> ConnectsTo.class;
-            default -> DependsOn.class;
-        };
-    }
-
-
-    private static EntityId addNodeInstanceAsComp(EntityGraph entityGraph, NodeInstance nodeInstance) throws IllegalAccessException {
-        Map<String, Object> properties = new HashMap<>(nodeInstance.getProperties());
-        return Edmm.addComponent(entityGraph, nodeInstance.getTemplate(),properties, getClassForTemplateId(nodeInstance.getTemplateType()));
-    }
-
-
-    private static Class<? extends RootComponent> getClassForTemplateId(String templateType) {
-        return switch (QName.valueOf(templateType).getLocalPart()) {
-            case "MySQL-DBMS_8.0-w1" -> MySqlDbms.class;
-            case "MySQL-DB_w1" -> MySqlDb.class;
-            case "RealWorld-Application-Backend_Java11-Spring-w1" -> RealWorldApplicationBackendJava11Spring.class;
-            case "Java_11-w1" -> Java11.class;
-            case "RealWorld-Application_Angular-w1" -> RealWorldAngularApp.class;
-            case "NGINX_latest-w1" -> Nginx.class;
-            case "DockerContainer_w1" -> DockerContainer.class;
-            case "DockerEngine_w1" -> DockerEngine.class;
-            default -> SoftwareComponent.class;
-        };
-    }
-
-    private static EntityId getEntityId(Collection<EntityId> entityIds, NodeInstance instance) {
-        return entityIds.stream().filter(e -> e.getName().equals(instance.getTemplate())).findFirst().orElse(null);
-    }
-
-    private static NodeInstance findNodeInstanceByNodeInstanceId(Collection<NodeInstance> nodeInstances, String nodeInstanceId) {
-        return nodeInstances.stream()
-                .filter(n -> n.getId().equals(nodeInstanceId)).findFirst().orElseThrow(AppInstanceNodeFoundException::new);
-    }
-
-    private static NodeInstance findNodeInstanceByNodeInstanceId(ApplicationInstance applicationInstance, String nodeInstanceId) {
-        return findNodeInstanceByNodeInstanceId(applicationInstance.getNodeInstances(), nodeInstanceId);
     }
 }

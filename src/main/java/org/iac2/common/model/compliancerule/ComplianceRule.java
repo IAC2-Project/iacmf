@@ -1,17 +1,12 @@
 package org.iac2.common.model.compliancerule;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.iac2.common.model.compliancerule.parameter.BooleanComplianceRuleParameter;
-import org.iac2.common.model.compliancerule.parameter.ComplianceRuleParameter;
-import org.iac2.common.model.compliancerule.parameter.DoubleComplianceRuleParameter;
-import org.iac2.common.model.compliancerule.parameter.IntegerComplianceRuleParameter;
-import org.iac2.common.model.compliancerule.parameter.StringCollectionComplianceRuleParameter;
-import org.iac2.common.model.compliancerule.parameter.StringComplianceRuleParameter;
+import org.iac2.common.model.compliancerule.parameter.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Setter
 @Getter
@@ -21,6 +16,7 @@ public class ComplianceRule {
     private String type;
     private String location;
     private Collection<ComplianceRuleParameter> parameterAssignments;
+
     public ComplianceRule(Long id, String type, String location) {
         this.id = id;
         this.type = type;

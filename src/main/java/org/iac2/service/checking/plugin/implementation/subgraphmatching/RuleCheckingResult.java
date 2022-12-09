@@ -13,11 +13,11 @@ public class RuleCheckingResult {
     private RootComponent instanceModelComponent;
     @Setter
     private String errorMessage;
-    
+
     public RuleCheckingResult(RuleCheckingOutcome outcome,
-                               RootComponent checkerComponent,
-                               RootComponent instanceModelComponent,
-                               String errorMessage) {
+                              RootComponent checkerComponent,
+                              RootComponent instanceModelComponent,
+                              String errorMessage) {
         this.outcome = outcome;
         this.checkerComponent = checkerComponent;
         this.instanceModelComponent = instanceModelComponent;

@@ -1,8 +1,8 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison;
 
-import java.util.Comparator;
-
 import io.github.edmm.model.relation.RootRelation;
+
+import java.util.Comparator;
 
 public class RelationComparator implements Comparator<RootRelation> {
     /***
@@ -12,6 +12,6 @@ public class RelationComparator implements Comparator<RootRelation> {
      * @return 0 if the relations are compatible. -1 otherwise.
      */
     public int compare(RootRelation o1, RootRelation o2) {
-        return o1.getClass().equals(o2.getClass())? 0 : -1;
+        return o1.getClass().equals(o2.getClass()) ? 0 : -1;
     }
 }

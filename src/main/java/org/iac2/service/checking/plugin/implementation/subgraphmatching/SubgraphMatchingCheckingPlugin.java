@@ -1,18 +1,5 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
@@ -26,6 +13,14 @@ import org.iac2.service.checking.common.interfaces.RuleValidationResult;
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.*;
 
 public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlugin {
     public static final String PLUGIN_ID = "subgraph-matching-checking-plugin";
