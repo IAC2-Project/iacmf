@@ -77,7 +77,6 @@ class DockerIssueFixingPluginManagerTest {
             OpenTOSCATestUtils.uploadApp(client, appName, csarPath);
             instanceId = OpenTOSCATestUtils.provisionApp(client, appName);
         }
-        setupIssues();
     }
 
     @AfterAll
