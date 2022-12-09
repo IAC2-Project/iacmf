@@ -3,8 +3,6 @@ package org.iac2.service.fixing.plugin.manager.implementation;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.PullImageResultCallback;
-import com.github.dockerjava.api.model.Container;
-import com.google.common.collect.Maps;
 import io.github.edmm.model.component.RootComponent;
 import org.assertj.core.util.Sets;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -42,10 +40,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -65,10 +61,12 @@ class DockerIssueFixingPluginManagerTest {
     // set this to true if you want faster execution of this test when you probably need to run it more often
     private static boolean debugging = true;
     private static boolean onlyLocal = false;
-    private static ProductionSystem productionSystem;
-    private static InstanceModel instanceModel;
-    private static ComplianceIssue issue;
-    private static Collection<DockerEngine> dockerEngines;
+
+    public static class TestParams {
+        public InstanceModel instanceModel;
+        public ComplianceIssue issue;
+        public Collection<DockerEngine> dockerEngines;
+    }
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
@@ -90,17 +88,82 @@ class DockerIssueFixingPluginManagerTest {
         }
     }
 
-    static void setupIssues() {
-        Collection<DockerEngine> dockerEngineComponents = Sets.newHashSet();
 
-        productionSystem = OpenTOSCATestUtils.createProductionSystem(hostName, port, appName, instanceId);
+
+    @Test
+    void getPlugin() {
+        SimpleIssueFixingPluginManager instance = SimpleIssueFixingPluginManager.getInstance();
+        IssueFixingPlugin plugin = instance.getPlugin("docker-container-issue-fixing-plugin");
+        assertNotNull(plugin);
+        assertThrows(PluginNotFoundException.class, () -> instance.getPlugin("abc"));
+    }
+
+    @Test
+    void testFixingDockerContainers() {
+        TestParams params = setupIssues();
+
+        SimpleIssueFixingPluginManager instance = SimpleIssueFixingPluginManager.getInstance();
+        ProductionSystem productionSystem = new ProductionSystem(
+                "opentoscacontainer",
+                "bla bla",
+                new HashMap<>());
+
+        Collection<IssueFixingPlugin> plugins = instance.getSuitablePlugins(params.issue, productionSystem);
+        assertNotNull(plugins);
+        assertEquals(1, plugins.size());
+
+        IssueFixingPlugin plugin = plugins.iterator().next();
+        assertNotNull(plugin);
+        assertNotNull(params.issue);
+
+        int compsOrigSize = params.instanceModel.getDeploymentModel().getComponents().size();
+        int relationsOrigSize = params.instanceModel.getDeploymentModel().getRelations().size();
+
+        IssueFixingReport report = plugin.fixIssue(params.issue, params.instanceModel, productionSystem);
+
+        assertNotNull(report);
+        assertTrue(report.isSuccessful());
+
+
+        int compsFixedSize = params.instanceModel.getDeploymentModel().getComponents().size();
+        int relationsFixedSize = params.instanceModel.getDeploymentModel().getRelations().size();
+
+        assertNotEquals(compsOrigSize, compsFixedSize);
+        assertNotEquals(relationsOrigSize, relationsFixedSize);
+
+        assertEquals(compsFixedSize, compsOrigSize - 1);
+        assertEquals(relationsFixedSize, relationsOrigSize - 1);
+
+        Collection<String> danglingContainerIds = Sets.newHashSet();
+        params.dockerEngines.forEach(dockerEngine -> {
+            String dockerEngineUrl = dockerEngine.getProperty("DockerEngineURL").orElseThrow().getValue();
+
+            if (dockerEngineUrl.contains("host.docker.internal")) {
+                // this is a little dirty, as we use such an URL in the test environment,
+                // we assume this URL is never like this but only a proper URL/IP
+                // => TODO: FIXME
+                dockerEngineUrl = dockerEngineUrl.replace("host.docker.internal", "localhost");
+            }
+            danglingContainerIds.addAll(cleanUpDockerContainersByImage(dockerEngineUrl));
+        });
+
+        assertEquals(0, danglingContainerIds.size());
+    }
+
+    private static InstanceModel setupInstance(ProductionSystem productionSystem) {
         ModelCreationPlugin plugin = OpenTOSCATestUtils.getOpenTOSCAModelCreationPlugin();
-        instanceModel = plugin.reconstructInstanceModel(productionSystem);
+        InstanceModel instanceModel = plugin.reconstructInstanceModel(productionSystem);
+        return instanceModel;
+    }
 
+    private static InstanceModel enhanceInstance(ProductionSystem productionSystem, InstanceModel instanceModel) {
         SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
         ModelEnhancementPlugin enhancementPlugin = instance.getModelEnhancementPlugin("docker-enhancement-plugin");
+        return enhancementPlugin.enhanceModel(instanceModel, productionSystem);
+    }
 
-        dockerEngineComponents =
+    private static Collection<DockerEngine> addFaultToInstance(InstanceModel instanceModel) {
+        Collection<DockerEngine> dockerEngineComponents =
                 Edmm.getAllComponentsOfType(instanceModel.getDeploymentModel(), DockerEngine.class);
         for (RootComponent d : dockerEngineComponents) {
             String dockerEngineUrl = d.getProperty("DockerEngineURL").orElseThrow().getValue();
@@ -126,83 +189,37 @@ class DockerIssueFixingPluginManagerTest {
             dockerClient.startContainerCmd(newContainer.getId()).exec();
         }
 
-        // now the enhanced model should not be the model given by opentosca
-        instanceModel = enhancementPlugin.enhanceModel(instanceModel, productionSystem);
+        return dockerEngineComponents;
+    }
 
+    private static TestParams setupIssues() {
+        ProductionSystem productionSystem = OpenTOSCATestUtils.createProductionSystem(hostName, port, appName, instanceId);
+        InstanceModel instanceModel = setupInstance(productionSystem);
+        Collection<DockerEngine> dockerEngines = addFaultToInstance(instanceModel);
+        enhanceInstance(productionSystem, instanceModel);
         SubgraphMatchingCheckingPlugin checkingPlugin = new SubgraphMatchingCheckingPlugin();
 
         ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", RULE_PATH);
         rule.addStringParameter("ENGINE_URL", "tcp://" + TestUtils.getDockerHost() + ":2375");
         Collection<ComplianceIssue> issues = checkingPlugin.findIssues(instanceModel, rule);
         Assertions.assertEquals(1, issues.size());
-        issue = issues.iterator().next();
-
-        dockerEngines = dockerEngineComponents;
+        ComplianceIssue issue = issues.iterator().next();
+        TestParams params = new TestParams();
+        params.instanceModel = instanceModel;
+        params.dockerEngines = dockerEngines;
+        params.issue = issue;
+        return params;
     }
 
-    @Test
-    void getPlugin() {
-        SimpleIssueFixingPluginManager instance = SimpleIssueFixingPluginManager.getInstance();
-        IssueFixingPlugin plugin = instance.getPlugin("docker-container-issue-fixing-plugin");
-        assertNotNull(plugin);
-        assertThrows(PluginNotFoundException.class, () -> instance.getPlugin("abc"));
-    }
+    private static Collection<String> cleanUpDockerContainersByImage(String dockerEngineUrl) {
+        DockerClient dockerClient = Utils.createDockerClient(dockerEngineUrl);
+        Collection<String> removedContainerIds = Sets.newHashSet();
 
-    @Test
-    void testFixingDockerContainers() {
-        SimpleIssueFixingPluginManager instance = SimpleIssueFixingPluginManager.getInstance();
-        ProductionSystem productionSystem = new ProductionSystem(
-                "opentoscacontainer",
-                "bla bla",
-                new HashMap<>());
-
-        Collection<IssueFixingPlugin> plugins = instance.getSuitablePlugins(issue, productionSystem);
-        assertNotNull(plugins);
-        assertEquals(1, plugins.size());
-
-        IssueFixingPlugin plugin = plugins.iterator().next();
-        assertNotNull(plugin);
-        assertNotNull(issue);
-
-        int compsOrigSize = instanceModel.getDeploymentModel().getComponents().size();
-        int relationsOrigSize = instanceModel.getDeploymentModel().getRelations().size();
-
-        IssueFixingReport report = plugin.fixIssue(issue, instanceModel, productionSystem);
-
-        assertNotNull(report);
-        assertTrue(report.isSuccessful());
-
-
-        int compsFixedSize = instanceModel.getDeploymentModel().getComponents().size();
-        int relationsFixedSize = instanceModel.getDeploymentModel().getRelations().size();
-
-        assertNotEquals(compsOrigSize, compsFixedSize);
-        assertNotEquals(relationsOrigSize, relationsFixedSize);
-
-        assertEquals(compsFixedSize, compsOrigSize - 1);
-        assertEquals(relationsFixedSize, relationsOrigSize - 1);
-
-        Collection<String> danglingContainerIds = Sets.newHashSet();
-        dockerEngines.forEach(dockerEngine -> {
-            String dockerEngineUrl = dockerEngine.getProperty("DockerEngineURL").orElseThrow().getValue();
-
-            if (dockerEngineUrl.contains("host.docker.internal")) {
-                // this is a little dirty, as we use such an URL in the test environment,
-                // we assume this URL is never like this but only a proper URL/IP
-                // => TODO: FIXME
-                dockerEngineUrl = dockerEngineUrl.replace("host.docker.internal", "localhost");
-            }
-
-            DockerClient dockerClient = Utils.createDockerClient(dockerEngineUrl);
-
-
-            dockerClient.listContainersCmd().exec().stream().filter(c -> c.getImageId().equals("strm/helloworld-http")).forEach(c -> {
-                dockerClient.stopContainerCmd(c.getId()).exec();
-                dockerClient.removeContainerCmd(c.getId()).exec();
-                danglingContainerIds.add(c.getId());
-            });
+        dockerClient.listContainersCmd().exec().stream().filter(c -> c.getImageId().equals("strm/helloworld-http")).forEach(c -> {
+            dockerClient.stopContainerCmd(c.getId()).exec();
+            dockerClient.removeContainerCmd(c.getId()).exec();
+            removedContainerIds.add(c.getId());
         });
-
-        assertEquals(0, danglingContainerIds.size());
+        return removedContainerIds;
     }
 }

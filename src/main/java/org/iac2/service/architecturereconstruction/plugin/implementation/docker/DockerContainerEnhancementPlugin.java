@@ -8,8 +8,6 @@ import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.compress.utils.Lists;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
