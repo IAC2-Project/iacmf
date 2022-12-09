@@ -196,7 +196,7 @@ class DockerIssueFixingPluginManagerTest {
         ProductionSystem productionSystem = OpenTOSCATestUtils.createProductionSystem(hostName, port, appName, instanceId);
         InstanceModel instanceModel = setupInstance(productionSystem);
         Collection<DockerEngine> dockerEngines = addFaultToInstance(instanceModel);
-        enhanceInstance(productionSystem, instanceModel);
+        instanceModel = enhanceInstance(productionSystem, instanceModel);
         SubgraphMatchingCheckingPlugin checkingPlugin = new SubgraphMatchingCheckingPlugin();
 
         ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", RULE_PATH);
