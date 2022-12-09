@@ -3,27 +3,23 @@ package org.iac2.entity.compliancejob.trigger;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
+import org.springframework.scheduling.support.CronExpression;
 
 @Entity
 @Data
 @NoArgsConstructor
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(discriminatorType = DiscriminatorType.INTEGER)
-public abstract class TriggerEntity {
+public class TriggerEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -37,6 +33,9 @@ public abstract class TriggerEntity {
     @NotNull
     private Boolean isDeleted;
 
+    @Getter
+    private String cronExpression;
+
     @ManyToMany(mappedBy = "triggers")
     private List<ComplianceJobEntity> complianceJobs;
 
@@ -44,6 +43,14 @@ public abstract class TriggerEntity {
         this.description = description;
         this.isDeleted = false;
         this.complianceJobs = new ArrayList<>();
+        this.cronExpression = "";
     }
 
+    public void setCronExpression(String cronExpression) {
+        if (cronExpression != null && !cronExpression.isEmpty() && !CronExpression.isValidExpression(cronExpression)) {
+            throw new IllegalArgumentException("invalid cron expression!");
+        }
+
+        this.cronExpression = cronExpression;
+    }
 }

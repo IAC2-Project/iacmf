@@ -14,6 +14,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 @RepositoryRestResource(path = "executions")
 @Tag(name = "execution")
 public interface ExecutionRepository extends CrudRepository<ExecutionEntity, Long> {
+
     List<ExecutionEntity> findByStatus(ExecutionStatus status);
 
     List<ExecutionEntity> findByCurrentStep(ExecutionStep status);
