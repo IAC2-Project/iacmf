@@ -10,9 +10,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotNull;
 
+import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.springframework.scheduling.support.CronExpression;
 
@@ -33,7 +34,7 @@ public class TriggerEntity {
     @NotNull
     private Boolean isDeleted;
 
-    @Getter
+    @Setter(AccessLevel.NONE)
     private String cronExpression;
 
     @ManyToMany(mappedBy = "triggers")

@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.iac2.entity.KVEntity;
 import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 
@@ -34,7 +35,7 @@ public class ProductionSystemEntity {
     private String description;
 
     @OneToMany(mappedBy = "productionSystem")
-    private List<ProductionSystemProperty> properties;
+    private List<KVEntity> properties;
 
     @OneToMany(mappedBy = "productionSystem")
     private List<ComplianceJobEntity> complianceJobs;

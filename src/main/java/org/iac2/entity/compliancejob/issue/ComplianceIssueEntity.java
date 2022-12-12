@@ -15,6 +15,7 @@ import javax.validation.constraints.Null;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 
 @Entity
@@ -33,7 +34,7 @@ public class ComplianceIssueEntity {
     private List<IssueFixingReportEntity> fixingReports;
 
     @OneToMany(mappedBy = "complianceIssue")
-    private List<IssuePropertyEntity> properties;
+    private List<KVEntity> properties;
 
     @Null
     private String description;

@@ -24,7 +24,7 @@ import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.ComplianceRuleParameterAssignmentEntity;
+import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmentEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 
 @Entity

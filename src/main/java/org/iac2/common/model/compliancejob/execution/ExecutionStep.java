@@ -4,5 +4,7 @@ public enum ExecutionStep {
     START,
     CHECKING,
     FIXING,
+    VALIDATION,
+    REPORTING,
     END
 }

@@ -11,7 +11,7 @@ import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.ComplianceRuleParameterAssignmentEntity;
+import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmentEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 
 public class EntityToPojo {
@@ -56,7 +56,7 @@ public class EntityToPojo {
                 productionSystemEntity.getDescription(), properties);
     }
 
-    public static Map<String, String> transformProperties(Collection<? extends KVEntity> keyValuePairs) {
+    public static Map<String, String> transformProperties(Collection<KVEntity> keyValuePairs) {
         Map<String, String> result = new HashMap<>();
 
         for (KVEntity pair : keyValuePairs) {

@@ -4,7 +4,7 @@ import java.util.List;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.ComplianceRuleParameterAssignmentEntity;
+import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmentEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 

@@ -1,4 +1,4 @@
-package org.iac2.entity.compliancerule.parameter.assignment;
+package org.iac2.entity.compliancerule.parameter;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,8 +13,6 @@ import javax.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
-import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterEntity;
-import org.iac2.entity.compliancerule.parameter.ParameterType;
 import org.iac2.entity.util.StringListConverter;
 
 @Data

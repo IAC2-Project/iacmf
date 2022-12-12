@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
+import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
-import org.iac2.entity.compliancejob.issue.IssuePropertyEntity;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
 
 public class PojoToEntity {
@@ -31,11 +31,11 @@ public class PojoToEntity {
         return result;
     }
 
-    public static List<IssuePropertyEntity> transformIssueProperties(
+    public static List<KVEntity> transformIssueProperties(
             ComplianceIssueEntity issueEntity,
             Map<String, String> properties) {
-        List<IssuePropertyEntity> result = new ArrayList<>();
-        properties.forEach((k, v) -> result.add(new IssuePropertyEntity(k, v, issueEntity)));
+        List<KVEntity> result = new ArrayList<>();
+        properties.forEach((k, v) -> result.add(new KVEntity(k, v, issueEntity)));
 
         return result;
     }

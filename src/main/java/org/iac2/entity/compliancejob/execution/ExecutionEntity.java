@@ -39,15 +39,17 @@ public class ExecutionEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date endTime;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @NotNull
     private ExecutionStep currentStep;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @NotNull
     private ExecutionStatus status;
 
     private Boolean violationsDetected;
+
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "compliance_job_id", nullable = false)

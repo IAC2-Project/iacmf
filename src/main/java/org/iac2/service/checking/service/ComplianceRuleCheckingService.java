@@ -7,7 +7,7 @@ import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.ComplianceRuleParameterAssignmentEntity;
+import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmentEntity;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 import org.iac2.service.checking.plugin.manager.ComplianceRuleCheckingPluginManager;
 import org.iac2.service.utility.EntityToPojo;
