@@ -1,5 +1,9 @@
 package org.iac2.service.fixing.plugin.implementaiton.opentoscacontainer;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Container;
 import com.google.common.collect.Maps;
@@ -17,9 +21,6 @@ import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Docker
 import org.iac2.service.architecturereconstruction.common.model.StructuralState;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
-
-import java.util.Collection;
-import java.util.Map;
 
 public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
     @Override
@@ -42,8 +43,18 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
     }
 
     @Override
-    public Collection<String> getRequiredPropertyNames() {
-        return null;
+    public Collection<String> getRequiredProductionSystemPropertyNames() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Collection<String> getRequiredConfigurationEntryNames() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setConfigurationEntry(String inputName, String inputValue) {
+
     }
 
     @Override
