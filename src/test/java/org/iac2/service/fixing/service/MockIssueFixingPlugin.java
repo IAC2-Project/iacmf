@@ -16,6 +16,16 @@ public class MockIssueFixingPlugin implements IssueFixingPlugin {
     }
 
     @Override
+    public Collection<String> getRequiredConfigurationEntryNames() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setConfigurationEntry(String inputName, String inputValue) {
+
+    }
+
+    @Override
     public boolean isSuitableForIssue(ComplianceIssue issue) {
         return true;
     }
@@ -26,7 +36,7 @@ public class MockIssueFixingPlugin implements IssueFixingPlugin {
     }
 
     @Override
-    public Collection<String> getRequiredPropertyNames() {
+    public Collection<String> getRequiredProductionSystemPropertyNames() {
         return Collections.emptyList();
     }
 

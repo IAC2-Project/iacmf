@@ -2,8 +2,8 @@ package org.iac2.service.architecturereconstruction.common.interfaces;
 
 import java.util.Collection;
 
-public interface ArchitectureReconstructionPlugin {
-    Collection<String> getRequiredPropertyNames();
+import org.iac2.common.Plugin;
 
-    String getIdentifier();
+public interface ArchitectureReconstructionPlugin extends Plugin {
+    Collection<String> getRequiredProductionSystemPropertyNames();
 }

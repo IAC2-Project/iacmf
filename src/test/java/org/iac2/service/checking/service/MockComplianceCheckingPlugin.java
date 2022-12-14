@@ -14,12 +14,12 @@ import org.iac2.service.checking.common.interfaces.RuleValidationResult;
 
 public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugin {
     @Override
-    public Set<String> requiredConfiguration() {
+    public Set<String> getRequiredConfigurationEntryNames() {
         return null;
     }
 
     @Override
-    public void setConfiguration(String key, String value) {
+    public void setConfigurationEntry(String key, String value) {
 
     }
 

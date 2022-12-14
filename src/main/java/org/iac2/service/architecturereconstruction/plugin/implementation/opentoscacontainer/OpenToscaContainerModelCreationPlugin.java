@@ -1,6 +1,7 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,17 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
     }
 
     @Override
-    public Collection<String> getRequiredPropertyNames() {
+    public Collection<String> getRequiredConfigurationEntryNames() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setConfigurationEntry(String inputName, String inputValue) {
+        LOGGER.warn("Trying to pass user input to a plugin that does not need user inputs!");
+    }
+
+    @Override
+    public Collection<String> getRequiredProductionSystemPropertyNames() {
         return List.of(
                 "opentoscacontainer_hostname",
                 "opentoscacontainer_port",

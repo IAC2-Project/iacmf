@@ -21,13 +21,23 @@ public class MockModelCreationPlugin implements ModelCreationPlugin {
     }
 
     @Override
-    public Collection<String> getRequiredPropertyNames() {
+    public Collection<String> getRequiredProductionSystemPropertyNames() {
         return Collections.emptyList();
     }
 
     @Override
     public String getIdentifier() {
         return "mock";
+    }
+
+    @Override
+    public Collection<String> getRequiredConfigurationEntryNames() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setConfigurationEntry(String inputName, String inputValue) {
+
     }
 
     @Override

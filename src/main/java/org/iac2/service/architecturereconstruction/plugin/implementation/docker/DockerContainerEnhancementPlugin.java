@@ -33,9 +33,18 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerEnhancementPlugin.class);
 
     @Override
-    public Collection<String> getRequiredPropertyNames() {
-        Collection<String> reqs = Lists.newArrayList();
-        return reqs;
+    public Collection<String> getRequiredConfigurationEntryNames() {
+        return Lists.newArrayList();
+    }
+
+    @Override
+    public void setConfigurationEntry(String inputName, String inputValue) {
+        LOGGER.warn("Trying to pass user input to a plugin that does not need user inputs!");
+    }
+
+    @Override
+    public Collection<String> getRequiredProductionSystemPropertyNames() {
+        return Lists.newArrayList();
     }
 
     @Override
@@ -45,7 +54,6 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
 
     @Override
     public InstanceModel enhanceModel(InstanceModel instanceModel, ProductionSystem productionSystem) {
-
         DeploymentModel deploymentModel = instanceModel.getDeploymentModel();
         Collection<DockerEngine> dockerEngineComponents =
                 Edmm.getAllComponentsOfType(deploymentModel, DockerEngine.class);

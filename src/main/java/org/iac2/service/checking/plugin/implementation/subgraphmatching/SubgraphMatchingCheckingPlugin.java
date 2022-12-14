@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
@@ -40,15 +39,13 @@ public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlu
     }
 
     @Override
-    public Set<String> requiredConfiguration() {
+    public Collection<String> getRequiredConfigurationEntryNames() {
         return new HashSet<>();
     }
 
     @Override
-    public void setConfiguration(String key, String value) {
-        if (!requiredConfiguration().contains(key)) {
-            throw new IllegalArgumentException("The configuration key '" + "' is not expected.");
-        }
+    public void setConfigurationEntry(String key, String value) {
+        LOGGER.warn("Trying to pass user input to a plugin that does not need user inputs!");
     }
 
     @Override
