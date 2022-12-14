@@ -1,16 +1,16 @@
 package org.iac2.service.fixing.plugin.manager.implementation;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.iac2.common.exception.PluginNotFoundException;
 import org.iac2.common.exception.PluginType;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
-import org.iac2.service.fixing.plugin.implementaiton.opentoscacontainer.OpenToscaContainerIssueFixingPlugin;
+import org.iac2.service.fixing.plugin.implementaiton.opentoscacontainer.DockerContainerIssueFixingPlugin;
 import org.iac2.service.fixing.plugin.manager.IssueFixingPluginManager;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SimpleIssueFixingPluginManager implements IssueFixingPluginManager {
     private static SimpleIssueFixingPluginManager instance;
@@ -18,8 +18,8 @@ public class SimpleIssueFixingPluginManager implements IssueFixingPluginManager 
 
     private SimpleIssueFixingPluginManager() {
         this.allPlugins = new HashMap<>();
-        OpenToscaContainerIssueFixingPlugin otcPlugin = new OpenToscaContainerIssueFixingPlugin();
-        this.allPlugins.put(otcPlugin.getIdentifier(), otcPlugin);
+        DockerContainerIssueFixingPlugin dockerPlugin = new DockerContainerIssueFixingPlugin();
+        this.allPlugins.put(dockerPlugin.getIdentifier(), dockerPlugin);
     }
 
     public static SimpleIssueFixingPluginManager getInstance() {

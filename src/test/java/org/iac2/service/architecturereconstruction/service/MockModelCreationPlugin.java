@@ -1,16 +1,16 @@
 package org.iac2.service.architecturereconstruction.service;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import io.github.edmm.model.DeploymentModel;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
-import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.InstanceModel;
+import org.iac2.common.model.ProductionSystem;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.springframework.core.io.ClassPathResource;
+
+import java.util.Collection;
+import java.util.Collections;
 
 @Getter
 public class MockModelCreationPlugin implements ModelCreationPlugin {

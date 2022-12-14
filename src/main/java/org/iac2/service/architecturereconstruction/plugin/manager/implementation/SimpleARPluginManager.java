@@ -1,12 +1,5 @@
 package org.iac2.service.architecturereconstruction.plugin.manager.implementation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.iac2.common.exception.PluginNotFoundException;
 import org.iac2.common.exception.PluginType;
 import org.iac2.common.model.ProductionSystem;
@@ -17,6 +10,9 @@ import org.iac2.service.architecturereconstruction.plugin.implementation.docker.
 import org.iac2.service.architecturereconstruction.plugin.implementation.manual.ManualModelCreatorPlugin;
 import org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.OpenToscaContainerModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Plugin manager with hard-coded plugin classes.

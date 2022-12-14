@@ -1,22 +1,15 @@
 package org.iac2.entity.compliancejob.issue;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data

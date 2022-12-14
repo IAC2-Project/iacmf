@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class DoubleComplianceRuleParameter extends ComplianceRuleParameter{
+public class DoubleComplianceRuleParameter extends ComplianceRuleParameter {
     private double value;
 
     public DoubleComplianceRuleParameter(String name, double value) {

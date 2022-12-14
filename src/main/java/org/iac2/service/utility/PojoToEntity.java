@@ -1,15 +1,15 @@
 package org.iac2.service.utility;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class PojoToEntity {
 
