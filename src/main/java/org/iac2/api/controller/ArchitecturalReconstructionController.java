@@ -13,10 +13,12 @@ import org.iac2.service.architecturereconstruction.service.ArchitectureReconstru
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("architectural-reconstruction")
 public class ArchitecturalReconstructionController {
     private final ArchitectureReconstructionService service;
     private final ProductionSystemRepository productionSystemRepository;

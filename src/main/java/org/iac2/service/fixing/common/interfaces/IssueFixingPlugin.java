@@ -10,7 +10,7 @@ import org.iac2.service.fixing.common.model.IssueFixingReport;
 
 public interface IssueFixingPlugin extends Plugin {
     boolean isSuitableForIssue(ComplianceIssue issue);
-    boolean isSuitableForProductionSystem(ProductionSystem productionSystem);
+    boolean isIaCTechnologySupported(String iacTechnology);
     Collection<String> getRequiredProductionSystemPropertyNames();
     IssueFixingReport fixIssue(ComplianceIssue issue, InstanceModel model, ProductionSystem productionSystem);
 }

@@ -36,7 +36,7 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
     }
 
     @Override
-    public boolean isSuitableForProductionSystem(ProductionSystem productionSystem) {
+    public boolean isIaCTechnologySupported(String iacTechnology) {
         // this is interesting actually, as this plugin shouldn't actually care about the IaC in particular right?
         // therefore just set to true
         return true;
@@ -63,14 +63,12 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
             throw new IssueNotSupportedException(issue);
         }
 
-        if (!isSuitableForProductionSystem(productionSystem)) {
+        if (!isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
             // see at method isSuitableForProd... i don't think this will ever be a problem
             throw new IaCTechnologyNotSupportedException(productionSystem.getIacTechnologyName());
         }
 
         // find docker containers and engines
-
-
         Map<DockerEngine, Collection<DockerContainer>> dockerEngineCollectionMap = Maps.newHashMap();
 
         instanceModel.getDeploymentModel().getComponents().stream()

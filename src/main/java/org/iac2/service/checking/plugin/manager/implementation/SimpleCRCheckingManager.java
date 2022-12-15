@@ -1,15 +1,15 @@
 package org.iac2.service.checking.plugin.manager.implementation;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.iac2.common.exception.PluginNotFoundException;
-import org.iac2.common.exception.PluginType;
+import org.iac2.common.model.PluginType;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 import org.iac2.service.checking.plugin.implementation.subgraphmatching.SubgraphMatchingCheckingPlugin;
 import org.iac2.service.checking.plugin.manager.ComplianceRuleCheckingPluginManager;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Plugin manager with hard-coded plugin classes.
@@ -56,5 +56,10 @@ public class SimpleCRCheckingManager implements ComplianceRuleCheckingPluginMana
     @Override
     public Collection<ComplianceRuleCheckingPlugin> getAll() {
         return allPlugins.values();
+    }
+
+    @Override
+    public boolean pluginExists(String identifier) {
+        return allPlugins.containsKey(identifier);
     }
 }

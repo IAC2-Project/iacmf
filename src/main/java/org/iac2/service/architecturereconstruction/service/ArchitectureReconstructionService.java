@@ -51,6 +51,10 @@ public class ArchitectureReconstructionService {
                 instanceModel);
     }
 
+    public ArchitectureReconstructionPluginManager getPluginManager() {
+        return this.pluginManager;
+    }
+
     private InstanceModel createInstanceModel(String pluginId, ProductionSystem productionSystem) {
         ModelCreationPlugin plugin = pluginManager.getModelCreationPlugin(pluginId);
 
