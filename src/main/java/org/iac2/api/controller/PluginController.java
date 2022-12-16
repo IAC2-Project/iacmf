@@ -36,8 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "plugins")
-@Tag(name = "plugins")
-public class PluginsController {
+@Tag(name = "plugin")
+public class PluginController {
     private final ArchitectureReconstructionPluginManager arPluginManager;
     private final ComplianceRuleCheckingPluginManager checkingPluginManager;
     private final IssueFixingPluginManager fixingPluginManager;
@@ -46,11 +46,11 @@ public class PluginsController {
 
     private final ComplianceIssueRepository complianceIssueRepository;
 
-    public PluginsController(ArchitectureReconstructionPluginManager arPluginManager,
-                             ComplianceRuleCheckingPluginManager checkingPluginManager,
-                             IssueFixingPluginManager issueFixingPluginManager,
-                             ComplianceRuleRepository complianceRuleRepository,
-                             ComplianceIssueRepository complianceIssueRepository) {
+    public PluginController(ArchitectureReconstructionPluginManager arPluginManager,
+                            ComplianceRuleCheckingPluginManager checkingPluginManager,
+                            IssueFixingPluginManager issueFixingPluginManager,
+                            ComplianceRuleRepository complianceRuleRepository,
+                            ComplianceIssueRepository complianceIssueRepository) {
         this.arPluginManager = arPluginManager;
         this.checkingPluginManager = checkingPluginManager;
         this.fixingPluginManager = issueFixingPluginManager;

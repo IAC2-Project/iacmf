@@ -1,8 +1,9 @@
 package org.iac2.service.architecturereconstruction.service;
 
+import java.util.List;
+
 import org.iac2.common.model.InstanceModel;
 import org.iac2.entity.KVEntity;
-import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 import org.junit.jupiter.api.Assertions;
@@ -13,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
 
@@ -37,14 +36,8 @@ class ArchitectureReconstructionServiceTest {
                 "opentoscacontainer",
                 "testPlugin");
         system.setProperties(List.of(new KVEntity("nodes", "3", system)));
-        system.setModelEnhancementStrategy(new ModelEnhancementStrategyEntity(List.of()));
-
-
-        String ID = "ID";
-        InstanceModel model = service.reconstructArchitectureForProductionSystem(system);
+        InstanceModel model = service.crteateInstanceModel(system);
         Assertions.assertEquals(4, model.getDeploymentModel().getComponents().size());
-
-
     }
 
 }

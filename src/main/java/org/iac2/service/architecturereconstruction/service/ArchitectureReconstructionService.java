@@ -25,50 +25,39 @@ public class ArchitectureReconstructionService {
         this.pluginManager = pluginManager;
     }
 
-    public InstanceModel reconstructArchitectureForProductionSystem(@NotNull ProductionSystemEntity productionSystemEntity) {
-        ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
-        InstanceModel instanceModel = createInstanceModel(productionSystemEntity.getModelCreationPluginId(), productionSystem);
-        enhanceInstanceModel(productionSystemEntity.getModelEnhancementStrategy().getPluginIdList(),
-                productionSystem,
-                instanceModel);
 
-        return instanceModel;
+    public InstanceModel crteateInstanceModel(@NotNull ProductionSystemEntity productionSystemEntity) {
+        ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
+        ModelCreationPlugin plugin = pluginManager.getModelCreationPlugin(productionSystemEntity.getModelCreationPluginId());
+
+        return plugin.reconstructInstanceModel(productionSystem);
     }
 
-    public void enhanceArchitectureForComplianceJob(@NotNull ComplianceJobEntity complianceJob, @NotNull InstanceModel instanceModel) {
-        this.enhanceArchitectureForComplianceJob(
+    public void refineInstanceModel(@NotNull ComplianceJobEntity complianceJob,
+                                    @NotNull InstanceModel instanceModel) {
+        this.refineInstanceModel(
                 complianceJob.getModelEnhancementStrategy(),
                 complianceJob.getProductionSystem(),
                 instanceModel);
     }
 
-    public void enhanceArchitectureForComplianceJob(@NotNull ModelEnhancementStrategyEntity enhancementStrategy,
-                                                    @NotNull ProductionSystemEntity productionSystemEntity,
-                                                    @NotNull InstanceModel instanceModel) {
+    public void refineInstanceModel(@NotNull ModelEnhancementStrategyEntity enhancementStrategy,
+                                    @NotNull ProductionSystemEntity productionSystemEntity,
+                                    @NotNull InstanceModel instanceModel) {
         ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
-        enhanceInstanceModel(enhancementStrategy.getPluginIdList(),
-                productionSystem,
-                instanceModel);
+        List<ModelEnhancementPlugin> plugins = enhancementStrategy.getPluginIdList()
+                .stream()
+                .map(pluginManager::getModelEnhancementPlugin)
+                .toList();
+
+        for (ModelEnhancementPlugin plugin : plugins) {
+            plugin.enhanceModel(instanceModel, productionSystem);
+        }
+
     }
 
     public ArchitectureReconstructionPluginManager getPluginManager() {
         return this.pluginManager;
     }
 
-    private InstanceModel createInstanceModel(String pluginId, ProductionSystem productionSystem) {
-        ModelCreationPlugin plugin = pluginManager.getModelCreationPlugin(pluginId);
-
-        return plugin.reconstructInstanceModel(productionSystem);
-    }
-
-    private void enhanceInstanceModel(List<String> pluginIds, ProductionSystem productionSystem, InstanceModel currentSystemModel) {
-        List<ModelEnhancementPlugin> plugins = pluginIds
-                .stream()
-                .map(pluginManager::getModelEnhancementPlugin)
-                .toList();
-
-        for (ModelEnhancementPlugin plugin : plugins) {
-            plugin.enhanceModel(currentSystemModel, productionSystem);
-        }
-    }
 }
