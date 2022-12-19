@@ -1,5 +1,23 @@
 package org.iac2.entity.compliancejob;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
@@ -7,12 +25,8 @@ import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmentEntity;
+import org.iac2.entity.configuration.PluginConfigurationEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Data
@@ -31,6 +45,9 @@ public class ComplianceJobEntity {
 
     @NotNull
     private String modelFixingPluginId;
+
+    @OneToMany(mappedBy = "complianceJob")
+    private List<PluginConfigurationEntity> pluginConfigurations;
 
     @ManyToOne
     @JoinColumn(name = "compliance_rule_id", nullable = false)
@@ -73,5 +90,14 @@ public class ComplianceJobEntity {
         this.description = description;
         this.complianceRuleParameterAssignments = new ArrayList<>();
         this.executions = new ArrayList<>();
+        this.pluginConfigurations = new ArrayList<>();
+    }
+
+    public List<PluginConfigurationEntity> getConfigurationOfCheckingPlugin() {
+        return this.pluginConfigurations.stream().filter(p -> p.getPluginIdentifier().equals(modelCheckingPluginId)).toList();
+    }
+
+    public List<PluginConfigurationEntity> getConfigurationOfFixingPlugin() {
+        return this.pluginConfigurations.stream().filter(p -> p.getPluginIdentifier().equals(modelFixingPluginId)).toList();
     }
 }

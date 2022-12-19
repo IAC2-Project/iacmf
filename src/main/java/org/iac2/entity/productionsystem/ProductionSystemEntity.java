@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
+import org.iac2.entity.configuration.PluginConfigurationEntity;
 
 @Entity
 @NoArgsConstructor
@@ -40,6 +41,9 @@ public class ProductionSystemEntity {
     @NotNull
     private String modelCreationPluginId;
 
+    @OneToMany(mappedBy = "productionSystem")
+    private List<PluginConfigurationEntity> pluginConfiguration;
+
 
     public ProductionSystemEntity(String description, String iacTechnologyName, String modelCreationPluginId) {
         this.description = description;
@@ -48,5 +52,6 @@ public class ProductionSystemEntity {
         this.modelCreationPluginId = modelCreationPluginId;
         this.properties = new ArrayList<>();
         this.complianceJobs = new ArrayList<>();
+        this.pluginConfiguration = new ArrayList<>();
     }
 }
