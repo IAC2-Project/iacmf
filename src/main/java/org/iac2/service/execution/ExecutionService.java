@@ -1,5 +1,6 @@
 package org.iac2.service.execution;
 
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.repository.compliancejob.ComplianceIssueRepository;
 import org.iac2.repository.compliancejob.ExecutionRepository;
+import org.iac2.repository.compliancejob.IssueFixingReportRepository;
 import org.iac2.service.architecturereconstruction.service.ArchitectureReconstructionService;
 import org.iac2.service.checking.service.ComplianceRuleCheckingService;
 import org.iac2.service.fixing.service.IssueFixingService;
@@ -33,17 +35,20 @@ public class ExecutionService {
     private final ComplianceRuleCheckingService checkingService;
     private final IssueFixingService fixingService;
     private final ComplianceIssueRepository complianceIssueRepository;
+    private final IssueFixingReportRepository issueFixingReportRepository;
 
     public ExecutionService(ExecutionRepository executionRepository,
                             ArchitectureReconstructionService architectureReconstructionService,
                             ComplianceRuleCheckingService checkingService,
                             IssueFixingService fixingService,
-                            ComplianceIssueRepository complianceIssueRepository) {
+                            ComplianceIssueRepository complianceIssueRepository,
+                            IssueFixingReportRepository issueFixingReportRepository) {
         this.executionRepository = executionRepository;
         this.architectureReconstructionService = architectureReconstructionService;
         this.checkingService = checkingService;
         this.fixingService = fixingService;
         this.complianceIssueRepository = complianceIssueRepository;
+        this.issueFixingReportRepository = issueFixingReportRepository;
     }
 
     @Async
@@ -60,8 +65,10 @@ public class ExecutionService {
 
     public ExecutionEntity createNewExecution(@NotNull ComplianceJobEntity complianceJob) {
         ExecutionEntity execution = new ExecutionEntity(complianceJob);
+        execution = this.executionRepository.save(execution);
         LOGGER.info("Execution with id {} for job {} was created.", execution.getId(), complianceJob.getId());
-        return this.executionRepository.save(execution);
+
+        return execution;
     }
 
     public InstanceModel reconstructArchitecture(ExecutionEntity execution) {
@@ -73,6 +80,9 @@ public class ExecutionService {
         try {
             ProductionSystemEntity productionSystem = execution.getComplianceJob().getProductionSystem();
             InstanceModel result = this.architectureReconstructionService.crteateInstanceModel(productionSystem);
+            StringWriter writer = new StringWriter();
+            result.getDeploymentModel().getGraph().generateYamlOutput(writer);
+            execution.setInstanceModel(writer.toString());
             this.architectureReconstructionService.refineInstanceModel(execution.getComplianceJob(), result);
             execution.setStatus(ExecutionStatus.IDLE);
             executionRepository.save(execution);
@@ -123,6 +133,8 @@ public class ExecutionService {
                 IssueFixingReportEntity report = this.fixingService.fixFirstIssue(execution, instanceModel);
                 result.put(report.getComplianceIssue(), report);
             }
+
+            issueFixingReportRepository.saveAll(result.values());
 
             LOGGER.info("Finished fixing the detected compliance rule violations (execution id: {}, job id: {}).",
                     execution.getId(), execution.getComplianceJob().getId());

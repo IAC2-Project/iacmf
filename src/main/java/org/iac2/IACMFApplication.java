@@ -1,5 +1,7 @@
 package org.iac2;
 
+import java.util.concurrent.Executor;
+
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
@@ -18,8 +20,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @SpringBootApplication
+@EnableAsync
 public class IACMFApplication {
 
     private static final Logger log = LoggerFactory.getLogger(IACMFApplication.class);
@@ -56,15 +61,32 @@ public class IACMFApplication {
     }
 
     @Bean
+    public Executor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(5);
+        executor.setQueueCapacity(10);
+        executor.setThreadNamePrefix("IACMF-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean
     public CommandLineRunner initialization() {
         return (args) -> {
             log.info("Intializing the IACMF core...");
-            log.info("**********************");
+            log.info("*****************************");
             log.info("");
             log.info("Initializing EDMM type mappings...");
             EdmmTypeResolver.initDefaultMappings();
             log.info("Finished initializing EDMM type mappings.");
-            log.info("Finished initalizing the IACMF core.");
+            log.info("""
+                                              
+                                              #############################################
+                                              #                                           #
+                                              #   Finished initalizing the IACMF core.    #
+                                              #                                           #
+                                              #############################################""");
         };
     }
 
