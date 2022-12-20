@@ -1,21 +1,14 @@
 package org.iac2.common.utility;
 
-import java.util.Collection;
-import java.util.Set;
-
 import io.github.edmm.core.parser.support.DefaultKeys;
 import io.github.edmm.model.support.ModelEntity;
 import io.github.edmm.model.support.TypeResolver;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Java11;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDb;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Nginx;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.RealWorldAngularApp;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.RealWorldApplicationBackendJava11Spring;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Set;
 
 public class EdmmTypeResolver {
     private static final Logger logger = LoggerFactory.getLogger(EdmmTypeResolver.class);
@@ -25,7 +18,7 @@ public class EdmmTypeResolver {
     }
 
     public static String resolve(Class<? extends ModelEntity> clazz) {
-       return TypeResolver.resolve(clazz);
+        return TypeResolver.resolve(clazz);
     }
 
     /***
@@ -35,9 +28,9 @@ public class EdmmTypeResolver {
      * @param <T> the java type
      */
     public static <T> String resolveBasicType(Class<T> clazz) {
-        if(Integer.class.isAssignableFrom(clazz)) {
+        if (Integer.class.isAssignableFrom(clazz)) {
             return DefaultKeys.INTEGER;
-        } else if (Double.class.isAssignableFrom(clazz) || Float.class.isAssignableFrom(clazz)){
+        } else if (Double.class.isAssignableFrom(clazz) || Float.class.isAssignableFrom(clazz)) {
             return DefaultKeys.FLOAT;
         } else if (Boolean.class.isAssignableFrom(clazz)) {
             return "boolean";

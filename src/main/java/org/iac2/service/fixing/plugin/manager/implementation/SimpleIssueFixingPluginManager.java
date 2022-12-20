@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.iac2.common.exception.PluginNotFoundException;
-import org.iac2.common.exception.PluginType;
+import org.iac2.common.model.PluginType;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
-import org.iac2.service.fixing.plugin.implementaiton.opentoscacontainer.OpenToscaContainerIssueFixingPlugin;
+import org.iac2.service.fixing.plugin.implementaiton.docker.DockerContainerIssueFixingPlugin;
 import org.iac2.service.fixing.plugin.manager.IssueFixingPluginManager;
 
 public class SimpleIssueFixingPluginManager implements IssueFixingPluginManager {
@@ -18,8 +18,8 @@ public class SimpleIssueFixingPluginManager implements IssueFixingPluginManager 
 
     private SimpleIssueFixingPluginManager() {
         this.allPlugins = new HashMap<>();
-        OpenToscaContainerIssueFixingPlugin otcPlugin = new OpenToscaContainerIssueFixingPlugin();
-        this.allPlugins.put(otcPlugin.getIdentifier(), otcPlugin);
+        DockerContainerIssueFixingPlugin dockerPlugin = new DockerContainerIssueFixingPlugin();
+        this.allPlugins.put(dockerPlugin.getIdentifier(), dockerPlugin);
     }
 
     public static SimpleIssueFixingPluginManager getInstance() {
@@ -35,7 +35,8 @@ public class SimpleIssueFixingPluginManager implements IssueFixingPluginManager 
         return allPlugins
                 .values()
                 .stream()
-                .filter(p -> p.isSuitableForIssue(complianceIssue) && p.isSuitableForProductionSystem(productionSystem))
+                .filter(p -> p.isSuitableForIssue(complianceIssue) &&
+                        p.isIaCTechnologySupported(productionSystem.getIacTechnologyName()))
                 .toList();
     }
 
@@ -53,5 +54,10 @@ public class SimpleIssueFixingPluginManager implements IssueFixingPluginManager 
     @Override
     public Collection<IssueFixingPlugin> getAll() {
         return this.allPlugins.values();
+    }
+
+    @Override
+    public boolean pluginExists(String identifier) {
+        return this.allPlugins.containsKey(identifier);
     }
 }

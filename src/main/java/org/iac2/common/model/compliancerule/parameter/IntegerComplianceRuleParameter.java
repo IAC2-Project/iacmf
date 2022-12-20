@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class IntegerComplianceRuleParameter extends ComplianceRuleParameter{
+public class IntegerComplianceRuleParameter extends ComplianceRuleParameter {
     private int value;
 
     public IntegerComplianceRuleParameter(String name, int value) {

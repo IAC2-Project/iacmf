@@ -14,4 +14,6 @@ public interface IssueFixingPluginManager {
     IssueFixingPlugin getPlugin(String identifier) throws PluginNotFoundException;
 
     Collection<IssueFixingPlugin> getAll();
+
+    boolean pluginExists(String identifier);
 }

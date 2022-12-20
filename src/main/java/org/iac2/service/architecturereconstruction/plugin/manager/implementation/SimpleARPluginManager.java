@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.iac2.common.exception.PluginNotFoundException;
-import org.iac2.common.exception.PluginType;
+import org.iac2.common.model.PluginType;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.service.architecturereconstruction.common.interfaces.ArchitectureReconstructionPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
@@ -91,5 +91,15 @@ public class SimpleARPluginManager implements ArchitectureReconstructionPluginMa
         result.addAll(this.modelEnhancementPluginMap.values());
 
         return result;
+    }
+
+    @Override
+    public boolean modelCreationPluginExists(String identifier) {
+        return this.modelCreationPluginMap.containsKey(identifier);
+    }
+
+    @Override
+    public boolean modelRefinementPluginExists(String identifier) {
+        return this.modelEnhancementPluginMap.containsKey(identifier);
     }
 }

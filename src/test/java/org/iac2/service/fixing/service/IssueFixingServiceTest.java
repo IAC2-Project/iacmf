@@ -1,7 +1,5 @@
 package org.iac2.service.fixing.service;
 
-import java.util.Collections;
-
 import org.iac2.common.model.InstanceModel;
 import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
@@ -19,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.anyString;
 

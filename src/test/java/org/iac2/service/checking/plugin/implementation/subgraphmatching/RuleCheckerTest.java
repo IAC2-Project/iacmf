@@ -1,21 +1,9 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
-import io.github.edmm.model.component.Go;
-import io.github.edmm.model.component.MysqlDatabase;
-import io.github.edmm.model.component.Paas;
-import io.github.edmm.model.component.RootComponent;
-import io.github.edmm.model.component.SoftwareComponent;
-import io.github.edmm.model.component.Tomcat;
-import io.github.edmm.model.component.WebApplication;
-import io.github.edmm.model.component.WebServer;
+import io.github.edmm.model.component.*;
 import io.github.edmm.model.relation.HostedOn;
 import io.github.edmm.model.relation.RootRelation;
 import org.iac2.common.model.InstanceModel;
@@ -31,6 +19,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 class RuleCheckerTest {
 

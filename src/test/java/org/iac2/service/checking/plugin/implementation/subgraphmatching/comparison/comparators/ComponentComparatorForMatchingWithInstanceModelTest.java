@@ -1,7 +1,5 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.comparators;
 
-import java.util.HashMap;
-
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
@@ -15,6 +13,8 @@ import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparis
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
 
 class ComponentComparatorForMatchingWithInstanceModelTest {
     // rule component

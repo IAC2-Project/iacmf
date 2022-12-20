@@ -1,9 +1,9 @@
 package org.iac2.common.model.compliancerule.parameter;
 
-import java.util.Collection;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Collection;
 
 @Setter
 @Getter
@@ -11,7 +11,7 @@ public class StringCollectionComplianceRuleParameter extends ComplianceRuleParam
 
     private Collection<String> value;
 
-    public StringCollectionComplianceRuleParameter(String name, Collection<String> value){
+    public StringCollectionComplianceRuleParameter(String name, Collection<String> value) {
         super(name);
         this.value = value;
     }

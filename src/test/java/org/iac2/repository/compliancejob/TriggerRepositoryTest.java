@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
-import org.iac2.entity.compliancejob.trigger.CronTriggerEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
@@ -54,16 +53,19 @@ class TriggerRepositoryTest {
                 "opentoscacontainer", "opentoscaplugin");
         this.productionSystemRepository.save(productionSystem);
 
-        CronTriggerEntity trigger1 = new CronTriggerEntity("Fire at 12:00 PM (noon) every day", "0 0 12 * * ?");
-        CronTriggerEntity trigger2 = new CronTriggerEntity("Fire at 10:15 AM every day", "0 15 10 * * ?");
-        CronTriggerEntity trigger3 = new CronTriggerEntity("Fire every November 11 at 11:11 AM", "0 11 11 11 11 ?");
+        TriggerEntity trigger1 = new TriggerEntity("Fire at 12:00 PM (noon) every day");
+        trigger1.setCronExpression("0 0 12 * * ?");
+        TriggerEntity trigger2 = new TriggerEntity("Fire at 10:15 AM every day");
+        trigger2.setCronExpression("0 15 10 * * ?");
+        TriggerEntity trigger3 = new TriggerEntity("Fire every November 11 at 11:11 AM");
+        trigger3.setCronExpression( "0 11 11 11 11 ?");
 
         this.triggerRepository.save(trigger1);
         this.triggerRepository.save(trigger2);
         this.triggerRepository.save(trigger3);
 
-        List<TriggerEntity> triggers1 = Arrays.asList(new TriggerEntity[] {trigger1, trigger3});
-        List<TriggerEntity> triggers2 = Arrays.asList(new TriggerEntity[] {trigger2});
+        List<TriggerEntity> triggers1 = Arrays.asList(trigger1, trigger3);
+        List<TriggerEntity> triggers2 = Arrays.asList(trigger2);
 
         ModelEnhancementStrategyEntity strategy1 = new ModelEnhancementStrategyEntity(List.of("p1", "p2"));
         ModelEnhancementStrategyEntity strategy2 = new ModelEnhancementStrategyEntity(List.of("p3", "p4"));

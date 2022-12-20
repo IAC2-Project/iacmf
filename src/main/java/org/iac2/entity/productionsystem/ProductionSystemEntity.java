@@ -7,15 +7,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
+import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
+import org.iac2.entity.configuration.PluginConfigurationEntity;
 
 @Entity
 @NoArgsConstructor
@@ -34,7 +33,7 @@ public class ProductionSystemEntity {
     private String description;
 
     @OneToMany(mappedBy = "productionSystem")
-    private List<ProductionSystemProperty> properties;
+    private List<KVEntity> properties;
 
     @OneToMany(mappedBy = "productionSystem")
     private List<ComplianceJobEntity> complianceJobs;
@@ -42,12 +41,9 @@ public class ProductionSystemEntity {
     @NotNull
     private String modelCreationPluginId;
 
-    /***
-     * Specifies an optional model enhancement strategy that is applied at the production system level after applying
-     */
-    @ManyToOne
-    @JoinColumn(name = "model_enhancement_strategy_id")
-    private ModelEnhancementStrategyEntity modelEnhancementStrategy;
+    @OneToMany(mappedBy = "productionSystem")
+    private List<PluginConfigurationEntity> pluginConfiguration;
+
 
     public ProductionSystemEntity(String description, String iacTechnologyName, String modelCreationPluginId) {
         this.description = description;
@@ -56,5 +52,6 @@ public class ProductionSystemEntity {
         this.modelCreationPluginId = modelCreationPluginId;
         this.properties = new ArrayList<>();
         this.complianceJobs = new ArrayList<>();
+        this.pluginConfiguration = new ArrayList<>();
     }
 }

@@ -1,8 +1,5 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.comparators.attribute;
 
-import java.util.List;
-import java.util.Map;
-
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
@@ -16,6 +13,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.ExpressionException;
+
+import java.util.List;
+import java.util.Map;
 
 class AttributeComparatorTest {
 
@@ -51,7 +51,7 @@ class AttributeComparatorTest {
 
     @Test
     void testMissingVariables() throws IllegalAccessException {
-        ComplianceRule rule = new ComplianceRule(1L,"isomeso", "somewhere");
+        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere");
         rule.addStringParameter("HOST", "http://localhost");
         EntityGraph instanceModel = new EntityGraph();
 
@@ -88,13 +88,13 @@ class AttributeComparatorTest {
         Property property = theComponent.getProperty("p1").orElseThrow();
         Assertions.assertTrue(AttributeComparator.evaluateAttribute("#ALLOWED.containsAll(value)", property, rule));
 
-        Edmm.addPropertyAssignments(instanceModel, id, Map.of("p2", List.of("B","A")));
+        Edmm.addPropertyAssignments(instanceModel, id, Map.of("p2", List.of("B", "A")));
         model = new DeploymentModel("test", instanceModel);
         theComponent = model.getComponent("comp1").orElseThrow();
         property = theComponent.getProperty("p2").orElseThrow();
         Assertions.assertTrue(AttributeComparator.evaluateAttribute("#ALLOWED.containsAll(value)", property, rule));
 
-        Edmm.addPropertyAssignments(instanceModel, id, Map.of("p3", List.of("B","C")));
+        Edmm.addPropertyAssignments(instanceModel, id, Map.of("p3", List.of("B", "C")));
         model = new DeploymentModel("test", instanceModel);
         theComponent = model.getComponent("comp1").orElseThrow();
         property = theComponent.getProperty("p3").orElseThrow();

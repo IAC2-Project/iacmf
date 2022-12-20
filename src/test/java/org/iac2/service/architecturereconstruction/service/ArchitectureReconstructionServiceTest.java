@@ -3,9 +3,8 @@ package org.iac2.service.architecturereconstruction.service;
 import java.util.List;
 
 import org.iac2.common.model.InstanceModel;
-import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
+import org.iac2.entity.KVEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
-import org.iac2.entity.productionsystem.ProductionSystemProperty;
 import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -36,15 +35,9 @@ class ArchitectureReconstructionServiceTest {
                 "this is a production system",
                 "opentoscacontainer",
                 "testPlugin");
-        system.setProperties(List.of(new ProductionSystemProperty("nodes", "3", system)));
-        system.setModelEnhancementStrategy(new ModelEnhancementStrategyEntity(List.of()));
-
-
-        String ID = "ID";
-        InstanceModel model = service.reconstructArchitectureForProductionSystem(system);
+        system.setProperties(List.of(new KVEntity("nodes", "3", system)));
+        InstanceModel model = service.crteateInstanceModel(system);
         Assertions.assertEquals(4, model.getDeploymentModel().getComponents().size());
-
-
     }
 
 }

@@ -1,17 +1,6 @@
 package org.iac2.common.utility;
 
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import io.github.edmm.core.parser.Entity;
-import io.github.edmm.core.parser.EntityGraph;
-import io.github.edmm.core.parser.EntityId;
-import io.github.edmm.core.parser.MappingEntity;
-import io.github.edmm.core.parser.ScalarEntity;
-import io.github.edmm.core.parser.SequenceEntity;
+import io.github.edmm.core.parser.*;
 import io.github.edmm.core.parser.support.DefaultKeys;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
@@ -19,6 +8,12 @@ import io.github.edmm.model.relation.DependsOn;
 import io.github.edmm.model.relation.RootRelation;
 import io.github.edmm.model.support.Attribute;
 import io.github.edmm.model.support.ModelEntity;
+
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public class Edmm {
 
@@ -185,7 +180,7 @@ public class Edmm {
 
     private static String convertAttributeValue(String edmmBasicType, Object value) {
         if (edmmBasicType.equals("list")) {
-            return String.join(",", (Collection<String>)value);
+            return String.join(",", (Collection<String>) value);
         }
 
         return String.valueOf(value);

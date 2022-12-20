@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -39,21 +41,26 @@ public class ExecutionEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date endTime;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @NotNull
     private ExecutionStep currentStep;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @NotNull
     private ExecutionStatus status;
 
+    @Column(length = 10000)
+    private String instanceModel;
+
     private Boolean violationsDetected;
+
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "compliance_job_id", nullable = false)
     private ComplianceJobEntity complianceJob;
 
-    @OneToMany(mappedBy = "execution")
+    @OneToMany(mappedBy = "execution", fetch = FetchType.EAGER)
     private List<ComplianceIssueEntity> complianceIssueEntities;
 
 
@@ -62,7 +69,9 @@ public class ExecutionEntity {
         this.startTime = new Date();
         this.status = ExecutionStatus.CREATED;
         this.currentStep = ExecutionStep.START;
-        complianceIssueEntities = new ArrayList<>();
+        this.instanceModel = "";
+        this.violationsDetected = false;
+        this.complianceIssueEntities = new ArrayList<>();
     }
 
 }
