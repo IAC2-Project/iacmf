@@ -51,6 +51,47 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
     public OpenToscaContainerModelCreationPlugin() {
     }
 
+    private static Class<? extends RootRelation> getRelationClass(RelationInstance relationInstance) {
+
+        return switch (relationInstance.getTemplateType()) {
+            case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}HostedOn" -> HostedOn.class;
+            case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ConnectsTo" -> ConnectsTo.class;
+            default -> DependsOn.class;
+        };
+    }
+
+    private static EntityId addNodeInstanceAsComp(EntityGraph entityGraph, NodeInstance nodeInstance) throws IllegalAccessException {
+        Map<String, Object> properties = new HashMap<>(nodeInstance.getProperties());
+        return Edmm.addComponent(entityGraph, nodeInstance.getTemplate(), properties, getClassForTemplateId(nodeInstance.getTemplateType()));
+    }
+
+    private static Class<? extends RootComponent> getClassForTemplateId(String templateType) {
+        return switch (QName.valueOf(templateType).getLocalPart()) {
+            case "MySQL-DBMS_8.0-w1" -> MySqlDbms.class;
+            case "MySQL-DB_w1" -> MySqlDb.class;
+            case "RealWorld-Application-Backend_Java11-Spring-w1" -> RealWorldApplicationBackendJava11Spring.class;
+            case "Java_11-w1" -> Java11.class;
+            case "RealWorld-Application_Angular-w1" -> RealWorldAngularApp.class;
+            case "NGINX_latest-w1" -> Nginx.class;
+            case "DockerContainer_w1" -> DockerContainer.class;
+            case "DockerEngine_w1" -> DockerEngine.class;
+            default -> SoftwareComponent.class;
+        };
+    }
+
+    private static EntityId getEntityId(Collection<EntityId> entityIds, NodeInstance instance) {
+        return entityIds.stream().filter(e -> e.getName().equals(instance.getTemplate())).findFirst().orElse(null);
+    }
+
+    private static NodeInstance findNodeInstanceByNodeInstanceId(Collection<NodeInstance> nodeInstances, String nodeInstanceId) {
+        return nodeInstances.stream()
+                .filter(n -> n.getId().equals(nodeInstanceId)).findFirst().orElseThrow(AppInstanceNodeFoundException::new);
+    }
+
+    private static NodeInstance findNodeInstanceByNodeInstanceId(ApplicationInstance applicationInstance, String nodeInstanceId) {
+        return findNodeInstanceByNodeInstanceId(applicationInstance.getNodeInstances(), nodeInstanceId);
+    }
+
     @Override
     public String getIdentifier() {
         return "opentosca-container-model-creation-plugin";
@@ -69,6 +110,12 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
     @Override
     public void setConfigurationEntry(String inputName, String inputValue) {
         LOGGER.warn("Trying to pass user input to a plugin that does not need user inputs!");
+    }
+
+    @Override
+    public String getConfigurationEntry(String name) {
+        LOGGER.warn("Trying to get user input from a plugin that does not have user inputs!");
+        return null;
     }
 
     @Override
@@ -162,49 +209,5 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         }
 
         return entityGraph;
-    }
-
-
-    private static Class<? extends RootRelation> getRelationClass(RelationInstance relationInstance) {
-
-        return switch (relationInstance.getTemplateType()) {
-            case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}HostedOn" -> HostedOn.class;
-            case "{http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ConnectsTo" -> ConnectsTo.class;
-            default -> DependsOn.class;
-        };
-    }
-
-
-    private static EntityId addNodeInstanceAsComp(EntityGraph entityGraph, NodeInstance nodeInstance) throws IllegalAccessException {
-        Map<String, Object> properties = new HashMap<>(nodeInstance.getProperties());
-        return Edmm.addComponent(entityGraph, nodeInstance.getTemplate(),properties, getClassForTemplateId(nodeInstance.getTemplateType()));
-    }
-
-
-    private static Class<? extends RootComponent> getClassForTemplateId(String templateType) {
-        return switch (QName.valueOf(templateType).getLocalPart()) {
-            case "MySQL-DBMS_8.0-w1" -> MySqlDbms.class;
-            case "MySQL-DB_w1" -> MySqlDb.class;
-            case "RealWorld-Application-Backend_Java11-Spring-w1" -> RealWorldApplicationBackendJava11Spring.class;
-            case "Java_11-w1" -> Java11.class;
-            case "RealWorld-Application_Angular-w1" -> RealWorldAngularApp.class;
-            case "NGINX_latest-w1" -> Nginx.class;
-            case "DockerContainer_w1" -> DockerContainer.class;
-            case "DockerEngine_w1" -> DockerEngine.class;
-            default -> SoftwareComponent.class;
-        };
-    }
-
-    private static EntityId getEntityId(Collection<EntityId> entityIds, NodeInstance instance) {
-        return entityIds.stream().filter(e -> e.getName().equals(instance.getTemplate())).findFirst().orElse(null);
-    }
-
-    private static NodeInstance findNodeInstanceByNodeInstanceId(Collection<NodeInstance> nodeInstances, String nodeInstanceId) {
-        return nodeInstances.stream()
-                .filter(n -> n.getId().equals(nodeInstanceId)).findFirst().orElseThrow(AppInstanceNodeFoundException::new);
-    }
-
-    private static NodeInstance findNodeInstanceByNodeInstanceId(ApplicationInstance applicationInstance, String nodeInstanceId) {
-        return findNodeInstanceByNodeInstanceId(applicationInstance.getNodeInstances(), nodeInstanceId);
     }
 }

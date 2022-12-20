@@ -1,18 +1,22 @@
 package org.iac2.service.checking.service;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupportedException;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 import org.iac2.service.checking.common.interfaces.RuleValidationResult;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugin {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MockComplianceCheckingPlugin.class);
+
     @Override
     public Set<String> getRequiredConfigurationEntryNames() {
         return null;
@@ -26,6 +30,12 @@ public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugi
     @Override
     public boolean isSuitableForComplianceRule(ComplianceRule complianceRule) {
         return complianceRule.getType().equals("ensure-property-value");
+    }
+
+    @Override
+    public String getConfigurationEntry(String name) {
+        LOGGER.warn("Trying to get user input from a plugin that does not have user inputs!");
+        return null;
     }
 
     @Override
