@@ -43,6 +43,12 @@ public class ManualModelCreatorPlugin implements ModelCreationPlugin {
     }
 
     @Override
+    public String getConfigurationEntry(String name) {
+        LOGGER.warn("Trying to get user input from a plugin that does not have user inputs!");
+        return null;
+    }
+
+    @Override
     public Collection<String> getRequiredProductionSystemPropertyNames() {
         return Collections.emptyList();
     }

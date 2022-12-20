@@ -9,7 +9,7 @@ import org.iac2.common.model.PluginType;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
-import org.iac2.service.fixing.plugin.implementaiton.opentoscacontainer.DockerContainerIssueFixingPlugin;
+import org.iac2.service.fixing.plugin.implementaiton.docker.DockerContainerIssueFixingPlugin;
 import org.iac2.service.fixing.plugin.manager.IssueFixingPluginManager;
 
 public class SimpleIssueFixingPluginManager implements IssueFixingPluginManager {

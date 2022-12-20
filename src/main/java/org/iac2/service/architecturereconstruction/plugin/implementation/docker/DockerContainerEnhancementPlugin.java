@@ -1,5 +1,12 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.docker;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Container;
 import com.google.common.collect.Maps;
@@ -19,13 +26,6 @@ import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Docker
 import org.iac2.service.architecturereconstruction.common.model.StructuralState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerEnhancementPlugin.class);
@@ -55,6 +55,12 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
     @Override
     public void setConfigurationEntry(String inputName, String inputValue) {
         LOGGER.warn("Trying to pass user input to a plugin that does not need user inputs!");
+    }
+
+    @Override
+    public String getConfigurationEntry(String name) {
+        LOGGER.warn("Trying to get user input from a plugin that does not have user inputs!");
+        return null;
     }
 
     @Override

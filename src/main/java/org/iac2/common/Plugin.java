@@ -12,4 +12,6 @@ public interface Plugin {
     Collection<String> getRequiredConfigurationEntryNames();
 
     void setConfigurationEntry(String inputName, String inputValue);
+
+    String getConfigurationEntry(String name);
 }
