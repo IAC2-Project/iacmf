@@ -58,6 +58,23 @@ public class PluginController {
         this.complianceIssueRepository = complianceIssueRepository;
     }
 
+    private static PluginPojo createPluginPojo(Plugin plugin) {
+        PluginType type;
+
+        // todo add more cases when new plugin types are implemented
+        if (plugin instanceof ModelCreationPlugin) {
+            type = PluginType.MODEL_CREATION;
+        } else if (plugin instanceof ModelEnhancementPlugin) {
+            type = PluginType.MODEL_REFINEMENT;
+        } else if (plugin instanceof ComplianceRuleCheckingPlugin) {
+            type = PluginType.ISSUE_CHECKING;
+        } else {
+            type = PluginType.ISSUE_FIXING;
+        }
+
+        return new PluginPojo(plugin.getIdentifier(), type, plugin.getRequiredConfigurationEntryNames(), plugin.getConfigurationEntries());
+    }
+
     @GetMapping
     @Operation(summary = "Retrieves all plugins that fulfill certain conditions. If no conditions are provided, all plugins are returned.",
             responses = {
@@ -166,23 +183,6 @@ public class PluginController {
         }
 
         return ResponseEntity.ok(createPluginPojo(plugin));
-    }
-
-    private static PluginPojo createPluginPojo(Plugin plugin) {
-        PluginType type;
-
-        // todo add more cases when new plugin types are implemented
-        if (plugin instanceof ModelCreationPlugin) {
-            type = PluginType.MODEL_CREATION;
-        } else if (plugin instanceof ModelEnhancementPlugin) {
-            type = PluginType.MODEL_REFINEMENT;
-        } else if (plugin instanceof ComplianceRuleCheckingPlugin) {
-            type = PluginType.ISSUE_CHECKING;
-        } else {
-            type = PluginType.ISSUE_FIXING;
-        }
-
-        return new PluginPojo(plugin.getIdentifier(), type, plugin.getRequiredConfigurationEntryNames());
     }
 
     private ComplianceRule getComplianceRule(Long id) {
