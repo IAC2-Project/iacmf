@@ -20,7 +20,6 @@ public interface Plugin {
     default Map<String, String> getConfigurationEntries() {
         Map<String, String> result = new HashMap<>();
         getRequiredConfigurationEntryNames().forEach(name -> result.put(name, getConfigurationEntry(name)));
-        
         return result;
     }
 }
