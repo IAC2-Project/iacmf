@@ -46,11 +46,7 @@ public class PluginController {
 
     private final ComplianceIssueRepository complianceIssueRepository;
 
-    public PluginController(ArchitectureReconstructionPluginManager arPluginManager,
-                            ComplianceRuleCheckingPluginManager checkingPluginManager,
-                            IssueFixingPluginManager issueFixingPluginManager,
-                            ComplianceRuleRepository complianceRuleRepository,
-                            ComplianceIssueRepository complianceIssueRepository) {
+    public PluginController(ArchitectureReconstructionPluginManager arPluginManager, ComplianceRuleCheckingPluginManager checkingPluginManager, IssueFixingPluginManager issueFixingPluginManager, ComplianceRuleRepository complianceRuleRepository, ComplianceIssueRepository complianceIssueRepository) {
         this.arPluginManager = arPluginManager;
         this.checkingPluginManager = checkingPluginManager;
         this.fixingPluginManager = issueFixingPluginManager;
@@ -58,29 +54,26 @@ public class PluginController {
         this.complianceIssueRepository = complianceIssueRepository;
     }
 
+    private static PluginPojo createPluginPojo(Plugin plugin) {
+        PluginType type;
+
+        // todo add more cases when new plugin types are implemented
+        if (plugin instanceof ModelCreationPlugin) {
+            type = PluginType.MODEL_CREATION;
+        } else if (plugin instanceof ModelEnhancementPlugin) {
+            type = PluginType.MODEL_REFINEMENT;
+        } else if (plugin instanceof ComplianceRuleCheckingPlugin) {
+            type = PluginType.ISSUE_CHECKING;
+        } else {
+            type = PluginType.ISSUE_FIXING;
+        }
+
+        return new PluginPojo(plugin.getIdentifier(), type, plugin.getRequiredConfigurationEntryNames(), plugin.getConfigurationEntries());
+    }
+
     @GetMapping
-    @Operation(summary = "Retrieves all plugins that fulfill certain conditions. If no conditions are provided, all plugins are returned.",
-            responses = {
-                    @ApiResponse(
-                            content = @Content(mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = PluginPojo.class)))
-                    ),
-                    @ApiResponse(responseCode = "400", description = "The plugin type is malformed."),
-                    @ApiResponse(responseCode = "404", description = "The compliance rule id or issue id cannot be found.")
-            })
-    public ResponseEntity<Collection<PluginPojo>> getAllPlugins(
-            @Parameter(description = "(filter) The type of the plugins to be retrieved. Must be one of the PluginTypeEnums. This parameter is mandatory if any of the other parameters are not null.")
-            @RequestParam(required = false)
-            String pluginType,
-            @Parameter(description = "(filter) The name of the IaC technology with which the plugins must be compatible. Only for model creation and issue fixing plugins.")
-            @RequestParam(required = false)
-            String iacTechnology,
-            @Parameter(description = "(filter) The id of the compliance rule with which the plugins must be compatible. Only for compliance checking plugins.")
-            @RequestParam(required = false)
-            Long complianceRuleId,
-            @Parameter(description = "(filter) The id of the compliance issue with which the plugins must be compatible. Only for issue fixing plugins.")
-            @RequestParam(required = false)
-            Long issueId) {
+    @Operation(summary = "Retrieves all plugins that fulfill certain conditions. If no conditions are provided, all plugins are returned.", responses = {@ApiResponse(content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PluginPojo.class)))), @ApiResponse(responseCode = "400", description = "The plugin type is malformed."), @ApiResponse(responseCode = "404", description = "The compliance rule id or issue id cannot be found.")})
+    public ResponseEntity<Collection<PluginPojo>> getAllPlugins(@Parameter(description = "(filter) The type of the plugins to be retrieved. Must be one of the PluginTypeEnums. This parameter is mandatory if any of the other parameters are not null.") @RequestParam(required = false) String pluginType, @Parameter(description = "(filter) The name of the IaC technology with which the plugins must be compatible. Only for model creation and issue fixing plugins.") @RequestParam(required = false) String iacTechnology, @Parameter(description = "(filter) The id of the compliance rule with which the plugins must be compatible. Only for compliance checking plugins.") @RequestParam(required = false) Long complianceRuleId, @Parameter(description = "(filter) The id of the compliance issue with which the plugins must be compatible. Only for issue fixing plugins.") @RequestParam(required = false) Long issueId) {
         Collection<PluginPojo> result = new ArrayList<>();
 
         if (pluginType == null) {
@@ -107,32 +100,16 @@ public class PluginController {
             }
 
             switch (type) {
-                case MODEL_CREATION -> this.arPluginManager
-                        .getAll()
-                        .stream()
-                        .filter(p -> p instanceof ModelCreationPlugin)
-                        .filter(p -> iacTechnology == null || ((ModelCreationPlugin) p).isIaCTechnologySupported(iacTechnology))
-                        .forEach(p -> result.add(createPluginPojo(p)));
+                case MODEL_CREATION ->
+                        this.arPluginManager.getAll().stream().filter(p -> p instanceof ModelCreationPlugin).filter(p -> iacTechnology == null || ((ModelCreationPlugin) p).isIaCTechnologySupported(iacTechnology)).forEach(p -> result.add(createPluginPojo(p)));
 
-                case MODEL_REFINEMENT -> this.arPluginManager
-                        .getAll()
-                        .stream()
-                        .filter(p -> p instanceof ModelEnhancementPlugin)
-                        .forEach(p -> result.add(createPluginPojo(p)));
-                case ISSUE_CHECKING -> this.checkingPluginManager
-                        .getAll()
-                        .stream()
-                        .filter(p -> complianceRuleId == null || p.isSuitableForComplianceRule(getComplianceRule(complianceRuleId)))
-                        .forEach(p -> result.add(createPluginPojo(p)));
+                case MODEL_REFINEMENT ->
+                        this.arPluginManager.getAll().stream().filter(p -> p instanceof ModelEnhancementPlugin).forEach(p -> result.add(createPluginPojo(p)));
+                case ISSUE_CHECKING ->
+                        this.checkingPluginManager.getAll().stream().filter(p -> complianceRuleId == null || p.isSuitableForComplianceRule(getComplianceRule(complianceRuleId))).forEach(p -> result.add(createPluginPojo(p)));
 
-                case ISSUE_FIXING -> this.fixingPluginManager
-                        .getAll()
-                        .stream()
-                        .filter(p -> issueId == null ||
-                                p.isSuitableForIssue(getComplianceIssue(complianceRuleId)))
-                        .filter(p -> iacTechnology == null ||
-                                p.isIaCTechnologySupported(iacTechnology))
-                        .forEach(p -> result.add(createPluginPojo(p)));
+                case ISSUE_FIXING ->
+                        this.fixingPluginManager.getAll().stream().filter(p -> issueId == null || p.isSuitableForIssue(getComplianceIssue(complianceRuleId))).filter(p -> iacTechnology == null || p.isIaCTechnologySupported(iacTechnology)).forEach(p -> result.add(createPluginPojo(p)));
                 default -> {
                     return ResponseEntity.badRequest().build();
                 }
@@ -143,13 +120,7 @@ public class PluginController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "gets a plugin by its identifier",
-            responses = {
-                    @ApiResponse(
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = PluginPojo.class))),
-                    @ApiResponse(responseCode = "404", description = "Plugin not found")
-            })
+    @Operation(summary = "gets a plugin by its identifier", responses = {@ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(implementation = PluginPojo.class))), @ApiResponse(responseCode = "404", description = "Plugin not found")})
     public ResponseEntity<PluginPojo> getPlugin(@PathVariable String id) {
         Plugin plugin;
 
@@ -166,23 +137,6 @@ public class PluginController {
         }
 
         return ResponseEntity.ok(createPluginPojo(plugin));
-    }
-
-    private static PluginPojo createPluginPojo(Plugin plugin) {
-        PluginType type;
-
-        // todo add more cases when new plugin types are implemented
-        if (plugin instanceof ModelCreationPlugin) {
-            type = PluginType.MODEL_CREATION;
-        } else if (plugin instanceof ModelEnhancementPlugin) {
-            type = PluginType.MODEL_REFINEMENT;
-        } else if (plugin instanceof ComplianceRuleCheckingPlugin) {
-            type = PluginType.ISSUE_CHECKING;
-        } else {
-            type = PluginType.ISSUE_FIXING;
-        }
-
-        return new PluginPojo(plugin.getIdentifier(), type, plugin.getRequiredConfigurationEntryNames());
     }
 
     private ComplianceRule getComplianceRule(Long id) {
