@@ -1,19 +1,28 @@
 package org.iac2.common.utility;
 
-import io.github.edmm.core.parser.*;
-import io.github.edmm.core.parser.support.DefaultKeys;
-import io.github.edmm.model.DeploymentModel;
-import io.github.edmm.model.component.RootComponent;
-import io.github.edmm.model.relation.DependsOn;
-import io.github.edmm.model.relation.RootRelation;
-import io.github.edmm.model.support.Attribute;
-import io.github.edmm.model.support.ModelEntity;
-
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import io.github.edmm.core.parser.Entity;
+import io.github.edmm.core.parser.EntityGraph;
+import io.github.edmm.core.parser.EntityId;
+import io.github.edmm.core.parser.MappingEntity;
+import io.github.edmm.core.parser.ScalarEntity;
+import io.github.edmm.core.parser.SequenceEntity;
+import io.github.edmm.core.parser.support.DefaultKeys;
+import io.github.edmm.model.DeploymentModel;
+import io.github.edmm.model.Property;
+import io.github.edmm.model.component.RootComponent;
+import io.github.edmm.model.relation.DependsOn;
+import io.github.edmm.model.relation.HostedOn;
+import io.github.edmm.model.relation.RootRelation;
+import io.github.edmm.model.support.Attribute;
+import io.github.edmm.model.support.ModelEntity;
 
 public class Edmm {
 
@@ -144,9 +153,9 @@ public class Edmm {
                 .toList();
     }
 
-    public static Collection<RootComponent> findDependentComponents(DeploymentModel model,
-                                                                    RootComponent targetComponent,
-                                                                    Class<? extends DependsOn> relationType) {
+    public static Collection<RootComponent> findSourceComponents(DeploymentModel model,
+                                                                 RootComponent targetComponent,
+                                                                 Class<? extends DependsOn> relationType) {
         Collection<EntityId> hostedOnEngineRelIds = model.getRelations()
                 .stream()
                 .filter(r -> relationType.isAssignableFrom(r.getClass()) && r.getTarget().equals(targetComponent.getId()))
@@ -157,6 +166,51 @@ public class Edmm {
                 .stream()
                 .filter(c -> c.getRelations().stream().anyMatch(r -> hostedOnEngineRelIds.contains(r.getEntity().getId())))
                 .toList();
+    }
+
+    public static Collection<RootComponent> findTargetComponents(DeploymentModel model,
+                                                                 RootComponent sourceComponent,
+                                                                 Class<? extends DependsOn> relationType) {
+        return sourceComponent.getRelations()
+                .stream()
+                .filter(r -> relationType.isAssignableFrom(r.getClass()))
+                .map(RootRelation::getTarget)
+                .map(name -> model.getComponent(name).orElseThrow())
+                .toList();
+    }
+
+    public static String findHostIp(RootComponent component, DeploymentModel deploymentModel) {
+        Map<String, Property> currentProps = component.getProperties();
+        String ip;
+
+        for (Property property : currentProps.values()) {
+            ip = extractIp(property.getValue());
+
+            if (ip != null) {
+                return ip;
+            }
+        }
+
+        Collection<RootComponent> hosts = findTargetComponents(deploymentModel, component, HostedOn.class);
+
+        if (hosts.isEmpty()) {
+            return null;
+        }
+
+        return findHostIp(hosts.stream().findFirst().get(), deploymentModel);
+    }
+
+    private static String extractIp(String value) {
+        String IPV4_PATTERN = "(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}" +
+                "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])";
+        final Pattern pattern = Pattern.compile(IPV4_PATTERN);
+        final Matcher matcher = pattern.matcher(value);
+
+        if (matcher.find()) {
+            return matcher.group(0);
+        }
+
+        return null;
     }
 
     private static void addPropertyDefinition(Attribute<?> attribute, Entity propertiesEntity) {

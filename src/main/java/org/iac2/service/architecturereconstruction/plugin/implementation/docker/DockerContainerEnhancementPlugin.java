@@ -120,7 +120,7 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
 
         Map<String, DockerContainer> edmmDockerContainers = Maps.newHashMap();
         // we find the edmm docker containers hosted on this specific docker engine
-        Collection<RootComponent> components = Edmm.findDependentComponents(deploymentModel, dockerEngineComponent, HostedOn.class)
+        Collection<RootComponent> components = Edmm.findSourceComponents(deploymentModel, dockerEngineComponent, HostedOn.class)
                 .stream()
                 .filter(c -> c instanceof DockerContainer)
                 .toList();

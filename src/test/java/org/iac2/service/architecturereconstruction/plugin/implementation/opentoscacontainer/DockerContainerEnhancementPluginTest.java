@@ -1,5 +1,23 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import javax.xml.namespace.QName;
+
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -12,8 +30,6 @@ import io.github.edmm.model.relation.HostedOn;
 import io.github.edmm.model.relation.RootRelation;
 import org.assertj.core.util.Sets;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.Edmm;
@@ -38,15 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit.jupiter.DisabledIf;
-
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class DockerContainerEnhancementPluginTest {
 
@@ -177,7 +184,6 @@ public class DockerContainerEnhancementPluginTest {
 
         Assertions.assertNotEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
 
-
         dockerEngineToContainersMap.forEach((dockerEngine, dockerContainers) -> {
             String dockerEngineUrl = dockerEngine.getProperty("DockerEngineURL").orElseThrow().getValue();
 
@@ -195,7 +201,6 @@ public class DockerContainerEnhancementPluginTest {
                 dockerClient.stopContainerCmd(container.getId()).exec();
                 dockerClient.removeContainerCmd(container.getId()).exec();
             });
-
         });
     }
 
@@ -213,7 +218,7 @@ public class DockerContainerEnhancementPluginTest {
         plugin.enhanceModel(model, new ArrayList<>(), engine1, containersOnEngine1);
         model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertEquals(2, model.getComponents().stream().filter(c -> c instanceof DockerEngine).count());
-        Collection<RootComponent> hostedOnEngine1 = Edmm.findDependentComponents(model, engine1, HostedOn.class);
+        Collection<RootComponent> hostedOnEngine1 = Edmm.findSourceComponents(model, engine1, HostedOn.class);
         Assertions.assertEquals(4, hostedOnEngine1.size());
         Assertions.assertEquals(4, hostedOnEngine1.stream().filter(c -> c instanceof DockerContainer).count());
         Assertions.assertEquals(2, hostedOnEngine1.stream().filter(c ->
@@ -226,7 +231,7 @@ public class DockerContainerEnhancementPluginTest {
         plugin.enhanceModel(model, new ArrayList<>(), engine2, containersOnEngine2);
         model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertEquals(2, model.getComponents().stream().filter(c -> c instanceof DockerEngine).count());
-        Collection<RootComponent> hostedOnEngine2 = Edmm.findDependentComponents(model, engine2, HostedOn.class);
+        Collection<RootComponent> hostedOnEngine2 = Edmm.findSourceComponents(model, engine2, HostedOn.class);
         Assertions.assertEquals(2, hostedOnEngine2.size());
         Assertions.assertEquals(2, hostedOnEngine2.stream().filter(c -> c instanceof DockerContainer).count());
         Assertions.assertEquals(1, hostedOnEngine2.stream().filter(c ->
