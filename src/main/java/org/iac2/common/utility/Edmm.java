@@ -4,8 +4,6 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import io.github.edmm.core.parser.Entity;
@@ -184,7 +182,7 @@ public class Edmm {
         String ip;
 
         for (Property property : currentProps.values()) {
-            ip = extractIp(property.getValue());
+            ip = Utils.extractHost(property.getValue());
 
             if (ip != null) {
                 return ip;
@@ -198,19 +196,6 @@ public class Edmm {
         }
 
         return findHostIp(hosts.stream().findFirst().get(), deploymentModel);
-    }
-
-    private static String extractIp(String value) {
-        String IPV4_PATTERN = "(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}" +
-                "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])";
-        final Pattern pattern = Pattern.compile(IPV4_PATTERN);
-        final Matcher matcher = pattern.matcher(value);
-
-        if (matcher.find()) {
-            return matcher.group(0);
-        }
-
-        return null;
     }
 
     private static void addPropertyDefinition(Attribute<?> attribute, Entity propertiesEntity) {

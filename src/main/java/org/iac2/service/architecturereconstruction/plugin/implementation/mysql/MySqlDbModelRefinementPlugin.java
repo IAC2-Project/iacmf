@@ -27,10 +27,9 @@ import org.slf4j.LoggerFactory;
 // see: https://mkyong.com/regular-expressions/how-to-validate-ip-address-with-regular-expression/
 // see: https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-usagenotes-connect-drivermanager.html
 public class MySqlDbModelRefinementPlugin implements ModelEnhancementPlugin {
+    public static final String CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES = "ignoreMissingProperties";
+    public static final String EDMM_PROPERTY_NAME_USERS = "users";
     private static final Logger LOGGER = LoggerFactory.getLogger(MySqlDbModelRefinementPlugin.class);
-    private static final String CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES = "ignoreMissingProperties";
-    private static final String EDMM_PROPERTY_NAME_USERS = "users";
-
     private boolean ignoreMissingProperties;
 
     public static Collection<String> getUsersOfDatabase(String ip, String port, String user, String password, String database) throws SQLException {
@@ -51,7 +50,7 @@ public class MySqlDbModelRefinementPlugin implements ModelEnhancementPlugin {
                 ResultSet resultSet = statement.executeQuery(statementSQL);
 
                 while (resultSet.next()) {
-                    result.add(resultSet.getString(0));
+                    result.add(resultSet.getString(1));
                 }
             }
         } catch (SQLException ex) {
@@ -104,8 +103,8 @@ public class MySqlDbModelRefinementPlugin implements ModelEnhancementPlugin {
     public InstanceModel enhanceModel(InstanceModel instanceModel, ProductionSystem productionSystem) {
         Collection<MySqlDbms> dbmss = Edmm.getAllComponentsOfType(instanceModel.getDeploymentModel(), MySqlDbms.class);
 
-        for (MySqlDbms dbms : dbmss) {
-            try {
+        try {
+            for (MySqlDbms dbms : dbmss) {
                 String userName = dbms.getProperty(MySqlDbms.DBMSUser).orElse(null);
                 String password = dbms.getProperty(MySqlDbms.DBMSPassword).orElse(null);
                 String port = dbms.getProperty(MySqlDbms.DBMSPort).orElse(null);
@@ -131,9 +130,9 @@ public class MySqlDbModelRefinementPlugin implements ModelEnhancementPlugin {
                                             port == null ? MySqlDbms.DBMSPort.getName() : "IP";
                     throw new PropertyMissingException(getIdentifier(), dbms.getName(), missingPropertyName);
                 }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
 
         return new InstanceModel(new DeploymentModel(
