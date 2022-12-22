@@ -231,7 +231,8 @@ class EdmmTest {
         Collection<DockerContainer> containers = Edmm.getAllComponentsOfType(model, DockerContainer.class);
         Assertions.assertEquals(2, containers.size());
 
-        model = Edmm.removeComponents(model, containers);
+        Edmm.removeComponents(model.getGraph(), containers);
+        model = new DeploymentModel(model.getName(), model.getGraph());
         containers = Edmm.getAllComponentsOfType(model, DockerContainer.class);
         Assertions.assertEquals(0, containers.size());
         Assertions.assertEquals(relationsCount - 5, model.getRelations().size());

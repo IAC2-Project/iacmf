@@ -131,23 +131,25 @@ public class Edmm {
         return componentEntityId;
     }
 
-    public static DeploymentModel removeComponents(DeploymentModel deploymentModel, Collection<? extends RootComponent> components) {
-        EntityGraph graph = deploymentModel.getGraph();
+    /**
+     * Removes a collection of components and all the relations associated with them (incoming and outgoing)
+     *
+     * @param deploymentModel the initial deployment model (not valid after invocation!!!!!)
+     * @param components      the components to be removed
+     */
+    public static void removeComponents(EntityGraph graph, Collection<? extends RootComponent> components) {
 
         for (RootComponent component : components) {
             Entity componentEntity = component.getEntity();
             // let's find and remove the relation entities to which this component is a target.
-            deploymentModel.getRelations()
+            (new DeploymentModel("temp", graph)).getRelations()
                     .stream()
                     .filter(r -> r.getTarget().equals(componentEntity.getName()))
                     .map(BaseElement::getEntity)
                     .forEach(r -> removeRelationEntityRec(graph, r));
             // this recursive invocation will also remove descendent entities (type entity, property entities, and outgoing relation entities)
             removeEntityRec(graph, componentEntity);
-            deploymentModel = new DeploymentModel(deploymentModel.getName(), graph);
         }
-
-        return deploymentModel;
     }
 
     /**
