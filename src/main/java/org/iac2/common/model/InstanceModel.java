@@ -5,11 +5,13 @@ import java.util.Map;
 
 import io.github.edmm.model.DeploymentModel;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class InstanceModel {
-    private final Map<String, String> properties;
-    private final DeploymentModel deploymentModel;
+    private Map<String, String> properties;
+    private DeploymentModel deploymentModel;
 
     public InstanceModel(DeploymentModel deploymentModel) {
         this.deploymentModel = deploymentModel;

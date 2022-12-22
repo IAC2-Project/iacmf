@@ -1,7 +1,9 @@
 package org.iac2.common.utility;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -18,9 +20,13 @@ import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.DependsOn;
 import io.github.edmm.model.relation.RootRelation;
 import io.github.edmm.model.support.Attribute;
+import io.github.edmm.model.support.BaseElement;
 import io.github.edmm.model.support.ModelEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Edmm {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Edmm.class);
 
     public static Entity addType(EntityGraph graph, Class<? extends ModelEntity> componentType) throws IllegalAccessException {
         if (graph.getEntity(EntityGraph.COMPONENT_TYPES).isEmpty()) {
@@ -125,6 +131,67 @@ public class Edmm {
         return componentEntityId;
     }
 
+    /**
+     * Removes a collection of components and all the relations associated with them (incoming and outgoing)
+     *
+     * @param deploymentModel the initial deployment model (not valid after invocation!!!!!)
+     * @param components      the components to be removed
+     */
+    public static void removeComponents(EntityGraph graph, Collection<? extends RootComponent> components) {
+
+        for (RootComponent component : components) {
+            Entity componentEntity = component.getEntity();
+            // let's find and remove the relation entities to which this component is a target.
+            (new DeploymentModel("temp", graph)).getRelations()
+                    .stream()
+                    .filter(r -> r.getTarget().equals(componentEntity.getName()))
+                    .map(BaseElement::getEntity)
+                    .forEach(r -> removeRelationEntityRec(graph, r));
+            // this recursive invocation will also remove descendent entities (type entity, property entities, and outgoing relation entities)
+            removeEntityRec(graph, componentEntity);
+        }
+    }
+
+    /**
+     * Removes all descendent entities (direct children and their direct children ...).
+     * Removes all edges of removed entities too.
+     *
+     * @param graph    the EntityGraph to operate on.
+     * @param toRemove the parent entity to be removed.
+     */
+    private static void removeEntityRec(EntityGraph graph, Entity toRemove) {
+        Collection<Entity> children = toRemove.getDirectChildren();
+        children.forEach(c -> removeEntityRec(graph, c));
+        removeEntity(graph, toRemove);
+    }
+
+    /**
+     * removes incoming and outgoing edges (not relations!) of an entity and the entity itself.
+     * (replaces a faulty method with the same name inside EntityGraph class)
+     *
+     * @param graph    the EntityGraph to operate on
+     * @param toRemove the entity to be removed
+     */
+    private static void removeEntity(EntityGraph graph, Entity toRemove) {
+        List<EntityGraph.Edge> edges = new ArrayList<>(graph.incomingEdgesOf(toRemove));
+        edges.addAll(graph.outgoingEdgesOf(toRemove).stream().toList());
+        edges.forEach(graph::removeEdge);
+        graph.removeVertex(toRemove);
+    }
+
+    /**
+     * A relation entity has a parent entity that must be removed (the index entity).
+     * This method removes the parent entity and then the relation entitiy.
+     *
+     * @param graph    the EntityGraph to operate on.
+     * @param toRemove the relation entity to be removed.
+     */
+    private static void removeRelationEntityRec(EntityGraph graph, Entity toRemove) {
+        // remove the entity that represents the index of the relation.
+        toRemove.getParent().ifPresent(indexEntity -> removeEntity(graph, indexEntity));
+        removeEntityRec(graph, toRemove);
+    }
+
     public static void addPropertyAssignments(EntityGraph graph, EntityId componentId, Map<String, Object> attributeAssignments) {
         final Entity propertiesEntity = ensurePropertiesEntityExists(graph, componentId);
 
@@ -185,7 +252,7 @@ public class Edmm {
 
     private static String convertAttributeValue(String edmmBasicType, Object value) {
         if (edmmBasicType.equals("list")) {
-            return String.join(",", (Collection<String>)value);
+            return String.join(",", (Collection<String>) value);
         }
 
         return String.valueOf(value);

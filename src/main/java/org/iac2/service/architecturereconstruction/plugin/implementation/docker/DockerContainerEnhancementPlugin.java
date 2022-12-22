@@ -1,12 +1,5 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.docker;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Container;
 import com.google.common.collect.Maps;
@@ -15,8 +8,6 @@ import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.compress.utils.Lists;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
@@ -29,8 +20,32 @@ import org.iac2.service.architecturereconstruction.common.model.StructuralState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerEnhancementPlugin.class);
+
+    public static void addDockerContainerToEntityGraph(EntityGraph graph, RootComponent dockerEngineComponent, Container container) throws IllegalAccessException {
+        // here we need to setup a proper mapping to the properties of a dockercontainer Node Type and so..
+        // todo we need to ensure that we do not add components with the same id (...multiple engines)
+        Map<String, Object> props = generateAttributes(container, StructuralState.NOT_EXPECTED);
+        EntityId entityId = Edmm.addComponent(graph, container.getId(), props, DockerContainer.class);
+        Edmm.addRelation(graph, entityId, dockerEngineComponent.getEntity().getId(), HostedOn.class);
+    }
+
+    private static Map<String, Object> generateAttributes(Container container, StructuralState state) {
+        Map<String, Object> props = Maps.newHashMap();
+        props.put("ContainerID", container.getId());
+        props.put("structuralState", state.name());
+        props.put("Image", container.getImage());
+
+        return props;
+    }
 
     @Override
     public Collection<String> getRequiredPropertyNames() {
@@ -89,7 +104,7 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
                 .filter(c -> "running".equals(c.getState()))
                 .collect(Collectors.toList());
 
-        BidiMap<String, DockerContainer> edmmDockerContainers = new DualHashBidiMap<>();
+        Map<String, DockerContainer> edmmDockerContainers = Maps.newHashMap();
         // we find the edmm docker containers hosted on this specific docker engine
         Collection<RootComponent> components = Edmm.findDependentComponents(deploymentModel, dockerEngineComponent, HostedOn.class)
                 .stream()
@@ -125,23 +140,6 @@ public class DockerContainerEnhancementPlugin implements ModelEnhancementPlugin 
                         props);
             }
         }
-    }
-
-    public static void addDockerContainerToEntityGraph(EntityGraph graph, RootComponent dockerEngineComponent, Container container) throws IllegalAccessException {
-        // here we need to setup a proper mapping to the properties of a dockercontainer Node Type and so..
-        // todo we need to ensure that we do not add components with the same id (...multiple engines)
-        Map<String, Object> props = generateAttributes(container, StructuralState.NOT_EXPECTED);
-        EntityId entityId = Edmm.addComponent(graph, container.getId(), props, DockerContainer.class);
-        Edmm.addRelation(graph, entityId, dockerEngineComponent.getEntity().getId(), HostedOn.class);
-    }
-
-    private static Map<String, Object> generateAttributes(Container container, StructuralState state) {
-        Map<String, Object> props = Maps.newHashMap();
-        props.put("ContainerID", container.getId());
-        props.put("structuralState", state.name());
-        props.put("Image", container.getImage());
-
-        return props;
     }
 
     private Collection<Container> findContainersNotInDeploymentModel(DeploymentModel deploymentModel, Collection<Container> containers) {

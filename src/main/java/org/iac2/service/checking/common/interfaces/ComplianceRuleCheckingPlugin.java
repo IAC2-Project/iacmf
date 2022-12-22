@@ -1,15 +1,15 @@
 package org.iac2.service.checking.common.interfaces;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Set;
-
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.service.checking.common.exception.ComplianceRuleMalformattedException;
 import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupportedException;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Set;
 
 public interface ComplianceRuleCheckingPlugin {
 

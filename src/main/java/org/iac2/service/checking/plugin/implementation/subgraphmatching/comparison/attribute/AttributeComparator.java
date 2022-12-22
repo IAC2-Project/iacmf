@@ -1,21 +1,17 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.attribute;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import io.github.edmm.model.Property;
 import org.iac2.common.model.compliancerule.ComplianceRule;
-import org.iac2.common.model.compliancerule.parameter.BooleanComplianceRuleParameter;
-import org.iac2.common.model.compliancerule.parameter.ComplianceRuleParameter;
-import org.iac2.common.model.compliancerule.parameter.DoubleComplianceRuleParameter;
-import org.iac2.common.model.compliancerule.parameter.IntegerComplianceRuleParameter;
-import org.iac2.common.model.compliancerule.parameter.StringCollectionComplianceRuleParameter;
+import org.iac2.common.model.compliancerule.parameter.*;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AttributeComparator {
 

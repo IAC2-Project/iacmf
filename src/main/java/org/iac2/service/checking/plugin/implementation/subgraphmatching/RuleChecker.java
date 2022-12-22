@@ -1,7 +1,5 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
-import java.util.Iterator;
-
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
 import org.iac2.common.model.InstanceModel;
@@ -11,6 +9,8 @@ import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparis
 import org.jgrapht.Graph;
 import org.jgrapht.GraphMapping;
 import org.jgrapht.alg.isomorphism.IsomorphismInspector;
+
+import java.util.Iterator;
 
 public class RuleChecker {
     private final Graph<RootComponent, RootRelation> instanceModel;

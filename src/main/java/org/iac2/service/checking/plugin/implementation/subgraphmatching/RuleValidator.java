@@ -1,12 +1,5 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.core.parser.support.DefaultKeys;
@@ -22,6 +15,8 @@ import org.jgrapht.Graph;
 import org.jgrapht.GraphMapping;
 import org.jgrapht.alg.isomorphism.IsomorphismInspector;
 import org.springframework.expression.ExpressionException;
+
+import java.util.*;
 
 public abstract class RuleValidator {
     // todo rethink this if rules are to be modelled based on component names
@@ -60,7 +55,7 @@ public abstract class RuleValidator {
     }
 
     private static void validatePropertiesOfRuleComponent(RootComponent component, ComplianceRule rule)
-    throws ExpressionException, RuntimeException {
+            throws ExpressionException, RuntimeException {
         // if something goes wrong here, an ExpressionException is thrown.
         try {
             Collection<Property> propertyCollection = component

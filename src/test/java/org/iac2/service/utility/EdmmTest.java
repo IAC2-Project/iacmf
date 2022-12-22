@@ -2,6 +2,7 @@ package org.iac2.service.utility;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -145,7 +146,7 @@ class EdmmTest {
                         DockerContainer.IMAGE_ID.getName(), "awsome.com/theImage"),
                 DockerContainer.class
         );
-        final EntityId vmId =  Edmm.addComponent(
+        final EntityId vmId = Edmm.addComponent(
                 graph,
                 "ubuntu-1",
                 Map.of(Compute.TYPE.getName(), "ubuntu",
@@ -220,5 +221,20 @@ class EdmmTest {
         StringWriter writer = new StringWriter();
         graph.generateYamlOutput(writer);
         LOGGER.info(writer.toString());
+    }
+
+    @Test
+    void testRemoveComponent() throws IllegalAccessException, IOException {
+        ClassPathResource resource = new ClassPathResource("edmm/realworld_application_instance_model_docker_refined.yaml");
+        DeploymentModel model = DeploymentModel.of(resource.getFile());
+        int relationsCount = model.getRelations().size();
+        Collection<DockerContainer> containers = Edmm.getAllComponentsOfType(model, DockerContainer.class);
+        Assertions.assertEquals(2, containers.size());
+
+        Edmm.removeComponents(model.getGraph(), containers);
+        model = new DeploymentModel(model.getName(), model.getGraph());
+        containers = Edmm.getAllComponentsOfType(model, DockerContainer.class);
+        Assertions.assertEquals(0, containers.size());
+        Assertions.assertEquals(relationsCount - 5, model.getRelations().size());
     }
 }
