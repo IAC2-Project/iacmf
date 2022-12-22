@@ -15,6 +15,7 @@ import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreati
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.implementation.docker.DockerContainerEnhancementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.implementation.manual.ManualModelCreatorPlugin;
+import org.iac2.service.architecturereconstruction.plugin.implementation.mysql.MySqlDbModelRefinementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.OpenToscaContainerModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
 
@@ -46,9 +47,11 @@ public class SimpleARPluginManager implements ArchitectureReconstructionPluginMa
         ManualModelCreatorPlugin manualPlugin = new ManualModelCreatorPlugin();
         OpenToscaContainerModelCreationPlugin openToscaContainerPlugin = new OpenToscaContainerModelCreationPlugin();
         DockerContainerEnhancementPlugin dockerContainerEnhancementPlugin = new DockerContainerEnhancementPlugin();
+        MySqlDbModelRefinementPlugin mySqlDbModelRefinementPlugin = new MySqlDbModelRefinementPlugin();
         this.modelCreationPluginMap.put(manualPlugin.getIdentifier(), manualPlugin);
         this.modelCreationPluginMap.put(openToscaContainerPlugin.getIdentifier(), openToscaContainerPlugin);
         this.modelEnhancementPluginMap.put(dockerContainerEnhancementPlugin.getIdentifier(), dockerContainerEnhancementPlugin);
+        this.modelEnhancementPluginMap.put(mySqlDbModelRefinementPlugin.getIdentifier(), mySqlDbModelRefinementPlugin);
     }
 
     @Override

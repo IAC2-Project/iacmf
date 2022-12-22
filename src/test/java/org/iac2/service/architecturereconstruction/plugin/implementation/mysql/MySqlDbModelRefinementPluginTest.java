@@ -90,6 +90,7 @@ class MySqlDbModelRefinementPluginTest {
             Assertions.assertTrue(users.contains("iac2-admin"));
             Assertions.assertTrue(users.contains("ghareeb"));
         } finally {
+            // undo ddl changes (rollback does not work with such statements)
             try (Connection conn = DriverManager.getConnection(connectionString)) {
                 PreparedStatement remUserS = conn.prepareStatement("DROP USER 'ghareeb'");
                 remUserS.executeUpdate();
