@@ -22,12 +22,8 @@ import io.github.edmm.model.relation.RootRelation;
 import io.github.edmm.model.support.Attribute;
 import io.github.edmm.model.support.BaseElement;
 import io.github.edmm.model.support.ModelEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Edmm {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Edmm.class);
-
     public static Entity addType(EntityGraph graph, Class<? extends ModelEntity> componentType) throws IllegalAccessException {
         if (graph.getEntity(EntityGraph.COMPONENT_TYPES).isEmpty()) {
             graph.addEntity(new MappingEntity(EntityGraph.COMPONENT_TYPES, graph));
@@ -134,8 +130,8 @@ public class Edmm {
     /**
      * Removes a collection of components and all the relations associated with them (incoming and outgoing)
      *
-     * @param deploymentModel the initial deployment model (not valid after invocation!!!!!)
-     * @param components      the components to be removed
+     * @param graph      the EntityGraph to operate on.
+     * @param components the components to be removed
      */
     public static void removeComponents(EntityGraph graph, Collection<? extends RootComponent> components) {
 
