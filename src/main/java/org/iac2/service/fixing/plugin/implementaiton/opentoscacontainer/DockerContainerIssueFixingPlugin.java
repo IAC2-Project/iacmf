@@ -63,6 +63,7 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
         Map<DockerEngine, Collection<DockerContainer>> dockerEngineCollectionMap = Maps.newHashMap();
 
         instanceModel.getDeploymentModel().getComponents().stream()
+                .filter(c -> c.getId().equals(issue.getProperties().get("INSTANCE_MODEL_COMPONENT_ID")))
                 .filter(c -> c instanceof DockerContainer)
                 .filter(c -> c.getProperties().containsKey("structuralState"))
                 .filter(c -> {
