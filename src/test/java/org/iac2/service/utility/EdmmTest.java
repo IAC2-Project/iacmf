@@ -1,10 +1,27 @@
 package org.iac2.service.utility;
 
-import io.github.edmm.core.parser.*;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import io.github.edmm.core.parser.Entity;
+import io.github.edmm.core.parser.EntityGraph;
+import io.github.edmm.core.parser.EntityId;
+import io.github.edmm.core.parser.MappingEntity;
+import io.github.edmm.core.parser.ScalarEntity;
 import io.github.edmm.core.parser.support.DefaultKeys;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.Property;
-import io.github.edmm.model.component.*;
+import io.github.edmm.model.component.AwsBeanstalk;
+import io.github.edmm.model.component.Compute;
+import io.github.edmm.model.component.MysqlDatabase;
+import io.github.edmm.model.component.MysqlDbms;
+import io.github.edmm.model.component.Paas;
+import io.github.edmm.model.component.Platform;
+import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.ConnectsTo;
 import io.github.edmm.model.relation.DependsOn;
 import io.github.edmm.model.relation.HostedOn;
@@ -18,12 +35,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 class EdmmTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(EdmmTest.class);
@@ -210,5 +221,20 @@ class EdmmTest {
         StringWriter writer = new StringWriter();
         graph.generateYamlOutput(writer);
         LOGGER.info(writer.toString());
+    }
+
+    @Test
+    void testRemoveComponent() throws IllegalAccessException, IOException {
+        ClassPathResource resource = new ClassPathResource("edmm/realworld_application_instance_model_docker_refined.yaml");
+        DeploymentModel model = DeploymentModel.of(resource.getFile());
+        int relationsCount = model.getRelations().size();
+        Collection<DockerContainer> containers = Edmm.getAllComponentsOfType(model, DockerContainer.class);
+        Assertions.assertEquals(2, containers.size());
+
+        Edmm.removeComponents(model.getGraph(), containers);
+        model = new DeploymentModel(model.getName(), model.getGraph());
+        containers = Edmm.getAllComponentsOfType(model, DockerContainer.class);
+        Assertions.assertEquals(0, containers.size());
+        Assertions.assertEquals(relationsCount - 5, model.getRelations().size());
     }
 }

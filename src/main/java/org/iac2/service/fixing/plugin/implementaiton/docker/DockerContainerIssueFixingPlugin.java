@@ -4,9 +4,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Container;
 import com.google.common.collect.Maps;
+import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
 import org.assertj.core.util.Lists;
@@ -15,6 +21,7 @@ import org.iac2.common.exception.IssueNotSupportedException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
+import org.iac2.common.utility.Edmm;
 import org.iac2.common.utility.Utils;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
@@ -82,6 +89,7 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
         Map<DockerEngine, Collection<DockerContainer>> dockerEngineCollectionMap = Maps.newHashMap();
 
         instanceModel.getDeploymentModel().getComponents().stream()
+                .filter(c -> c.getId().equals(issue.getProperties().get("INSTANCE_MODEL_COMPONENT_ID")))
                 .filter(c -> c instanceof DockerContainer)
                 .filter(c -> c.getProperties().containsKey("structuralState"))
                 .filter(c -> {
@@ -103,7 +111,7 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
         StringBuilder strB = new StringBuilder();
         strB.append("DockerContainerIssueFixingPlugin Report:").append("\n");
 
-        dockerEngineCollectionMap.forEach((dockerEngine, dockerContainers) -> {
+        for (DockerEngine dockerEngine : dockerEngineCollectionMap.keySet()) {
             String dockerEngineUrl = dockerEngine.getProperties().get("DockerEngineURL").getValue();
 
             if (dockerEngineUrl.contains("host.docker.internal")) {
@@ -112,30 +120,34 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
                 // => TODO: FIXME
                 dockerEngineUrl = dockerEngineUrl.replace("host.docker.internal", "localhost");
             }
-            DockerClient dockerClient = Utils.createDockerClient(dockerEngineUrl);
 
-            dockerContainers.forEach(d -> {
-                if (d.getProperties().get("structuralState").getValue().equals(StructuralState.NOT_EXPECTED.toString())) {
-                    // delete the container
-                    String containerId = d.getProperties().get("ContainerID").getValue();
-                    Container container = dockerClient.listContainersCmd().exec().stream().filter(c -> c.getId().equals(containerId)).findFirst().get();
-                    dockerClient.stopContainerCmd(container.getId()).exec();
-                    dockerClient.removeContainerCmd(container.getId()).exec();
+            try (DockerClient dockerClient = Utils.createDockerClient(dockerEngineUrl)) {
 
-                    // remove from model
-                    d.getRelations().forEach(r -> instanceModel.getDeploymentModel().getTopology().removeEdge(r));
-                    instanceModel.getDeploymentModel().getTopology().removeVertex(d);
+                dockerEngineCollectionMap.get(dockerEngine).forEach(d -> {
+                    if (d.getProperties().get("structuralState").getValue().equals(StructuralState.NOT_EXPECTED.toString())) {
+                        // delete the container
+                        String containerId = d.getProperties().get("ContainerID").getValue();
+                        Container container = dockerClient.listContainersCmd().exec().stream().filter(c -> c.getId().equals(containerId)).findFirst().get();
+                        dockerClient.stopContainerCmd(container.getId()).exec();
+                        dockerClient.removeContainerCmd(container.getId()).exec();
 
-                    strB.append("Removed Container " + containerId + " from DockerEngine " + dockerEngine.getId()).append("\n");
-                } else {
-                    // TODO this here will be quite hard actually without the IaC tools, thinking about
-                }
-            });
-        });
+                        // remove from model
+                        Edmm.removeComponents(instanceModel.getDeploymentModel().getGraph(), List.of(d));
+                        instanceModel.setDeploymentModel(new DeploymentModel(instanceModel.getDeploymentModel().getName(), instanceModel.getDeploymentModel().getGraph()));
+                        strB.append("Removed Container ").append(containerId).append(" from DockerEngine ").append(dockerEngine.getId()).append("\n");
+                    } else {
+                        // TODO this here will be quite hard actually without the IaC tools, thinking about
+                    }
+                });
+            } catch (IOException e) {
+                strB.append("Failed to execute docker commands on engine: %s. Reason: %s"
+                        .formatted(dockerEngine.getName(), e.getMessage()));
 
-        IssueFixingReport report = new IssueFixingReport(true, strB.toString());
+                return new IssueFixingReport(false, strB.toString());
+            }
+        }
 
-        return report;
+        return new IssueFixingReport(true, strB.toString());
     }
 
     public DockerEngine findDockerEngine(Collection<RootComponent> components, DockerContainer dockerContainer) {
