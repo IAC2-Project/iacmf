@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
-import org.iac2.entity.plugin.architecturereconstruction.ModelEnhancementStrategyEntity;
+import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
@@ -27,7 +27,7 @@ public class ArchitectureReconstructionService {
 
     public InstanceModel crteateInstanceModel(@NotNull ProductionSystemEntity productionSystemEntity) {
         ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
-        ModelCreationPlugin plugin = pluginManager.getModelCreationPlugin(productionSystemEntity.getModelCreationPluginId());
+        ModelCreationPlugin plugin = pluginManager.getModelCreationPlugin(productionSystemEntity.getModelCreationPluginUsage().getPluginIdentifier());
 
         return plugin.reconstructInstanceModel(productionSystem);
     }
@@ -40,12 +40,13 @@ public class ArchitectureReconstructionService {
                 instanceModel);
     }
 
-    public void refineInstanceModel(@NotNull ModelEnhancementStrategyEntity enhancementStrategy,
+    public void refineInstanceModel(@NotNull List<PluginUsageEntity> enhancementStrategy,
                                     @NotNull ProductionSystemEntity productionSystemEntity,
                                     @NotNull InstanceModel instanceModel) {
         ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
-        List<ModelEnhancementPlugin> plugins = enhancementStrategy.getPluginIdList()
+        List<ModelEnhancementPlugin> plugins = enhancementStrategy
                 .stream()
+                .map(PluginUsageEntity::getPluginIdentifier)
                 .map(pluginManager::getModelEnhancementPlugin)
                 .toList();
 

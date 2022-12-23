@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancerule.ComplianceRule;
+import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
@@ -22,7 +23,7 @@ public class ComplianceRuleCheckingService {
         this.pluginManager = pluginManager;
     }
 
-    public Collection<ComplianceIssueEntity> findIssuesOfSystemModel(ExecutionEntity execution, InstanceModel instanceModel) {
+    public Collection<ComplianceIssueEntity> findViolationsOfAllComplianceRules(ExecutionEntity execution, InstanceModel instanceModel) {
         ComplianceRuleEntity complianceRule = execution.getComplianceJob().getComplianceRule();
         Collection<ComplianceRuleParameterAssignmentEntity> assignments =
                 execution.getComplianceJob().getComplianceRuleParameterAssignments();
@@ -36,9 +37,22 @@ public class ComplianceRuleCheckingService {
                 .toList();
     }
 
+    public Collection<ComplianceIssueEntity> findViolationsOfComplianceRule(ComplianceRuleConfigurationEntity complianceRuleConfiguration,
+                                                                            InstanceModel instanceModel) {
+        ComplianceRuleEntity complianceRule = complianceRuleConfiguration.getComplianceRule();
+        Collection<ComplianceRuleParameterAssignmentEntity> assignments =
+                complianceRuleConfiguration.getComplianceRuleParameterAssignments();
+        ComplianceRule myCR = EntityToPojo.transformComplianceRule(complianceRule, assignments);
+        ComplianceRuleCheckingPlugin plugin =
+                this.pluginManager.getPlugin(complianceRuleConfiguration.getComplianceJob().getModelCheckingPluginId());
+
+        return plugin.findIssues(instanceModel, myCR)
+                .stream()
+                .map(i -> PojoToEntity.transformComplianceIssue(execution, i))
+                .toList();
+    }
+
     public ComplianceRuleCheckingPluginManager getPluginManager() {
         return this.pluginManager;
     }
-
-
 }

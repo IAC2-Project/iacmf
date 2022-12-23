@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmentEntity;
 
 @Entity
@@ -28,15 +29,20 @@ public class ComplianceRuleConfigurationEntity {
     private List<ComplianceRuleParameterAssignmentEntity> complianceRuleParameterAssignments;
 
     @ManyToOne
+    @JoinColumn(name = "compliance_rule_id")
+    private ComplianceRuleEntity complianceRule;
+
+    @ManyToOne
     @JoinColumn(name = "compliance_job_id")
     private ComplianceJobEntity complianceJob;
 
     @NotNull
     private String issueType;
 
-    public ComplianceRuleConfigurationEntity(ComplianceJobEntity complianceJob, String issueType) {
+    public ComplianceRuleConfigurationEntity(ComplianceJobEntity complianceJob, ComplianceRuleEntity complianceRule, String issueType) {
         this.complianceJob = complianceJob;
         this.issueType = issueType;
         this.complianceRuleParameterAssignments = new ArrayList<>();
+        this.complianceRule = complianceRule;
     }
 }

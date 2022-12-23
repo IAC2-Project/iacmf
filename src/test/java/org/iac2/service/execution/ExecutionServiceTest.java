@@ -113,7 +113,7 @@ class ExecutionServiceTest {
         ComplianceJobEntity job = this.createDummyComplianceJob();
 
         // no violations
-        Mockito.when(checkingService.findIssuesOfSystemModel(any(), any())).thenReturn(new ArrayList<>());
+        Mockito.when(checkingService.findViolationsOfAllComplianceRules(any(), any())).thenReturn(new ArrayList<>());
         ExecutionEntity execution = this.service.createNewExecution(job);
         Collection<ComplianceIssueEntity> issues = this.service.checkCompliance(execution, instanceModel);
         execution = executionRepository.findById(execution.getId()).orElseThrow();
@@ -128,7 +128,7 @@ class ExecutionServiceTest {
         // violations
         execution = this.service.createNewExecution(job);
         ComplianceIssueEntity issue = new ComplianceIssueEntity(execution, "a terrible problem", "iss1");
-        Mockito.when(checkingService.findIssuesOfSystemModel(any(), any())).thenReturn(List.of(issue));
+        Mockito.when(checkingService.findViolationsOfAllComplianceRules(any(), any())).thenReturn(List.of(issue));
         issues = this.service.checkCompliance(execution, instanceModel);
         execution = executionRepository.findById(execution.getId()).orElseThrow();
         Assertions.assertEquals(1, issues.size());
@@ -141,7 +141,7 @@ class ExecutionServiceTest {
 
         // Exception
         final ExecutionEntity executionFinal = this.service.createNewExecution(job);
-        Mockito.when(checkingService.findIssuesOfSystemModel(any(), any())).thenThrow(RuntimeException.class);
+        Mockito.when(checkingService.findViolationsOfAllComplianceRules(any(), any())).thenThrow(RuntimeException.class);
         Assertions.assertThrows(RuntimeException.class, () -> this.service.checkCompliance(executionFinal, instanceModel));
         execution = executionRepository.findById(executionFinal.getId()).orElseThrow();
         Assertions.assertEquals(0, execution.getComplianceIssueEntities().size());

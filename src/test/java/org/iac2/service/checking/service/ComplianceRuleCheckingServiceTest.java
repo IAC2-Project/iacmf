@@ -57,7 +57,7 @@ class ComplianceRuleCheckingServiceTest {
         );
         ExecutionEntity execution = new ExecutionEntity(complianceJob);
 
-        Collection<ComplianceIssueEntity> issues = service.findIssuesOfSystemModel(
+        Collection<ComplianceIssueEntity> issues = service.findViolationsOfAllComplianceRules(
                 execution,
                 new InstanceModel(null)
         );

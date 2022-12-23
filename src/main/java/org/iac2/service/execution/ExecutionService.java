@@ -100,7 +100,7 @@ public class ExecutionService {
         executionRepository.save(execution);
         LOGGER.info("Checking the compliance rules (execution id: {}, job id: {})...", execution.getId(), execution.getComplianceJob().getId());
         try {
-            Collection<ComplianceIssueEntity> issues = this.checkingService.findIssuesOfSystemModel(execution, instanceModel);
+            Collection<ComplianceIssueEntity> issues = this.checkingService.findViolationsOfAllComplianceRules(execution, instanceModel);
             LOGGER.info("Finished checking the compliance rules (execution id: {}, job id: {}).", execution.getId(), execution.getComplianceJob().getId());
 
             if (issues.isEmpty()) {

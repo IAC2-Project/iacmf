@@ -20,7 +20,8 @@ public class EntityToPojo {
 
         ComplianceJobEntity job = complianceIssue.getExecution().getComplianceJob();
         ComplianceRule rule = transformComplianceRule(
-                job.getComplianceRule(), job.getComplianceRuleParameterAssignments());
+                complianceIssue.getComplianceRuleConfiguration().getComplianceRule(),
+                complianceIssue.getComplianceRuleConfiguration().getComplianceRuleParameterAssignments());
 
         return new ComplianceIssue(
                 complianceIssue.getDescription(),
@@ -39,9 +40,12 @@ public class EntityToPojo {
                 switch (assignment.getType()) {
                     case STRING -> myCR.addStringParameter(assignment.getName(), assignment.getValue());
                     case INT -> myCR.addIntParameter(assignment.getName(), assignment.getIntegerValue().orElseThrow());
-                    case DECIMAL -> myCR.addDoubleParameter(assignment.getName(), assignment.getDoubleValue().orElseThrow());
-                    case STRING_LIST -> myCR.addStringCollectionParameter(assignment.getName(), assignment.getStringListValue().orElseThrow());
-                    case BOOLEAN -> myCR.addBooleanParameter(assignment.getName(), assignment.getBooleanValue().orElseThrow());
+                    case DECIMAL ->
+                            myCR.addDoubleParameter(assignment.getName(), assignment.getDoubleValue().orElseThrow());
+                    case STRING_LIST ->
+                            myCR.addStringCollectionParameter(assignment.getName(), assignment.getStringListValue().orElseThrow());
+                    case BOOLEAN ->
+                            myCR.addBooleanParameter(assignment.getName(), assignment.getBooleanValue().orElseThrow());
                 }
             });
         }

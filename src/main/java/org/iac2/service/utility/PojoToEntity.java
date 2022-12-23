@@ -24,6 +24,7 @@ public class PojoToEntity {
 
         ComplianceIssueEntity result = new ComplianceIssueEntity(
                 execution,
+                issue
                 issue.getDescription(),
                 issue.getType());
         result.setProperties(transformIssueProperties(result, issue.getProperties()));
