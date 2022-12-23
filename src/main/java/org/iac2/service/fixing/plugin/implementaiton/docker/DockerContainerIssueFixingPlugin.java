@@ -1,11 +1,8 @@
 package org.iac2.service.fixing.plugin.implementaiton.docker;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +62,7 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
 
     @Override
     public void setConfigurationEntry(String inputName, String inputValue) {
-
+        LOGGER.warn("Trying to set user input in a plugin that does not expect user inputs!");
     }
 
     @Override
