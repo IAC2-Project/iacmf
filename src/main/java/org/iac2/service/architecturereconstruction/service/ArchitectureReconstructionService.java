@@ -4,10 +4,10 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.InstanceModel;
-import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
+import org.iac2.common.model.ProductionSystem;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
+import org.iac2.entity.plugin.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
@@ -24,7 +24,6 @@ public class ArchitectureReconstructionService {
     public ArchitectureReconstructionService(ArchitectureReconstructionPluginManager pluginManager) {
         this.pluginManager = pluginManager;
     }
-
 
     public InstanceModel crteateInstanceModel(@NotNull ProductionSystemEntity productionSystemEntity) {
         ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
@@ -53,11 +52,9 @@ public class ArchitectureReconstructionService {
         for (ModelEnhancementPlugin plugin : plugins) {
             plugin.enhanceModel(instanceModel, productionSystem);
         }
-
     }
 
     public ArchitectureReconstructionPluginManager getPluginManager() {
         return this.pluginManager;
     }
-
 }

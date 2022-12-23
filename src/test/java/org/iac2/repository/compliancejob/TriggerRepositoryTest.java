@@ -3,10 +3,10 @@ package org.iac2.repository.compliancejob;
 import java.util.Arrays;
 import java.util.List;
 
-import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
+import org.iac2.entity.plugin.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.repository.compliancerule.ComplianceRuleRepository;
 import org.iac2.repository.productionsystem.ProductionSystemRepository;
@@ -58,7 +58,7 @@ class TriggerRepositoryTest {
         TriggerEntity trigger2 = new TriggerEntity("Fire at 10:15 AM every day");
         trigger2.setCronExpression("0 15 10 * * ?");
         TriggerEntity trigger3 = new TriggerEntity("Fire every November 11 at 11:11 AM");
-        trigger3.setCronExpression( "0 11 11 11 11 ?");
+        trigger3.setCronExpression("0 11 11 11 11 ?");
 
         this.triggerRepository.save(trigger1);
         this.triggerRepository.save(trigger2);

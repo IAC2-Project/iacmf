@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
-import org.iac2.entity.configuration.PluginConfigurationEntity;
+import org.iac2.entity.plugin.PluginConfigurationEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 
 @Data
@@ -64,5 +64,4 @@ public class KVEntity {
     public KVEntity(String key, String value, ComplianceIssueEntity complianceIssueEntity) {
         this(key, value, null, null, complianceIssueEntity);
     }
-
 }

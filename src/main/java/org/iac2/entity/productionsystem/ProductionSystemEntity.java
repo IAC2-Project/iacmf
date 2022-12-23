@@ -7,14 +7,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
-import org.iac2.entity.configuration.PluginConfigurationEntity;
+import org.iac2.entity.plugin.PluginUsageEntity;
 
 @Entity
 @NoArgsConstructor
@@ -38,20 +40,16 @@ public class ProductionSystemEntity {
     @OneToMany(mappedBy = "productionSystem")
     private List<ComplianceJobEntity> complianceJobs;
 
-    @NotNull
-    private String modelCreationPluginId;
+    @OneToOne
+    @JoinColumn(name = "model_creation_plugin_usage_id", nullable = false)
+    private PluginUsageEntity modelCreationPluginUsage;
 
-    @OneToMany(mappedBy = "productionSystem")
-    private List<PluginConfigurationEntity> pluginConfiguration;
-
-
-    public ProductionSystemEntity(String description, String iacTechnologyName, String modelCreationPluginId) {
+    public ProductionSystemEntity(String description, String iacTechnologyName, PluginUsageEntity modelCreationPluginUsage) {
         this.description = description;
         this.iacTechnologyName = iacTechnologyName;
         this.isDeleted = false;
-        this.modelCreationPluginId = modelCreationPluginId;
+        this.modelCreationPluginUsage = modelCreationPluginUsage;
         this.properties = new ArrayList<>();
         this.complianceJobs = new ArrayList<>();
-        this.pluginConfiguration = new ArrayList<>();
     }
 }

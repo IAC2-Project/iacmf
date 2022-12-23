@@ -1,9 +1,9 @@
-package org.iac2.repository.configuration;
+package org.iac2.repository.plugin;
 
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.iac2.entity.configuration.PluginConfigurationEntity;
+import org.iac2.entity.plugin.PluginConfigurationEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 

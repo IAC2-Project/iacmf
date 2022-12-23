@@ -25,6 +25,7 @@ import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
 import org.iac2.common.model.compliancejob.execution.ExecutionStep;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
+import org.iac2.entity.plugin.PluginUsageInstanceEntity;
 
 @Entity
 @Data
@@ -61,10 +62,12 @@ public class ExecutionEntity {
     private ComplianceJobEntity complianceJob;
 
     @OneToMany(mappedBy = "execution", fetch = FetchType.EAGER)
+    private List<PluginUsageInstanceEntity> pluginUsageInstances;
+
+    @OneToMany(mappedBy = "execution", fetch = FetchType.EAGER)
     private List<ComplianceIssueEntity> complianceIssueEntities;
 
-
-    public ExecutionEntity(ComplianceJobEntity complianceJob) {
+    public ExecutionEntity(ComplianceJobEntity complianceJob, List<PluginUsageInstanceEntity> pluginUsageInstances) {
         this.complianceJob = complianceJob;
         this.startTime = new Date();
         this.status = ExecutionStatus.CREATED;
@@ -72,6 +75,6 @@ public class ExecutionEntity {
         this.instanceModel = "";
         this.violationsDetected = false;
         this.complianceIssueEntities = new ArrayList<>();
+        this.pluginUsageInstances = pluginUsageInstances;
     }
-
 }

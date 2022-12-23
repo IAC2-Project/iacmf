@@ -16,16 +16,15 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
+import org.iac2.entity.compliancejob.issue.IssueFixingConfigurationEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
-import org.iac2.entity.compliancerule.ComplianceRuleEntity;
-import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmentEntity;
-import org.iac2.entity.configuration.PluginConfigurationEntity;
+import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 
 @Entity
@@ -43,15 +42,8 @@ public class ComplianceJobEntity {
     @NotNull
     private String modelCheckingPluginId;
 
-    @NotNull
-    private String modelFixingPluginId;
-
     @OneToMany(mappedBy = "complianceJob")
-    private List<PluginConfigurationEntity> pluginConfigurations;
-
-    @ManyToOne
-    @JoinColumn(name = "compliance_rule_id", nullable = false)
-    private ComplianceRuleEntity complianceRule;
+    private List<IssueFixingConfigurationEntity> issueFixingConfigurations;
 
     @ManyToMany
     @JoinTable(
@@ -61,14 +53,17 @@ public class ComplianceJobEntity {
     private List<TriggerEntity> triggers;
 
     @OneToMany(mappedBy = "complianceJob")
-    private List<ComplianceRuleParameterAssignmentEntity> complianceRuleParameterAssignments;
+    private List<ComplianceRuleConfigurationEntity> complianceRuleConfigurations;
 
     @OneToMany(mappedBy = "complianceJob")
     private List<ExecutionEntity> executions;
 
-    @ManyToOne
-    @JoinColumn(name = "model_enhancement_strategy_id", nullable = false)
-    private ModelEnhancementStrategyEntity modelEnhancementStrategy;
+    @OneToMany(mappedBy = "complianceJobRefinement")
+    private List<PluginUsageEntity> modelEnhancementStrategy;
+
+    @OneToOne
+    @JoinColumn(name = "checking_plugin_usage_id", nullable = false)
+    private PluginUsageEntity checkingPluginUsage;
 
     @ManyToOne
     @JoinColumn(name = "production_system_id", nullable = false)
@@ -76,28 +71,20 @@ public class ComplianceJobEntity {
 
     public ComplianceJobEntity(String description,
                                String modelCheckingPluginId,
-                               String modelFixingPluginId,
                                ProductionSystemEntity productionSystem,
-                               ComplianceRuleEntity complianceRule,
-                               ModelEnhancementStrategyEntity modelEnhancementStrategy,
+                               List<ComplianceRuleConfigurationEntity> complianceRuleConfigurations,
+                               List<PluginUsageEntity> modelEnhancementStrategy,
+                               PluginUsageEntity checkingPluginUsage,
+                               List<IssueFixingConfigurationEntity> issueFixingConfigurations,
                                List<TriggerEntity> triggers) {
         this.modelCheckingPluginId = modelCheckingPluginId;
-        this.modelFixingPluginId = modelFixingPluginId;
-        this.complianceRule = complianceRule;
         this.productionSystem = productionSystem;
-        this.modelEnhancementStrategy = modelEnhancementStrategy;
         this.triggers = triggers;
         this.description = description;
-        this.complianceRuleParameterAssignments = new ArrayList<>();
         this.executions = new ArrayList<>();
-        this.pluginConfigurations = new ArrayList<>();
-    }
-
-    public List<PluginConfigurationEntity> getConfigurationOfCheckingPlugin() {
-        return this.pluginConfigurations.stream().filter(p -> p.getPluginIdentifier().equals(modelCheckingPluginId)).toList();
-    }
-
-    public List<PluginConfigurationEntity> getConfigurationOfFixingPlugin() {
-        return this.pluginConfigurations.stream().filter(p -> p.getPluginIdentifier().equals(modelFixingPluginId)).toList();
+        this.complianceRuleConfigurations = complianceRuleConfigurations;
+        this.issueFixingConfigurations = issueFixingConfigurations;
+        this.modelEnhancementStrategy = modelEnhancementStrategy;
+        this.checkingPluginUsage = checkingPluginUsage;
     }
 }

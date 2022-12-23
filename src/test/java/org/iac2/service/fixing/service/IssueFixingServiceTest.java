@@ -1,12 +1,14 @@
 package org.iac2.service.fixing.service;
 
+import java.util.Collections;
+
 import org.iac2.common.model.InstanceModel;
-import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
+import org.iac2.entity.plugin.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.service.fixing.plugin.manager.IssueFixingPluginManager;
 import org.junit.jupiter.api.Assertions;
@@ -17,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.anyString;
 
