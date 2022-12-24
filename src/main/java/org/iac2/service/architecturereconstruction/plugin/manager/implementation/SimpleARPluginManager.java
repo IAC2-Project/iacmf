@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.iac2.common.Plugin;
 import org.iac2.common.exception.PluginNotFoundException;
 import org.iac2.common.model.PluginType;
 import org.iac2.common.model.ProductionSystem;
@@ -78,10 +79,19 @@ public class SimpleARPluginManager implements ArchitectureReconstructionPluginMa
         ModelEnhancementPlugin plugin = this.modelEnhancementPluginMap.get(identifier);
 
         if (plugin == null) {
-            throw new PluginNotFoundException(identifier, PluginType.ISSUE_CHECKING);
+            throw new PluginNotFoundException(identifier, PluginType.MODEL_REFINEMENT);
         }
 
         return plugin;
+    }
+
+    @Override
+    public Plugin getPlugin(String identifier) throws PluginNotFoundException {
+        if (modelCreationPluginExists(identifier)) {
+            return getModelCreationPlugin(identifier);
+        }
+
+        return getModelEnhancementPlugin(identifier);
     }
 
     @Override
@@ -91,6 +101,11 @@ public class SimpleARPluginManager implements ArchitectureReconstructionPluginMa
         result.addAll(this.modelEnhancementPluginMap.values());
 
         return result;
+    }
+
+    @Override
+    public boolean pluginExists(String identifier) {
+        return modelRefinementPluginExists(identifier) || modelCreationPluginExists(identifier);
     }
 
     @Override

@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.iac2.common.exception.IssueTypeNotMappedException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
@@ -11,10 +14,13 @@ import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
+import org.iac2.entity.plugin.PluginUsageEntity;
+import org.iac2.repository.plugin.PluginUsageInstanceRepository;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
 import org.iac2.service.fixing.plugin.manager.IssueFixingPluginManager;
 import org.iac2.service.utility.EntityToPojo;
+import org.iac2.service.utility.PluginConfigurationHelper;
 import org.iac2.service.utility.PojoToEntity;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +28,11 @@ import org.springframework.stereotype.Service;
 public class IssueFixingService {
     private final IssueFixingPluginManager pluginManager;
 
-    public IssueFixingService(IssueFixingPluginManager pluginManager) {
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public IssueFixingService(IssueFixingPluginManager pluginManager,
+                              PluginUsageInstanceRepository pluginUsageInstanceRepository) {
         this.pluginManager = pluginManager;
     }
 
@@ -51,8 +61,7 @@ public class IssueFixingService {
         }
 
         ComplianceIssueEntity issueE = issues.get(0);
-        String pluginId = getFixingPluginForIssue(issueE);
-        IssueFixingPlugin plugin = this.pluginManager.getPlugin(pluginId);
+        IssueFixingPlugin plugin = this.instantiatePlugin(issueE);
 
         return fixSingleIssue(execution, instanceModel, plugin, issueE);
     }
@@ -74,23 +83,23 @@ public class IssueFixingService {
         Map<ComplianceIssueEntity, IssueFixingReportEntity> result = new HashMap<>();
 
         for (ComplianceIssueEntity i : issues) {
-            String pluginId = getFixingPluginForIssue(i);
-            IssueFixingPlugin plugin = this.pluginManager.getPlugin(pluginId);
+            IssueFixingPlugin plugin = instantiatePlugin(i);
             result.put(i, fixSingleIssue(execution, instanceModel, plugin, i));
         }
 
         return result;
     }
 
-    private String getFixingPluginForIssue(ComplianceIssueEntity entity) throws IssueTypeNotMappedException {
+    private IssueFixingPlugin instantiatePlugin(ComplianceIssueEntity entity) throws IssueTypeNotMappedException {
         final String issueType = entity.getType();
-        return entity.getExecution().getComplianceJob()
+        PluginUsageEntity usageEntity = entity.getExecution().getComplianceJob()
                 .getIssueFixingConfigurations()
                 .stream()
                 .filter(c -> c.getIssueType().equals(issueType))
                 .findFirst()
                 .orElseThrow(() -> new IssueTypeNotMappedException(issueType))
-                .getPluginUsage()
-                .getPluginIdentifier();
+                .getPluginUsage();
+
+        return (IssueFixingPlugin) PluginConfigurationHelper.instantiatePlugin(usageEntity, entity.getExecution(), this.entityManager, this.pluginManager);
     }
 }

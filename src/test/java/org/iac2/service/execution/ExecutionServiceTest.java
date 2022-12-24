@@ -77,7 +77,7 @@ class ExecutionServiceTest {
     void testReconstruction() throws IOException {
         ClassPathResource iRes = new ClassPathResource("edmm/realworld_application_instance_model_docker_refined.yaml");
         InstanceModel instanceModel = new InstanceModel(DeploymentModel.of(iRes.getFile()));
-        Mockito.when(arService.crteateInstanceModel(any())).thenReturn(instanceModel);
+        Mockito.when(arService.crteateInstanceModel(any(), any())).thenReturn(instanceModel);
         Mockito.doNothing().when(arService).refineInstanceModel(any(), any());
 
         ComplianceJobEntity job = this.createDummyComplianceJob();
@@ -93,7 +93,7 @@ class ExecutionServiceTest {
         Assertions.assertNotNull(execution.getInstanceModel());
 
         // exception
-        Mockito.doThrow(new RuntimeException("fake error")).when(arService).crteateInstanceModel(any());
+        Mockito.doThrow(new RuntimeException("fake error")).when(arService).crteateInstanceModel(any(), any());
         execution = this.service.createNewExecution(job);
         execution = executionRepository.findById(execution.getId()).orElseThrow();
         Assertions.assertEquals(ExecutionStatus.CREATED, execution.getStatus());

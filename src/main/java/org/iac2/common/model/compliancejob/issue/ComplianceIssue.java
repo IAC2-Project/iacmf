@@ -10,7 +10,7 @@ import org.iac2.common.model.compliancerule.ComplianceRule;
 @AllArgsConstructor
 public class ComplianceIssue {
     private String description;
-    private ComplianceRule rules;
+    private ComplianceRule rule;
     private String type;
     private Map<String, String> properties;
 }

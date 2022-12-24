@@ -81,13 +81,12 @@ public class IACMFApplication {
             EdmmTypeResolver.initDefaultMappings();
             log.info("Finished initializing EDMM type mappings.");
             log.info("""
-                                              
-                                              #############################################
-                                              #                                           #
-                                              #   Finished initalizing the IACMF core.    #
-                                              #                                           #
-                                              #############################################""");
+                                                                  
+                    #############################################
+                    #                                           #
+                    #   Finished initalizing the IACMF core.    #
+                    #                                           #
+                    #############################################""");
         };
     }
-
 }
