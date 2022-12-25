@@ -1,5 +1,23 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import javax.xml.namespace.QName;
+
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -12,20 +30,19 @@ import io.github.edmm.model.relation.HostedOn;
 import io.github.edmm.model.relation.RootRelation;
 import org.assertj.core.util.Sets;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.Edmm;
 import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.common.utility.Utils;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPlugin;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.iac2.service.architecturereconstruction.common.model.StructuralState;
-import org.iac2.service.architecturereconstruction.plugin.implementation.docker.DockerContainerEnhancementPlugin;
-import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
+import org.iac2.service.architecturereconstruction.plugin.factory.implementation.SimpleARPluginFactory;
+import org.iac2.service.architecturereconstruction.plugin.implementation.docker.DockerContainerRefinementPlugin;
+import org.iac2.service.architecturereconstruction.plugin.implementation.docker.DockerContainerRefinementPluginDescriptor;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -39,19 +56,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit.jupiter.DisabledIf;
 
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-public class DockerContainerEnhancementPluginTest {
+public class DockerContainerRefinementPluginTest {
 
     public static final boolean onlyLocal = false;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerEnhancementPluginTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerRefinementPluginTest.class);
     private static final String TESTAPPLICATIONSREPOSITORY = "https://github.com/OpenTOSCA/tosca-definitions-example-applications";
     private static final QName csarId = new QName("http://opentosca.org/example/applications/servicetemplates", "RealWorld-Application_Angular-Spring-MySQL-w1");
     private static final String hostName = "localhost";
@@ -92,7 +100,7 @@ public class DockerContainerEnhancementPluginTest {
         ClassPathResource containerInfo = new ClassPathResource("DockerContainers/test-container.json");
         Container container = new ObjectMapper().readValue(containerInfo.getFile(), Container.class);
         RootComponent engine = model.getComponent("tomcat").orElseThrow();
-        DockerContainerEnhancementPlugin.addDockerContainerToEntityGraph(model.getGraph(), engine, container);
+        DockerContainerRefinementPlugin.addDockerContainerToEntityGraph(model.getGraph(), engine, container);
         model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertEquals(5, model.getComponents().size());
     }
@@ -106,9 +114,9 @@ public class DockerContainerEnhancementPluginTest {
         Set<RootComponent> comps = instanceModel.getDeploymentModel().getComponents();
         Set<RootRelation> rels = instanceModel.getDeploymentModel().getRelations();
 
-        SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
-        ModelEnhancementPlugin enhancementPlugin = instance.getModelEnhancementPlugin("docker-enhancement-plugin");
-        InstanceModel instanceModel1 = enhancementPlugin.enhanceModel(instanceModel, productionSystem);
+        SimpleARPluginFactory instance = SimpleARPluginFactory.getInstance();
+        ModelRefinementPlugin enhancementPlugin = instance.createModelRefinementPlugin("docker-enhancement-plugin");
+        InstanceModel instanceModel1 = enhancementPlugin.refineModel(instanceModel, productionSystem);
 
         Set<RootComponent> newComps = instanceModel1.getDeploymentModel().getComponents();
         Set<RootRelation> newRels = instanceModel1.getDeploymentModel().getRelations();
@@ -164,7 +172,7 @@ public class DockerContainerEnhancementPluginTest {
         }
 
         // now the enhanced model should not be the model given by opentosca
-        instanceModel1 = enhancementPlugin.enhanceModel(instanceModel, productionSystem);
+        instanceModel1 = enhancementPlugin.refineModel(instanceModel, productionSystem);
 
         newComps = instanceModel1.getDeploymentModel().getComponents();
         newRels = instanceModel1.getDeploymentModel().getRelations();
@@ -176,7 +184,6 @@ public class DockerContainerEnhancementPluginTest {
         dockerContainersAfterEnhancement = this.getDockerContainers(newComps);
 
         Assertions.assertNotEquals(dockerContainersBeforeEnhancement.size(), dockerContainersAfterEnhancement.size());
-
 
         dockerEngineToContainersMap.forEach((dockerEngine, dockerContainers) -> {
             String dockerEngineUrl = dockerEngine.getProperty("DockerEngineURL").orElseThrow().getValue();
@@ -195,7 +202,6 @@ public class DockerContainerEnhancementPluginTest {
                 dockerClient.stopContainerCmd(container.getId()).exec();
                 dockerClient.removeContainerCmd(container.getId()).exec();
             });
-
         });
     }
 
@@ -207,7 +213,7 @@ public class DockerContainerEnhancementPluginTest {
         List<Container> containersOnEngine1 = Arrays.stream(new ObjectMapper().readValue(containerInfo1.getFile(), Container[].class)).toList();
         ClassPathResource containerInfo2 = new ClassPathResource("DockerContainers/test-containers-2.json");
         List<Container> containersOnEngine2 = Arrays.stream(new ObjectMapper().readValue(containerInfo2.getFile(), Container[].class)).toList();
-        DockerContainerEnhancementPlugin plugin = new DockerContainerEnhancementPlugin();
+        DockerContainerRefinementPlugin plugin = new DockerContainerRefinementPlugin(new DockerContainerRefinementPluginDescriptor());
         DockerEngine engine1 = (DockerEngine) model.getComponent("DockerEngine_0").orElseThrow();
         DockerEngine engine2 = (DockerEngine) model.getComponent("DockerEngine_1").orElseThrow();
         plugin.enhanceModel(model, new ArrayList<>(), engine1, containersOnEngine1);

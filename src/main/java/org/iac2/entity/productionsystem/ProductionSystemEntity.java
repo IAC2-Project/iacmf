@@ -15,7 +15,6 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.KVEntity;
-import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.plugin.PluginUsageEntity;
 
 @Entity
@@ -37,19 +36,19 @@ public class ProductionSystemEntity {
     @OneToMany(mappedBy = "productionSystem")
     private List<KVEntity> properties;
 
-    @OneToMany(mappedBy = "productionSystem")
-    private List<ComplianceJobEntity> complianceJobs;
-
     @OneToOne
     @JoinColumn(name = "model_creation_plugin_usage_id", nullable = false)
     private PluginUsageEntity modelCreationPluginUsage;
 
-    public ProductionSystemEntity(String description, String iacTechnologyName, PluginUsageEntity modelCreationPluginUsage) {
+    public ProductionSystemEntity(String description, String iacTechnologyName) {
         this.description = description;
         this.iacTechnologyName = iacTechnologyName;
         this.isDeleted = false;
-        this.modelCreationPluginUsage = modelCreationPluginUsage;
         this.properties = new ArrayList<>();
-        this.complianceJobs = new ArrayList<>();
+    }
+
+    public void setModelCreationPluginUsage(PluginUsageEntity entity) {
+        entity.setProductionSystem(this);
+        this.modelCreationPluginUsage = entity;
     }
 }

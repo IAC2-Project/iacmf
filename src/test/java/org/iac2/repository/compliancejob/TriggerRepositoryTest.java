@@ -6,9 +6,10 @@ import java.util.List;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
-import org.iac2.entity.plugin.architecturereconstruction.ModelEnhancementStrategyEntity;
+import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.repository.compliancerule.ComplianceRuleRepository;
+import org.iac2.repository.plugin.PluginUsageRepository;
 import org.iac2.repository.productionsystem.ProductionSystemRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +29,8 @@ class TriggerRepositoryTest {
     private TriggerRepository triggerRepository;
     @Autowired
     private ComplianceJobRepository complianceJobRepository;
-
     @Autowired
-    private ModelEnhancementStrategyRepository modelEnhancementStrategyRepository;
+    private PluginUsageRepository pluginUsageRepository;
 
     @Test
     void testTriggersOfJobQuery() {
@@ -49,8 +49,12 @@ class TriggerRepositoryTest {
         this.complianceRuleRepository.save(complianceRule1);
         this.complianceRuleRepository.save(complianceRule2);
 
+        PluginUsageEntity usage = new PluginUsageEntity("opentoscaplugin");
+
         ProductionSystemEntity productionSystem = new ProductionSystemEntity("this is the best production system",
-                "opentoscacontainer", "opentoscaplugin");
+                "opentoscacontainer");
+        productionSystem.setModelCreationPluginUsage(usage);
+        this.pluginUsageRepository.save(usage);
         this.productionSystemRepository.save(productionSystem);
 
         TriggerEntity trigger1 = new TriggerEntity("Fire at 12:00 PM (noon) every day");
@@ -65,29 +69,16 @@ class TriggerRepositoryTest {
         this.triggerRepository.save(trigger3);
 
         List<TriggerEntity> triggers1 = Arrays.asList(trigger1, trigger3);
-        List<TriggerEntity> triggers2 = Arrays.asList(trigger2);
-
-        ModelEnhancementStrategyEntity strategy1 = new ModelEnhancementStrategyEntity(List.of("p1", "p2"));
-        ModelEnhancementStrategyEntity strategy2 = new ModelEnhancementStrategyEntity(List.of("p3", "p4"));
-        modelEnhancementStrategyRepository.save(strategy1);
-        modelEnhancementStrategyRepository.save(strategy2);
+        List<TriggerEntity> triggers2 = List.of(trigger2);
 
         ComplianceJobEntity job1 = new ComplianceJobEntity(
                 "this is job 1",
-                "mcp1",
-                "mfp1",
-                productionSystem,
-                complianceRule1,
-                strategy1,
-                triggers1);
+                productionSystem);
+        job1.addTrigger(trigger1).addTrigger(trigger3);
         ComplianceJobEntity job2 = new ComplianceJobEntity(
                 "this is job 2",
-                "mcp2",
-                "mfp2",
-                productionSystem,
-                complianceRule2,
-                strategy2,
-                triggers2);
+                productionSystem);
+        job2.addTrigger(trigger2);
 
         this.complianceJobRepository.save(job1);
         this.complianceJobRepository.save(job2);

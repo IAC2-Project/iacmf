@@ -6,12 +6,12 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import org.iac2.common.utility.EdmmTypeResolver;
-import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
-import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
-import org.iac2.service.checking.plugin.manager.ComplianceRuleCheckingPluginManager;
-import org.iac2.service.checking.plugin.manager.implementation.SimpleCRCheckingManager;
-import org.iac2.service.fixing.plugin.manager.IssueFixingPluginManager;
-import org.iac2.service.fixing.plugin.manager.implementation.SimpleIssueFixingPluginManager;
+import org.iac2.service.architecturereconstruction.plugin.factory.ArchitectureReconstructionPluginFactory;
+import org.iac2.service.architecturereconstruction.plugin.factory.implementation.SimpleARPluginFactory;
+import org.iac2.service.checking.plugin.factory.ComplianceRuleCheckingPluginFactory;
+import org.iac2.service.checking.plugin.factory.implementation.SimpleCRCheckingManager;
+import org.iac2.service.fixing.plugin.factory.IssueFixingPluginFactory;
+import org.iac2.service.fixing.plugin.factory.implementation.SimpleIssueFixingPluginFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -35,20 +35,20 @@ public class IACMFApplication {
 
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public ArchitectureReconstructionPluginManager theARPluginManager() {
-        return SimpleARPluginManager.getInstance();
+    public ArchitectureReconstructionPluginFactory theARPluginManager() {
+        return SimpleARPluginFactory.getInstance();
     }
 
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public ComplianceRuleCheckingPluginManager theCheckingManager() {
+    public ComplianceRuleCheckingPluginFactory theCheckingManager() {
         return SimpleCRCheckingManager.getInstance();
     }
 
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public IssueFixingPluginManager theIssueFixingPluginManager() {
-        return SimpleIssueFixingPluginManager.getInstance();
+    public IssueFixingPluginFactory theIssueFixingPluginManager() {
+        return SimpleIssueFixingPluginFactory.getInstance();
     }
 
     @Bean

@@ -29,10 +29,15 @@ public class PluginUsageInstanceEntity extends PluginUsage {
     @JoinColumn(name = "execution_id")
     private ExecutionEntity execution;
 
-    public PluginUsageInstanceEntity(PluginUsageEntity pluginUsage,
-                                     ExecutionEntity execution) {
+    public PluginUsageInstanceEntity(PluginUsageEntity pluginUsage) {
         super(pluginUsage.getPluginIdentifier(), new ArrayList<>());
         this.pluginUsage = pluginUsage;
-        this.execution = execution;
+    }
+
+    public PluginUsageInstanceEntity addPluginConfiguration(PluginConfigurationEntity entity) {
+        entity.setPluginUsageInstance(this);
+        this.getPluginConfiguration().add(entity);
+
+        return this;
     }
 }

@@ -30,9 +30,7 @@ public class IssueFixingReportEntity {
     @JoinColumn(name = "compliance_issue_id", nullable = false)
     private ComplianceIssueEntity complianceIssue;
 
-    public IssueFixingReportEntity(boolean isSuccessful, ComplianceIssueEntity issue) {
+    public IssueFixingReportEntity(boolean isSuccessful) {
         this.isSuccessful = isSuccessful;
-        this.complianceIssue = issue;
     }
-
 }

@@ -1,4 +1,8 @@
-package org.iac2.service.fixing.plugin.manager.implementation;
+package org.iac2.service.fixing.plugin.factory.implementation;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.common.collect.Maps;
 import org.iac2.common.exception.PluginNotFoundException;
@@ -8,25 +12,23 @@ import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SimpleIssueFixingPluginManagerTest {
 
     @Test
     void getPlugin() {
-        SimpleIssueFixingPluginManager instance = SimpleIssueFixingPluginManager.getInstance();
-        IssueFixingPlugin plugin = instance.getPlugin("docker-container-issue-fixing-plugin");
+        SimpleIssueFixingPluginFactory instance = SimpleIssueFixingPluginFactory.getInstance();
+        IssueFixingPlugin plugin = instance.createPlugin("docker-container-issue-fixing-plugin");
         assertNotNull(plugin);
-        assertThrows(PluginNotFoundException.class, () -> instance.getPlugin("abc"));
+        assertThrows(PluginNotFoundException.class, () -> instance.createPlugin("abc"));
     }
 
     @Test
     void getSuitablePlugins() {
-        SimpleIssueFixingPluginManager instance = SimpleIssueFixingPluginManager.getInstance();
+        SimpleIssueFixingPluginFactory instance = SimpleIssueFixingPluginFactory.getInstance();
         ComplianceRule rule = new ComplianceRule();
 
         Map<String, String> issueProps = Maps.newHashMap();
@@ -41,7 +43,7 @@ class SimpleIssueFixingPluginManagerTest {
                 "opentoscacontainer",
                 "bla bla",
                 new HashMap<>());
-        Collection<IssueFixingPlugin> plugins = instance.getSuitablePlugins(issue, productionSystem);
+        Collection<String> plugins = instance.getSuitablePluginIdentifiers(issue, productionSystem);
         assertNotNull(plugins);
         assertEquals(1, plugins.size());
     }

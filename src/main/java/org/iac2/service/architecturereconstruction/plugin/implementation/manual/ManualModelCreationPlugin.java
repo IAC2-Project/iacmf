@@ -1,8 +1,6 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.manual;
 
-import java.util.Collection;
-import java.util.Collections;
-
+import org.iac2.common.PluginDescriptor;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
@@ -10,22 +8,18 @@ import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreati
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ManualModelCreatorPlugin implements ModelCreationPlugin {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ManualModelCreatorPlugin.class);
+public class ManualModelCreationPlugin implements ModelCreationPlugin {
 
-    @Override
-    public String getIdentifier() {
-        return "manualplugin";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManualModelCreationPlugin.class);
+    private final ManualModelCreationPluginDescriptor descriptor;
+
+    public ManualModelCreationPlugin(ManualModelCreationPluginDescriptor descriptor) {
+        this.descriptor = descriptor;
     }
 
     @Override
-    public boolean isIaCTechnologySupported(String iacTechnologyName) {
-        return iacTechnologyName.equalsIgnoreCase("opentoscacontainer");
-    }
-
-    @Override
-    public Collection<String> getRequiredConfigurationEntryNames() {
-        return Collections.emptyList();
+    public PluginDescriptor getDescriptor() {
+        return this.descriptor;
     }
 
     @Override
@@ -40,14 +34,9 @@ public class ManualModelCreatorPlugin implements ModelCreationPlugin {
     }
 
     @Override
-    public Collection<String> getRequiredProductionSystemPropertyNames() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public InstanceModel reconstructInstanceModel(ProductionSystem productionSystem)
             throws IaCTechnologyNotSupportedException {
-        if (!isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
+        if (!descriptor.isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
             throw new IaCTechnologyNotSupportedException(productionSystem.getIacTechnologyName());
         }
 

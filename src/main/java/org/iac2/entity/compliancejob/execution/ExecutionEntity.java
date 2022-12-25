@@ -67,7 +67,7 @@ public class ExecutionEntity {
     @OneToMany(mappedBy = "execution", fetch = FetchType.EAGER)
     private List<ComplianceIssueEntity> complianceIssueEntities;
 
-    public ExecutionEntity(ComplianceJobEntity complianceJob, List<PluginUsageInstanceEntity> pluginUsageInstances) {
+    public ExecutionEntity(ComplianceJobEntity complianceJob) {
         this.complianceJob = complianceJob;
         this.startTime = new Date();
         this.status = ExecutionStatus.CREATED;
@@ -75,6 +75,20 @@ public class ExecutionEntity {
         this.instanceModel = "";
         this.violationsDetected = false;
         this.complianceIssueEntities = new ArrayList<>();
-        this.pluginUsageInstances = pluginUsageInstances;
+        this.pluginUsageInstances = new ArrayList<>();
+    }
+
+    public ExecutionEntity addComplianceIssue(ComplianceIssueEntity issue) {
+        issue.setExecution(this);
+        this.getComplianceIssueEntities().add(issue);
+
+        return this;
+    }
+
+    public ExecutionEntity addPluginUsageInstance(PluginUsageInstanceEntity entity) {
+        entity.setExecution(this);
+        this.getPluginUsageInstances().add(entity);
+
+        return this;
     }
 }

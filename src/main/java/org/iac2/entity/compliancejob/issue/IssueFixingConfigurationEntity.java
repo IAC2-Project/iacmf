@@ -30,12 +30,15 @@ public class IssueFixingConfigurationEntity {
     private PluginUsageEntity pluginUsage;
 
     @ManyToOne
-    @JoinColumn(name = "compliance_job_id")
+    @JoinColumn(name = "compliance_job_id", nullable = false)
     private ComplianceJobEntity complianceJob;
 
-    public IssueFixingConfigurationEntity(String issueType, PluginUsageEntity pluginUsage, ComplianceJobEntity complianceJob) {
+    public IssueFixingConfigurationEntity(String issueType) {
         this.issueType = issueType;
-        this.pluginUsage = pluginUsage;
-        this.complianceJob = complianceJob;
+    }
+
+    public void setPluginUsage(PluginUsageEntity entity) {
+        entity.setIssueFixingConfiguration(this);
+        this.pluginUsage = entity;
     }
 }

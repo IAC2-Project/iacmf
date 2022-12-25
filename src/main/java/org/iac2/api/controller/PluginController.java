@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.EnumUtils;
 import org.iac2.api.model.PluginPojo;
-import org.iac2.common.Plugin;
+import org.iac2.common.PluginDescriptor;
 import org.iac2.common.model.PluginType;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
@@ -21,11 +21,14 @@ import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.repository.compliancejob.ComplianceIssueRepository;
 import org.iac2.repository.compliancerule.ComplianceRuleRepository;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
-import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPluginDescriptor;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPlugin;
+import org.iac2.service.architecturereconstruction.plugin.factory.ArchitectureReconstructionPluginFactory;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
-import org.iac2.service.checking.plugin.manager.ComplianceRuleCheckingPluginManager;
-import org.iac2.service.fixing.plugin.manager.IssueFixingPluginManager;
+import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPluginDescriptor;
+import org.iac2.service.checking.plugin.factory.ComplianceRuleCheckingPluginFactory;
+import org.iac2.service.fixing.common.interfaces.IssueFixingPluginDescriptor;
+import org.iac2.service.fixing.plugin.factory.IssueFixingPluginFactory;
 import org.iac2.service.utility.EntityToPojo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,17 +41,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "plugins")
 @Tag(name = "plugin")
 public class PluginController {
-    private final ArchitectureReconstructionPluginManager arPluginManager;
-    private final ComplianceRuleCheckingPluginManager checkingPluginManager;
-    private final IssueFixingPluginManager fixingPluginManager;
+    private final ArchitectureReconstructionPluginFactory arPluginManager;
+    private final ComplianceRuleCheckingPluginFactory checkingPluginManager;
+    private final IssueFixingPluginFactory fixingPluginManager;
 
     private final ComplianceRuleRepository complianceRuleRepository;
 
     private final ComplianceIssueRepository complianceIssueRepository;
 
-    public PluginController(ArchitectureReconstructionPluginManager arPluginManager,
-                            ComplianceRuleCheckingPluginManager checkingPluginManager,
-                            IssueFixingPluginManager issueFixingPluginManager,
+    public PluginController(ArchitectureReconstructionPluginFactory arPluginManager,
+                            ComplianceRuleCheckingPluginFactory checkingPluginManager,
+                            IssueFixingPluginFactory issueFixingPluginManager,
                             ComplianceRuleRepository complianceRuleRepository,
                             ComplianceIssueRepository complianceIssueRepository) {
         this.arPluginManager = arPluginManager;
@@ -58,13 +61,13 @@ public class PluginController {
         this.complianceIssueRepository = complianceIssueRepository;
     }
 
-    private static PluginPojo createPluginPojo(Plugin plugin) {
+    private static PluginPojo createPluginPojo(PluginDescriptor plugin) {
         PluginType type;
 
         // todo add more cases when new plugin types are implemented
         if (plugin instanceof ModelCreationPlugin) {
             type = PluginType.MODEL_CREATION;
-        } else if (plugin instanceof ModelEnhancementPlugin) {
+        } else if (plugin instanceof ModelRefinementPlugin) {
             type = PluginType.MODEL_REFINEMENT;
         } else if (plugin instanceof ComplianceRuleCheckingPlugin) {
             type = PluginType.ISSUE_CHECKING;
@@ -72,7 +75,7 @@ public class PluginController {
             type = PluginType.ISSUE_FIXING;
         }
 
-        return new PluginPojo(plugin.getIdentifier(), type, plugin.getRequiredConfigurationEntryNames(), plugin.getConfigurationEntries());
+        return new PluginPojo(plugin.getIdentifier(), type, plugin.getRequiredConfigurationEntryNames());
     }
 
     @GetMapping
@@ -101,9 +104,18 @@ public class PluginController {
         Collection<PluginPojo> result = new ArrayList<>();
 
         if (pluginType == null) {
-            this.arPluginManager.getAll().forEach(p -> result.add(createPluginPojo(p)));
-            this.checkingPluginManager.getAll().forEach(p -> result.add(createPluginPojo(p)));
-            this.fixingPluginManager.getAll().forEach(p -> result.add(createPluginPojo(p)));
+            this.arPluginManager.getAllPluginIdentifiers()
+                    .stream()
+                    .map(this.arPluginManager::describePlugin)
+                    .forEach(p -> result.add(createPluginPojo(p)));
+            this.checkingPluginManager.getAllPluginIdentifiers()
+                    .stream()
+                    .map(this.checkingPluginManager::describePlugin)
+                    .forEach(p -> result.add(createPluginPojo(p)));
+            this.fixingPluginManager.getAllPluginIdentifiers()
+                    .stream()
+                    .map(this.fixingPluginManager::describePlugin)
+                    .forEach(p -> result.add(createPluginPojo(p)));
         } else {
             PluginType type = EnumUtils.getEnum(PluginType.class, pluginType);
 
@@ -125,26 +137,31 @@ public class PluginController {
 
             switch (type) {
                 case MODEL_CREATION -> this.arPluginManager
-                        .getAll()
+                        .getAllPluginIdentifiers()
                         .stream()
-                        .filter(p -> p instanceof ModelCreationPlugin)
-                        .filter(p -> iacTechnology == null || ((ModelCreationPlugin) p).isIaCTechnologySupported(iacTechnology))
+                        .filter(arPluginManager::modelCreationPluginExists)
+                        .map(arPluginManager::describePlugin)
+                        .filter(p -> iacTechnology == null || ((ModelCreationPluginDescriptor) p).isIaCTechnologySupported(iacTechnology))
                         .forEach(p -> result.add(createPluginPojo(p)));
 
                 case MODEL_REFINEMENT -> this.arPluginManager
-                        .getAll()
+                        .getAllPluginIdentifiers()
                         .stream()
-                        .filter(p -> p instanceof ModelEnhancementPlugin)
+                        .filter(arPluginManager::modelRefinementPluginExists)
+                        .map(arPluginManager::describePlugin)
                         .forEach(p -> result.add(createPluginPojo(p)));
                 case ISSUE_CHECKING -> this.checkingPluginManager
-                        .getAll()
+                        .getAllPluginIdentifiers()
                         .stream()
-                        .filter(p -> complianceRuleId == null || p.isSuitableForComplianceRule(getComplianceRule(complianceRuleId)))
+                        .map(this.checkingPluginManager::describePlugin)
+                        .filter(p -> complianceRuleId == null || ((ComplianceRuleCheckingPluginDescriptor) p).isSuitableForComplianceRule(getComplianceRule(complianceRuleId)))
                         .forEach(p -> result.add(createPluginPojo(p)));
 
                 case ISSUE_FIXING -> this.fixingPluginManager
-                        .getAll()
+                        .getAllPluginIdentifiers()
                         .stream()
+                        .map(this.fixingPluginManager::describePlugin)
+                        .map(pD -> (IssueFixingPluginDescriptor) pD)
                         .filter(p -> issueId == null ||
                                 p.isSuitableForIssue(getComplianceIssue(complianceRuleId)))
                         .filter(p -> iacTechnology == null ||
@@ -168,16 +185,16 @@ public class PluginController {
                     @ApiResponse(responseCode = "404", description = "Plugin not found")
             })
     public ResponseEntity<PluginPojo> getPlugin(@PathVariable String id) {
-        Plugin plugin;
+        PluginDescriptor plugin;
 
         if (this.arPluginManager.modelCreationPluginExists(id)) {
-            plugin = this.arPluginManager.getModelCreationPlugin(id);
+            plugin = this.arPluginManager.describePlugin(id);
         } else if (this.arPluginManager.modelRefinementPluginExists(id)) {
-            plugin = this.arPluginManager.getModelEnhancementPlugin(id);
+            plugin = this.arPluginManager.describePlugin(id);
         } else if (this.checkingPluginManager.pluginExists(id)) {
-            plugin = this.checkingPluginManager.getPlugin(id);
+            plugin = this.checkingPluginManager.describePlugin(id);
         } else if (this.fixingPluginManager.pluginExists(id)) {
-            plugin = this.fixingPluginManager.getPlugin(id);
+            plugin = this.fixingPluginManager.describePlugin(id);
         } else {
             return ResponseEntity.notFound().build();
         }

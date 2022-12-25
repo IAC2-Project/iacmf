@@ -1,6 +1,6 @@
 package org.iac2.entity.plugin;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -44,37 +44,14 @@ public class PluginUsageEntity extends PluginUsage {
     @OneToOne(mappedBy = "modelCreationPluginUsage")
     private ProductionSystemEntity productionSystem;
 
-    private PluginUsageEntity(String pluginIdentifier,
-                              ComplianceJobEntity complianceJobRefinement,
-                              Integer refinementPluginIndexInComplianceJob,
-                              ComplianceJobEntity complianceJobChecking,
-                              IssueFixingConfigurationEntity issueFixingConfiguration,
-                              ProductionSystemEntity productionSystem,
-                              List<PluginConfigurationEntity> pluginConfiguration) {
-        super(pluginIdentifier, pluginConfiguration);
-        this.complianceJobRefinement = complianceJobRefinement;
-        this.refinementPluginIndexInComplianceJob = refinementPluginIndexInComplianceJob;
-        this.complianceJobChecking = complianceJobChecking;
-        this.issueFixingConfiguration = issueFixingConfiguration;
-        this.productionSystem = productionSystem;
+    public PluginUsageEntity(String pluginIdentifier) {
+        super(pluginIdentifier, new ArrayList<>());
     }
 
-    public PluginUsageEntity(String pluginIdentifier,
-                             ComplianceJobEntity complianceJobRefinement,
-                             Integer refinementPluginIndexInComplianceJob,
-                             List<PluginConfigurationEntity> pluginConfiguration) {
-        this(pluginIdentifier, complianceJobRefinement, refinementPluginIndexInComplianceJob, null, null, null, pluginConfiguration);
-    }
+    public PluginUsageEntity addPluginConfiguration(PluginConfigurationEntity entity) {
+        entity.setPluginUsage(this);
+        this.getPluginConfiguration().add(entity);
 
-    public PluginUsageEntity(String pluginIdentifier, ComplianceJobEntity complianceJobChecking, List<PluginConfigurationEntity> pluginConfiguration) {
-        this(pluginIdentifier, null, null, complianceJobChecking, null, null, pluginConfiguration);
-    }
-
-    public PluginUsageEntity(String pluginIdentifier, IssueFixingConfigurationEntity issueFixingConfiguration, List<PluginConfigurationEntity> pluginConfiguration) {
-        this(pluginIdentifier, null, null, null, issueFixingConfiguration, null, pluginConfiguration);
-    }
-
-    public PluginUsageEntity(String pluginIdentifier, ProductionSystemEntity productionSystem, List<PluginConfigurationEntity> pluginConfiguration) {
-        this(pluginIdentifier, null, null, null, null, productionSystem, pluginConfiguration);
+        return this;
     }
 }

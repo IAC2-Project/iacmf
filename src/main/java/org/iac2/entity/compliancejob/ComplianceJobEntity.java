@@ -17,7 +17,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,9 +38,6 @@ public class ComplianceJobEntity {
 
     private String description;
 
-    @NotNull
-    private String modelCheckingPluginId;
-
     @OneToMany(mappedBy = "complianceJob")
     private List<IssueFixingConfigurationEntity> issueFixingConfigurations;
 
@@ -59,7 +55,7 @@ public class ComplianceJobEntity {
     private List<ExecutionEntity> executions;
 
     @OneToMany(mappedBy = "complianceJobRefinement")
-    private List<PluginUsageEntity> modelEnhancementStrategy;
+    private List<PluginUsageEntity> modelRefinementStrategy;
 
     @OneToOne
     @JoinColumn(name = "checking_plugin_usage_id", nullable = false)
@@ -70,21 +66,48 @@ public class ComplianceJobEntity {
     private ProductionSystemEntity productionSystem;
 
     public ComplianceJobEntity(String description,
-                               String modelCheckingPluginId,
-                               ProductionSystemEntity productionSystem,
-                               List<ComplianceRuleConfigurationEntity> complianceRuleConfigurations,
-                               List<PluginUsageEntity> modelEnhancementStrategy,
-                               PluginUsageEntity checkingPluginUsage,
-                               List<IssueFixingConfigurationEntity> issueFixingConfigurations,
-                               List<TriggerEntity> triggers) {
-        this.modelCheckingPluginId = modelCheckingPluginId;
+                               ProductionSystemEntity productionSystem) {
         this.productionSystem = productionSystem;
-        this.triggers = triggers;
         this.description = description;
         this.executions = new ArrayList<>();
-        this.complianceRuleConfigurations = complianceRuleConfigurations;
-        this.issueFixingConfigurations = issueFixingConfigurations;
-        this.modelEnhancementStrategy = modelEnhancementStrategy;
-        this.checkingPluginUsage = checkingPluginUsage;
+        this.complianceRuleConfigurations = new ArrayList<>();
+        this.issueFixingConfigurations = new ArrayList<>();
+        this.modelRefinementStrategy = new ArrayList<>();
+        this.triggers = new ArrayList<>();
+    }
+
+    public ComplianceJobEntity addTrigger(TriggerEntity trigger) {
+        trigger.getComplianceJobs().add(this);
+        this.triggers.add(trigger);
+
+        return this;
+    }
+
+    public ComplianceJobEntity addComplianceRuleConfiguration(ComplianceRuleConfigurationEntity entity) {
+        entity.setComplianceJob(this);
+        this.complianceRuleConfigurations.add(entity);
+
+        return this;
+    }
+
+    public ComplianceJobEntity addExecution(ExecutionEntity execution) {
+        execution.setComplianceJob(this);
+        this.executions.add(execution);
+
+        return this;
+    }
+
+    public ComplianceJobEntity addRefinementPluginUsage(PluginUsageEntity usage) {
+        usage.setComplianceJobRefinement(this);
+        this.modelRefinementStrategy.add(usage);
+
+        return this;
+    }
+
+    public ComplianceJobEntity addFixingConfiguration(IssueFixingConfigurationEntity config) {
+        config.setComplianceJob(this);
+        this.getIssueFixingConfigurations().add(config);
+
+        return this;
     }
 }

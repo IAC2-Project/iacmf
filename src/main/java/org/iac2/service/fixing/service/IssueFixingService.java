@@ -15,10 +15,11 @@ import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
 import org.iac2.entity.plugin.PluginUsageEntity;
+import org.iac2.repository.compliancejob.IssueFixingReportRepository;
 import org.iac2.repository.plugin.PluginUsageInstanceRepository;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
-import org.iac2.service.fixing.plugin.manager.IssueFixingPluginManager;
+import org.iac2.service.fixing.plugin.factory.IssueFixingPluginFactory;
 import org.iac2.service.utility.EntityToPojo;
 import org.iac2.service.utility.PluginConfigurationHelper;
 import org.iac2.service.utility.PojoToEntity;
@@ -26,23 +27,26 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class IssueFixingService {
-    private final IssueFixingPluginManager pluginManager;
-
+    private final IssueFixingPluginFactory pluginManager;
+    private final IssueFixingReportRepository issueFixingReportRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
-    public IssueFixingService(IssueFixingPluginManager pluginManager,
-                              PluginUsageInstanceRepository pluginUsageInstanceRepository) {
+    public IssueFixingService(IssueFixingPluginFactory pluginManager,
+                              PluginUsageInstanceRepository pluginUsageInstanceRepository,
+                              IssueFixingReportRepository issueFixingReportRepository) {
         this.pluginManager = pluginManager;
+        this.issueFixingReportRepository = issueFixingReportRepository;
     }
 
-    private static IssueFixingReportEntity fixSingleIssue(ExecutionEntity execution, InstanceModel instanceModel, IssueFixingPlugin plugin, ComplianceIssueEntity issueE) {
+    private IssueFixingReportEntity fixSingleIssue(ExecutionEntity execution, InstanceModel instanceModel, IssueFixingPlugin plugin, ComplianceIssueEntity issueE) {
         ComplianceIssue issue = EntityToPojo.transformIssue(issueE);
         ProductionSystem productionSystem =
                 EntityToPojo.transformProductionSystemEntity(execution.getComplianceJob().getProductionSystem());
         IssueFixingReport report = plugin.fixIssue(issue, instanceModel, productionSystem);
+        IssueFixingReportEntity reportEntity = PojoToEntity.transformFixingReport(report, issueE);
 
-        return PojoToEntity.transformFixingReport(report, issueE);
+        return issueFixingReportRepository.save(reportEntity);
     }
 
     /**

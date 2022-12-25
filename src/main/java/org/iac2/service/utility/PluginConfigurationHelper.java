@@ -3,7 +3,7 @@ package org.iac2.service.utility;
 import javax.persistence.EntityManager;
 
 import org.iac2.common.Plugin;
-import org.iac2.common.PluginManager;
+import org.iac2.common.PluginFactory;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.plugin.PluginConfigurationEntity;
 import org.iac2.entity.plugin.PluginUsageEntity;
@@ -14,15 +14,18 @@ public class PluginConfigurationHelper {
     public static Plugin instantiatePlugin(PluginUsageEntity usageEntity,
                                            ExecutionEntity execution,
                                            EntityManager entityManager,
-                                           PluginManager pluginManager) {
+                                           PluginFactory pluginManager) {
+
         entityManager.getTransaction().begin();
-        PluginUsageInstanceEntity usageInstanceEntity = new PluginUsageInstanceEntity(usageEntity, execution);
+        PluginUsageInstanceEntity usageInstanceEntity = new PluginUsageInstanceEntity(usageEntity);
+        execution.addPluginUsageInstance(usageInstanceEntity);
         entityManager.persist(usageInstanceEntity);
 
         try {
             for (PluginConfigurationEntity configurationEntity : usageEntity.getPluginConfiguration()) {
                 PluginConfigurationEntity current =
-                        new PluginConfigurationEntity(configurationEntity.getKey(), configurationEntity.getValue(), usageInstanceEntity);
+                        new PluginConfigurationEntity(configurationEntity.getKey(), configurationEntity.getValue());
+                usageInstanceEntity.addPluginConfiguration(current);
                 entityManager.persist(current);
             }
         } catch (RuntimeException e) {
@@ -31,7 +34,7 @@ public class PluginConfigurationHelper {
         }
 
         entityManager.getTransaction().commit();
-        Plugin plugin = pluginManager.getPlugin(usageEntity.getPluginIdentifier());
+        Plugin plugin = pluginManager.createPlugin(usageEntity.getPluginIdentifier());
 
         for (PluginConfigurationEntity configurationEntity : usageEntity.getPluginConfiguration()) {
             plugin.setConfigurationEntry(configurationEntity.getKey(), configurationEntity.getValue());

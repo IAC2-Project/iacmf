@@ -50,12 +50,18 @@ public class ComplianceIssueEntity {
     @NotNull
     private String type;
 
-    public ComplianceIssueEntity(ExecutionEntity execution, ComplianceRuleConfigurationEntity complianceRuleConfiguration, String description, String type) {
-        this.execution = execution;
+    public ComplianceIssueEntity(ComplianceRuleConfigurationEntity complianceRuleConfiguration, String description, String type) {
         this.complianceRuleConfiguration = complianceRuleConfiguration;
         this.description = description;
         this.type = type;
         fixingReports = new ArrayList<>();
         properties = new ArrayList<>();
+    }
+
+    public ComplianceIssueEntity addFixingReport(IssueFixingReportEntity entity) {
+        entity.setComplianceIssue(this);
+        this.getFixingReports().add(entity);
+
+        return this;
     }
 }

@@ -12,6 +12,7 @@ import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
 import org.iac2.common.model.compliancejob.execution.ExecutionStep;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
+import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
@@ -30,10 +31,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class ExecutionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionService.class);
-    private final ExecutionRepository executionRepository;
     private final ArchitectureReconstructionService architectureReconstructionService;
     private final ComplianceRuleCheckingService checkingService;
     private final IssueFixingService fixingService;
+    private final ExecutionRepository executionRepository;
     private final ComplianceIssueRepository complianceIssueRepository;
     private final IssueFixingReportRepository issueFixingReportRepository;
 
@@ -54,7 +55,7 @@ public class ExecutionService {
     @Async
     public void runComplianceJobExecution(@NotNull ExecutionEntity execution, boolean isBatchFixing) {
         InstanceModel instanceModel = this.reconstructArchitecture(execution);
-        Collection<ComplianceIssueEntity> issues = this.checkCompliance(execution, instanceModel);
+        Map<ComplianceRuleConfigurationEntity, Collection<ComplianceIssueEntity>> issues = this.checkCompliance(execution, instanceModel);
 
         if (!issues.isEmpty()) {
             Map<ComplianceIssueEntity, IssueFixingReportEntity> reports =
@@ -79,11 +80,11 @@ public class ExecutionService {
         LOGGER.info("Reconstructing the architecture (execution id: {}, job id: {})...", execution.getId(), execution.getComplianceJob().getId());
         try {
             ProductionSystemEntity productionSystem = execution.getComplianceJob().getProductionSystem();
-            InstanceModel result = this.architectureReconstructionService.crteateInstanceModel(productionSystem);
+            InstanceModel result = this.architectureReconstructionService.crteateInstanceModel(productionSystem, execution);
             StringWriter writer = new StringWriter();
             result.getDeploymentModel().getGraph().generateYamlOutput(writer);
             execution.setInstanceModel(writer.toString());
-            this.architectureReconstructionService.refineInstanceModel(execution.getComplianceJob(), result);
+            this.architectureReconstructionService.refineInstanceModel(execution, result);
             execution.setStatus(ExecutionStatus.IDLE);
             executionRepository.save(execution);
             LOGGER.info("Successfully finished the reconstruction of the architecture (execution id: {}, job id: {})...",
@@ -95,12 +96,14 @@ public class ExecutionService {
         }
     }
 
-    public Collection<ComplianceIssueEntity> checkCompliance(ExecutionEntity execution, InstanceModel instanceModel) {
+    public Map<ComplianceRuleConfigurationEntity, Collection<ComplianceIssueEntity>> checkCompliance(ExecutionEntity execution, InstanceModel instanceModel) {
         execution.setCurrentStep(ExecutionStep.CHECKING);
         executionRepository.save(execution);
         LOGGER.info("Checking the compliance rules (execution id: {}, job id: {})...", execution.getId(), execution.getComplianceJob().getId());
+
         try {
-            Collection<ComplianceIssueEntity> issues = this.checkingService.findViolationsOfAllComplianceRules(execution, instanceModel);
+            Map<ComplianceRuleConfigurationEntity, Collection<ComplianceIssueEntity>> issues =
+                    this.checkingService.findViolationsOfAllComplianceRules(execution, instanceModel);
             LOGGER.info("Finished checking the compliance rules (execution id: {}, job id: {}).", execution.getId(), execution.getComplianceJob().getId());
 
             if (issues.isEmpty()) {
@@ -108,7 +111,6 @@ public class ExecutionService {
                         "The compliance job execution finished without errors. No compliance issues were detected.");
             } else {
                 execution.setViolationsDetected(true);
-                this.complianceIssueRepository.saveAll(issues);
                 execution.setStatus(ExecutionStatus.IDLE);
                 executionRepository.save(execution);
             }
@@ -133,8 +135,6 @@ public class ExecutionService {
                 IssueFixingReportEntity report = this.fixingService.fixFirstIssue(execution, instanceModel);
                 result.put(report.getComplianceIssue(), report);
             }
-
-            issueFixingReportRepository.saveAll(result.values());
 
             LOGGER.info("Finished fixing the detected compliance rule violations (execution id: {}, job id: {}).",
                     execution.getId(), execution.getComplianceJob().getId());
