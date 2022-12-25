@@ -93,7 +93,7 @@ public class DockerContainerRefinementPluginTest {
     }
 
     @Test
-    @DisabledIf("#{T(org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.DockerContainerEnhancementPluginTest).onlyLocal}")
+    @DisabledIf("#{T(org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.DockerContainerRefinementPluginTest).onlyLocal}")
     public void testAddDockerContainerToModel() throws IOException, IllegalAccessException {
         ClassPathResource resource = new ClassPathResource("edmm/four-components-hosted-on.yml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
@@ -106,7 +106,7 @@ public class DockerContainerRefinementPluginTest {
     }
 
     @Test
-    @DisabledIf("#{T(org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.DockerContainerEnhancementPluginTest).onlyLocal}")
+    @DisabledIf("#{T(org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.DockerContainerRefinementPluginTest).onlyLocal}")
     public void testDockerReconstruction() {
         ProductionSystem productionSystem = OpenTOSCATestUtils.createProductionSystem(hostName, port, appName, instanceId);
         ModelCreationPlugin plugin = OpenTOSCATestUtils.getOpenTOSCAModelCreationPlugin();

@@ -1,7 +1,5 @@
 package org.iac2.service.utility;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
@@ -34,17 +32,12 @@ public class PojoToEntity {
                 issue.getDescription(),
                 issue.getType());
         execution.addComplianceIssue(result);
-        result.setProperties(transformIssueProperties(result, issue.getProperties()));
+        transformIssueProperties(result, issue.getProperties());
 
         return result;
     }
 
-    public static List<KVEntity> transformIssueProperties(
-            ComplianceIssueEntity issueEntity,
-            Map<String, String> properties) {
-        List<KVEntity> result = new ArrayList<>();
-        properties.forEach((k, v) -> result.add(new KVEntity(k, v, issueEntity)));
-
-        return result;
+    public static void transformIssueProperties(ComplianceIssueEntity issueEntity, Map<String, String> properties) {
+        properties.forEach((k, v) -> issueEntity.getProperties().add(new KVEntity(k, v)));
     }
 }

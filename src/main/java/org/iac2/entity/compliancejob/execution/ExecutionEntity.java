@@ -8,7 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -21,6 +20,8 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
 import org.iac2.common.model.compliancejob.execution.ExecutionStep;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
@@ -61,10 +62,12 @@ public class ExecutionEntity {
     @JoinColumn(name = "compliance_job_id", nullable = false)
     private ComplianceJobEntity complianceJob;
 
-    @OneToMany(mappedBy = "execution", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "execution")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<PluginUsageInstanceEntity> pluginUsageInstances;
 
-    @OneToMany(mappedBy = "execution", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "execution")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<ComplianceIssueEntity> complianceIssueEntities;
 
     public ExecutionEntity(ComplianceJobEntity complianceJob) {

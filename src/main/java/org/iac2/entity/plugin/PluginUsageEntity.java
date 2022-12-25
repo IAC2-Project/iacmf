@@ -1,6 +1,7 @@
 package org.iac2.entity.plugin;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,14 +11,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingConfigurationEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 
 @Entity
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 public class PluginUsageEntity extends PluginUsage {
     @Id
@@ -53,5 +56,19 @@ public class PluginUsageEntity extends PluginUsage {
         this.getPluginConfiguration().add(entity);
 
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        PluginUsageEntity that = (PluginUsageEntity) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id);
     }
 }

@@ -64,4 +64,11 @@ public class ComplianceIssueEntity {
 
         return this;
     }
+
+    public ComplianceIssueEntity addProperty(KVEntity property) {
+        property.setComplianceIssue(this);
+        this.getProperties().add(property);
+
+        return this;
+    }
 }

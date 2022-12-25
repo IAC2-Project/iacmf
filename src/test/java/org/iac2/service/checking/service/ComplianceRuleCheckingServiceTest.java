@@ -11,6 +11,12 @@ import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
+import org.iac2.repository.compliancejob.ComplianceJobRepository;
+import org.iac2.repository.compliancejob.ComplianceRuleConfigurationRepository;
+import org.iac2.repository.compliancejob.ExecutionRepository;
+import org.iac2.repository.compliancerule.ComplianceRuleRepository;
+import org.iac2.repository.plugin.PluginUsageRepository;
+import org.iac2.repository.productionsystem.ProductionSystemRepository;
 import org.iac2.service.checking.plugin.factory.ComplianceRuleCheckingPluginFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,6 +39,18 @@ ComplianceRuleCheckingServiceTest {
 
     @Autowired
     ComplianceRuleCheckingService service;
+    @Autowired
+    private PluginUsageRepository pluginUsageRepository;
+    @Autowired
+    private ProductionSystemRepository productionSystemRepository;
+    @Autowired
+    private ComplianceRuleConfigurationRepository complianceRuleConfigurationRepository;
+    @Autowired
+    private ComplianceJobRepository complianceJobRepository;
+    @Autowired
+    private ExecutionRepository executionRepository;
+    @Autowired
+    private ComplianceRuleRepository complianceRuleRepository;
 
     @Test
     void findIssuesOfSystemModel() {
@@ -43,19 +61,24 @@ ComplianceRuleCheckingServiceTest {
                 "ensure-property-value",
                 "http://nowherer.no",
                 "compliacne rule for fooling around");
+        complianceRuleRepository.save(cr);
         PluginUsageEntity usage = new PluginUsageEntity("opentosca-container-model-creation-plugin");
         ProductionSystemEntity productionSystem = new ProductionSystemEntity(
                 "some system",
                 "opentoscacontainer");
+        pluginUsageRepository.save(usage);
         productionSystem.setModelCreationPluginUsage(usage);
-
+        productionSystemRepository.save(productionSystem);
+        PluginUsageEntity checkingUsage = new PluginUsageEntity("checking");
+        pluginUsageRepository.save(checkingUsage);
         ComplianceJobEntity complianceJob = new ComplianceJobEntity(
-                "a fine job",
-                productionSystem);
+                "a fine job", productionSystem, checkingUsage);
         ComplianceRuleConfigurationEntity crConfig = new ComplianceRuleConfigurationEntity(cr, "issueType1");
+        complianceRuleConfigurationRepository.save(crConfig);
         complianceJob.addComplianceRuleConfiguration(crConfig);
+        complianceJobRepository.save(complianceJob);
         ExecutionEntity execution = new ExecutionEntity(complianceJob);
-
+        executionRepository.save(execution);
         Map<ComplianceRuleConfigurationEntity, Collection<ComplianceIssueEntity>> issues = service.findViolationsOfAllComplianceRules(
                 execution,
                 new InstanceModel(null)

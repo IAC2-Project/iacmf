@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.iac2.common.exception.IssueTypeNotMappedException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
@@ -16,12 +13,11 @@ import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
 import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.repository.compliancejob.IssueFixingReportRepository;
-import org.iac2.repository.plugin.PluginUsageInstanceRepository;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
 import org.iac2.service.fixing.plugin.factory.IssueFixingPluginFactory;
 import org.iac2.service.utility.EntityToPojo;
-import org.iac2.service.utility.PluginConfigurationHelper;
+import org.iac2.service.utility.PluginConfigurationHelperService;
 import org.iac2.service.utility.PojoToEntity;
 import org.springframework.stereotype.Service;
 
@@ -29,14 +25,15 @@ import org.springframework.stereotype.Service;
 public class IssueFixingService {
     private final IssueFixingPluginFactory pluginManager;
     private final IssueFixingReportRepository issueFixingReportRepository;
-    @PersistenceContext
-    private EntityManager entityManager;
+
+    private final PluginConfigurationHelperService helperService;
 
     public IssueFixingService(IssueFixingPluginFactory pluginManager,
-                              PluginUsageInstanceRepository pluginUsageInstanceRepository,
-                              IssueFixingReportRepository issueFixingReportRepository) {
+                              IssueFixingReportRepository issueFixingReportRepository,
+                              PluginConfigurationHelperService helperService) {
         this.pluginManager = pluginManager;
         this.issueFixingReportRepository = issueFixingReportRepository;
+        this.helperService = helperService;
     }
 
     private IssueFixingReportEntity fixSingleIssue(ExecutionEntity execution, InstanceModel instanceModel, IssueFixingPlugin plugin, ComplianceIssueEntity issueE) {
@@ -104,6 +101,6 @@ public class IssueFixingService {
                 .orElseThrow(() -> new IssueTypeNotMappedException(issueType))
                 .getPluginUsage();
 
-        return (IssueFixingPlugin) PluginConfigurationHelper.instantiatePlugin(usageEntity, entity.getExecution(), this.entityManager, this.pluginManager);
+        return (IssueFixingPlugin) helperService.instantiatePlugin(usageEntity, entity.getExecution(), this.pluginManager);
     }
 }

@@ -2,8 +2,6 @@ package org.iac2.service.architecturereconstruction.service;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.validation.constraints.NotNull;
 
 import org.iac2.common.model.InstanceModel;
@@ -14,7 +12,7 @@ import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPlugin;
 import org.iac2.service.architecturereconstruction.plugin.factory.ArchitectureReconstructionPluginFactory;
-import org.iac2.service.utility.PluginConfigurationHelper;
+import org.iac2.service.utility.PluginConfigurationHelperService;
 import org.springframework.stereotype.Service;
 
 import static org.iac2.service.utility.EntityToPojo.transformProductionSystemEntity;
@@ -23,17 +21,18 @@ import static org.iac2.service.utility.EntityToPojo.transformProductionSystemEnt
 public class ArchitectureReconstructionService {
 
     private final ArchitectureReconstructionPluginFactory pluginManager;
-    @PersistenceContext
-    EntityManager entityManager;
 
-    public ArchitectureReconstructionService(ArchitectureReconstructionPluginFactory pluginManager) {
+    private final PluginConfigurationHelperService helperService;
+
+    public ArchitectureReconstructionService(ArchitectureReconstructionPluginFactory pluginManager, PluginConfigurationHelperService helperService) {
         this.pluginManager = pluginManager;
+        this.helperService = helperService;
     }
 
     public InstanceModel crteateInstanceModel(@NotNull ProductionSystemEntity productionSystemEntity, ExecutionEntity execution) {
         ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
         PluginUsageEntity pluginUsage = productionSystemEntity.getModelCreationPluginUsage();
-        ModelCreationPlugin plugin = (ModelCreationPlugin) PluginConfigurationHelper.instantiatePlugin(pluginUsage, execution, entityManager, pluginManager);
+        ModelCreationPlugin plugin = (ModelCreationPlugin) helperService.instantiatePlugin(pluginUsage, execution, pluginManager);
 
         return plugin.reconstructInstanceModel(productionSystem);
     }
@@ -54,7 +53,7 @@ public class ArchitectureReconstructionService {
         ProductionSystem productionSystem = transformProductionSystemEntity(execution.getComplianceJob().getProductionSystem());
         List<ModelRefinementPlugin> plugins = enhancementStrategy
                 .stream()
-                .map(usage -> (ModelRefinementPlugin) PluginConfigurationHelper.instantiatePlugin(usage, execution, entityManager, pluginManager))
+                .map(usage -> (ModelRefinementPlugin) helperService.instantiatePlugin(usage, execution, pluginManager))
                 .toList();
 
         for (ModelRefinementPlugin plugin : plugins) {

@@ -7,7 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,8 +21,7 @@ public class IssueFixingReportEntity {
 
     @NotNull
     private Boolean isSuccessful;
-
-    @Null
+    
     private String description;
 
     @ManyToOne

@@ -136,6 +136,8 @@ public class ExecutionService {
                 result.put(report.getComplianceIssue(), report);
             }
 
+            issueFixingReportRepository.saveAll(result.values());
+
             LOGGER.info("Finished fixing the detected compliance rule violations (execution id: {}, job id: {}).",
                     execution.getId(), execution.getComplianceJob().getId());
 

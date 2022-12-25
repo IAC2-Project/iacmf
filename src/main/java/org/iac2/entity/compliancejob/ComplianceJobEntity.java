@@ -3,23 +3,19 @@ package org.iac2.entity.compliancejob;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingConfigurationEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
@@ -28,9 +24,6 @@ import org.iac2.entity.productionsystem.ProductionSystemEntity;
 
 @Entity
 @Data
-@NoArgsConstructor
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(discriminatorType = DiscriminatorType.INTEGER)
 public class ComplianceJobEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -65,9 +58,16 @@ public class ComplianceJobEntity {
     @JoinColumn(name = "production_system_id", nullable = false)
     private ProductionSystemEntity productionSystem;
 
+    public ComplianceJobEntity() {
+
+    }
+
     public ComplianceJobEntity(String description,
-                               ProductionSystemEntity productionSystem) {
+                               @NotNull ProductionSystemEntity productionSystem,
+                               @NotNull PluginUsageEntity checkingPluginUsage) {
         this.productionSystem = productionSystem;
+        this.checkingPluginUsage = checkingPluginUsage;
+        this.checkingPluginUsage.setComplianceJobChecking(this);
         this.description = description;
         this.executions = new ArrayList<>();
         this.complianceRuleConfigurations = new ArrayList<>();

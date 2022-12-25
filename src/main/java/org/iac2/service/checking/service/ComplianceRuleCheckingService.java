@@ -4,9 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
@@ -20,7 +17,7 @@ import org.iac2.repository.productionsystem.KVRepository;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 import org.iac2.service.checking.plugin.factory.ComplianceRuleCheckingPluginFactory;
 import org.iac2.service.utility.EntityToPojo;
-import org.iac2.service.utility.PluginConfigurationHelper;
+import org.iac2.service.utility.PluginConfigurationHelperService;
 import org.iac2.service.utility.PojoToEntity;
 import org.springframework.stereotype.Service;
 
@@ -29,15 +26,16 @@ public class ComplianceRuleCheckingService {
     private final ComplianceRuleCheckingPluginFactory pluginManager;
     private final ComplianceIssueRepository complianceIssueRepository;
     private final KVRepository kVRepository;
-    @PersistenceContext
-    EntityManager entityManager;
+
+    private final PluginConfigurationHelperService helperService;
 
     public ComplianceRuleCheckingService(ComplianceRuleCheckingPluginFactory pluginManager,
                                          ComplianceIssueRepository complianceIssueRepository,
-                                         KVRepository kVRepository) {
+                                         KVRepository kVRepository, PluginConfigurationHelperService helperService) {
         this.pluginManager = pluginManager;
         this.complianceIssueRepository = complianceIssueRepository;
         this.kVRepository = kVRepository;
+        this.helperService = helperService;
     }
 
     /**
@@ -74,7 +72,7 @@ public class ComplianceRuleCheckingService {
                 complianceRuleConfiguration.getComplianceRuleParameterAssignments();
         ComplianceRule myCR = EntityToPojo.transformComplianceRule(complianceRule, assignments);
         PluginUsageEntity usageEntity = execution.getComplianceJob().getCheckingPluginUsage();
-        ComplianceRuleCheckingPlugin plugin = (ComplianceRuleCheckingPlugin) PluginConfigurationHelper.instantiatePlugin(usageEntity, execution, entityManager, pluginManager);
+        ComplianceRuleCheckingPlugin plugin = (ComplianceRuleCheckingPlugin) helperService.instantiatePlugin(usageEntity, execution, pluginManager);
 
         return plugin.findIssues(instanceModel, myCR)
                 .stream()

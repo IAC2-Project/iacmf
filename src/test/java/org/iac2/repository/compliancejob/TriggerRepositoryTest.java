@@ -50,11 +50,12 @@ class TriggerRepositoryTest {
         this.complianceRuleRepository.save(complianceRule2);
 
         PluginUsageEntity usage = new PluginUsageEntity("opentoscaplugin");
-
+        PluginUsageEntity checkingPluginUsage = new PluginUsageEntity("checkingPlugin");
         ProductionSystemEntity productionSystem = new ProductionSystemEntity("this is the best production system",
                 "opentoscacontainer");
         productionSystem.setModelCreationPluginUsage(usage);
         this.pluginUsageRepository.save(usage);
+        pluginUsageRepository.save(checkingPluginUsage);
         this.productionSystemRepository.save(productionSystem);
 
         TriggerEntity trigger1 = new TriggerEntity("Fire at 12:00 PM (noon) every day");
@@ -73,11 +74,13 @@ class TriggerRepositoryTest {
 
         ComplianceJobEntity job1 = new ComplianceJobEntity(
                 "this is job 1",
-                productionSystem);
+                productionSystem,
+                checkingPluginUsage);
         job1.addTrigger(trigger1).addTrigger(trigger3);
         ComplianceJobEntity job2 = new ComplianceJobEntity(
                 "this is job 2",
-                productionSystem);
+                productionSystem,
+                checkingPluginUsage);
         job2.addTrigger(trigger2);
 
         this.complianceJobRepository.save(job1);

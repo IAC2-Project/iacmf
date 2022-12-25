@@ -1,12 +1,15 @@
 package org.iac2.util;
 
-import com.google.common.collect.Maps;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import javax.xml.namespace.QName;
+
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.common.configuration.FileBasedRepositoryConfiguration;
 import org.eclipse.winery.common.configuration.GitBasedRepositoryConfiguration;
@@ -17,14 +20,13 @@ import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.eclipse.winery.repository.export.CsarExporter;
 
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import com.google.common.collect.Maps;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 import static org.eclipse.winery.common.Constants.DEFAULT_LOCAL_REPO_NAME;
 
@@ -170,4 +172,38 @@ public class TestUtils {
             return "172.17.0.1";
         }
     }
+
+//    private ComplianceJobEntity createDummyComplianceJob(PluginUsageRepository pluginUsageRepository,
+//                                                         ProductionSystemRepository productionSystemRepository,
+//                                                         ComplianceRuleRepository complianceRuleRepository,
+//                                                         TriggerRepository triggerRepository,
+//                                                         ) {
+//        ComplianceRuleEntity rule = new ComplianceRuleEntity("test", "test", "test");
+//        ProductionSystemEntity productionSystem = new ProductionSystemEntity("test", "opentoscacontainer");
+//        TriggerEntity trigger = new TriggerEntity("test");
+//        ComplianceRuleConfigurationEntity configurationEntity = new ComplianceRuleConfigurationEntity(rule, "issT");
+//        PluginUsageEntity modelCreation = new PluginUsageEntity("creator1");
+//        productionSystem.setModelCreationPluginUsage(modelCreation);
+//        pluginUsageRepository.save(modelCreation);
+//        productionSystemRepository.save(productionSystem);
+//        complianceRuleRepository.save(rule);
+//        triggerRepository.save(trigger);
+//        complianceRuleConfigurationRepository.save(configurationEntity);
+//        ComplianceJobEntity job = new ComplianceJobEntity("test", productionSystem);
+//        job.addComplianceRuleConfiguration(configurationEntity).addTrigger(trigger);
+//        PluginUsageEntity refinement = new PluginUsageEntity("refiner1");
+//        PluginUsageEntity checking = new PluginUsageEntity("checker1");
+//        PluginUsageEntity fixer = new PluginUsageEntity("fixer1");
+//        IssueFixingConfigurationEntity fixingConfig = new IssueFixingConfigurationEntity("issT");
+//        fixingConfig.setPluginUsage(fixer);
+//        job.addRefinementPluginUsage(refinement);
+//        job.setCheckingPluginUsage(checking);
+//        job.addFixingConfiguration(fixingConfig);
+//        pluginUsageRepository.save(refinement);
+//        pluginUsageRepository.save(checking);
+//        pluginUsageRepository.save(fixer);
+//        issueFixingConfigurationRepository.save(fixingConfig);
+//
+//        return complianceJobRepository.save(job);
+//    }
 }
