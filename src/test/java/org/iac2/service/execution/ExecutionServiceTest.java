@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import io.github.edmm.model.DeploymentModel;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
@@ -42,6 +44,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -49,6 +52,8 @@ import static org.mockito.ArgumentMatchers.any;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Transactional
+@Rollback
 class ExecutionServiceTest {
 
     @MockBean

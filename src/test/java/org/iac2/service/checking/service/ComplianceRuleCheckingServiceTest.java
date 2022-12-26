@@ -3,6 +3,8 @@ package org.iac2.service.checking.service;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import org.iac2.common.model.InstanceModel;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
@@ -23,16 +25,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class
-ComplianceRuleCheckingServiceTest {
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Transactional
+@Rollback
+class ComplianceRuleCheckingServiceTest {
 
     @MockBean
     ComplianceRuleCheckingPluginFactory pluginManager;
