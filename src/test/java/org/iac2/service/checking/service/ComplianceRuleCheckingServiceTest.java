@@ -63,20 +63,19 @@ ComplianceRuleCheckingServiceTest {
                 "compliacne rule for fooling around");
         complianceRuleRepository.save(cr);
         PluginUsageEntity usage = new PluginUsageEntity("opentosca-container-model-creation-plugin");
+        pluginUsageRepository.save(usage);
         ProductionSystemEntity productionSystem = new ProductionSystemEntity(
                 "some system",
-                "opentoscacontainer");
-        pluginUsageRepository.save(usage);
-        productionSystem.setModelCreationPluginUsage(usage);
+                "opentoscacontainer",
+                usage);
         productionSystemRepository.save(productionSystem);
         PluginUsageEntity checkingUsage = new PluginUsageEntity("checking");
         pluginUsageRepository.save(checkingUsage);
         ComplianceJobEntity complianceJob = new ComplianceJobEntity(
                 "a fine job", productionSystem, checkingUsage);
-        ComplianceRuleConfigurationEntity crConfig = new ComplianceRuleConfigurationEntity(cr, "issueType1");
-        complianceRuleConfigurationRepository.save(crConfig);
-        complianceJob.addComplianceRuleConfiguration(crConfig);
         complianceJobRepository.save(complianceJob);
+        ComplianceRuleConfigurationEntity crConfig = new ComplianceRuleConfigurationEntity(cr, complianceJob, "issueType1");
+        complianceRuleConfigurationRepository.save(crConfig);
         ExecutionEntity execution = new ExecutionEntity(complianceJob);
         executionRepository.save(execution);
         Map<ComplianceRuleConfigurationEntity, Collection<ComplianceIssueEntity>> issues = service.findViolationsOfAllComplianceRules(

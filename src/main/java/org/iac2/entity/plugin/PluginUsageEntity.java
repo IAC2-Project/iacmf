@@ -47,15 +47,18 @@ public class PluginUsageEntity extends PluginUsage {
     @OneToOne(mappedBy = "modelCreationPluginUsage")
     private ProductionSystemEntity productionSystem;
 
-    public PluginUsageEntity(String pluginIdentifier) {
+    public PluginUsageEntity(String pluginIdentifier, ComplianceJobEntity complianceJobRefinement, int refinementPluginIndexInComplianceJob) {
         super(pluginIdentifier, new ArrayList<>());
+
+        if (complianceJobRefinement != null) {
+            this.complianceJobRefinement = complianceJobRefinement;
+            this.refinementPluginIndexInComplianceJob = refinementPluginIndexInComplianceJob;
+            this.complianceJobRefinement.getModelRefinementStrategy().add(this);
+        }
     }
 
-    public PluginUsageEntity addPluginConfiguration(PluginConfigurationEntity entity) {
-        entity.setPluginUsage(this);
-        this.getPluginConfiguration().add(entity);
-
-        return this;
+    public PluginUsageEntity(String pluginIdentifier) {
+        this(pluginIdentifier, null, -1);
     }
 
     @Override

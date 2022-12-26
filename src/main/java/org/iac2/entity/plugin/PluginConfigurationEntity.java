@@ -33,8 +33,26 @@ public class PluginConfigurationEntity {
     @JoinColumn(name = "plugin_usage_instance_id")
     private PluginUsageInstanceEntity pluginUsageInstance;
 
-    public PluginConfigurationEntity(String key, String value) {
+    private PluginConfigurationEntity(String key, String value, PluginUsageEntity pluginUsage, PluginUsageInstanceEntity pluginUsageInstance) {
         this.key = key;
         this.value = value;
+
+        if (pluginUsage != null) {
+            this.pluginUsage = pluginUsage;
+            this.pluginUsage.getPluginConfiguration().add(this);
+        }
+
+        if (pluginUsageInstance != null) {
+            this.pluginUsageInstance = pluginUsageInstance;
+            this.pluginUsageInstance.getPluginConfiguration().add(this);
+        }
+    }
+
+    public PluginConfigurationEntity(String key, String value, PluginUsageEntity pluginUsage) {
+        this(key, value, pluginUsage, null);
+    }
+
+    public PluginConfigurationEntity(String key, String value, PluginUsageInstanceEntity pluginUsageInstance) {
+        this(key, value, null, pluginUsageInstance);
     }
 }

@@ -13,8 +13,7 @@ import org.iac2.service.fixing.common.model.IssueFixingReport;
 public class PojoToEntity {
 
     public static IssueFixingReportEntity transformFixingReport(IssueFixingReport report, ComplianceIssueEntity issue) {
-        IssueFixingReportEntity reportE = new IssueFixingReportEntity(report.isSuccessful());
-        issue.addFixingReport(reportE);
+        IssueFixingReportEntity reportE = new IssueFixingReportEntity(report.isSuccessful(), issue);
         reportE.setDescription(report.getDescription());
 
         return reportE;
@@ -29,9 +28,9 @@ public class PojoToEntity {
 
         ComplianceIssueEntity result = new ComplianceIssueEntity(
                 ruleConfigurationEntity,
+                execution,
                 issue.getDescription(),
                 issue.getType());
-        execution.addComplianceIssue(result);
         transformIssueProperties(result, issue.getProperties());
 
         return result;

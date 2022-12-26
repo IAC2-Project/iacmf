@@ -33,12 +33,11 @@ public class IssueFixingConfigurationEntity {
     @JoinColumn(name = "compliance_job_id", nullable = false)
     private ComplianceJobEntity complianceJob;
 
-    public IssueFixingConfigurationEntity(String issueType) {
+    public IssueFixingConfigurationEntity(String issueType, ComplianceJobEntity complianceJob, PluginUsageEntity pluginUsage) {
         this.issueType = issueType;
-    }
-
-    public void setPluginUsage(PluginUsageEntity entity) {
-        entity.setIssueFixingConfiguration(this);
-        this.pluginUsage = entity;
+        this.complianceJob = complianceJob;
+        this.complianceJob.getIssueFixingConfigurations().add(this);
+        this.pluginUsage = pluginUsage;
+        this.pluginUsage.setIssueFixingConfiguration(this);
     }
 }

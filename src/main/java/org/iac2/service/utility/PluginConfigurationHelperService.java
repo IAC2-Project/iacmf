@@ -28,14 +28,12 @@ public class PluginConfigurationHelperService {
                                     ExecutionEntity execution,
                                     PluginFactory pluginManager) {
 
-        PluginUsageInstanceEntity usageInstanceEntity = new PluginUsageInstanceEntity(usageEntity);
-        execution.addPluginUsageInstance(usageInstanceEntity);
+        PluginUsageInstanceEntity usageInstanceEntity = new PluginUsageInstanceEntity(usageEntity, execution);
         pluginUsageInstanceRepository.save(usageInstanceEntity);
-        
+
         for (PluginConfigurationEntity configurationEntity : usageEntity.getPluginConfiguration()) {
             PluginConfigurationEntity current =
-                    new PluginConfigurationEntity(configurationEntity.getKey(), configurationEntity.getValue());
-            usageInstanceEntity.addPluginConfiguration(current);
+                    new PluginConfigurationEntity(configurationEntity.getKey(), configurationEntity.getValue(), usageInstanceEntity);
             pluginConfigurationRepository.save(current);
         }
 

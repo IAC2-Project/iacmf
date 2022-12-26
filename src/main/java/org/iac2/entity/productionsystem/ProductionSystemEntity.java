@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -36,28 +37,25 @@ public class ProductionSystemEntity {
 
     private String description;
 
-    @OneToMany(mappedBy = "productionSystem")
+    @OneToMany(mappedBy = "productionSystem", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<KVEntity> properties;
 
     @OneToOne
     @JoinColumn(name = "model_creation_plugin_usage_id", nullable = false)
     private PluginUsageEntity modelCreationPluginUsage;
 
-    public ProductionSystemEntity(String description, String iacTechnologyName) {
+    public ProductionSystemEntity(String description, String iacTechnologyName, PluginUsageEntity modelCreationPluginUsage) {
         this.description = description;
         this.iacTechnologyName = iacTechnologyName;
         this.isDeleted = false;
         this.properties = new ArrayList<>();
-    }
-
-    public void setModelCreationPluginUsage(PluginUsageEntity entity) {
-        entity.setProductionSystem(this);
-        this.modelCreationPluginUsage = entity;
+        this.modelCreationPluginUsage = modelCreationPluginUsage;
+        this.modelCreationPluginUsage.setProductionSystem(this);
     }
 
     public ProductionSystemEntity addProperty(KVEntity property) {
-        this.getProperties().add(property);
         property.setProductionSystem(this);
+        this.getProperties().add(property);
 
         return this;
     }

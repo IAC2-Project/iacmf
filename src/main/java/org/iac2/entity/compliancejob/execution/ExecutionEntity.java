@@ -72,6 +72,7 @@ public class ExecutionEntity {
 
     public ExecutionEntity(ComplianceJobEntity complianceJob) {
         this.complianceJob = complianceJob;
+        this.complianceJob.getExecutions().add(this);
         this.startTime = new Date();
         this.status = ExecutionStatus.CREATED;
         this.currentStep = ExecutionStep.START;
@@ -79,19 +80,5 @@ public class ExecutionEntity {
         this.violationsDetected = false;
         this.complianceIssueEntities = new ArrayList<>();
         this.pluginUsageInstances = new ArrayList<>();
-    }
-
-    public ExecutionEntity addComplianceIssue(ComplianceIssueEntity issue) {
-        issue.setExecution(this);
-        this.getComplianceIssueEntities().add(issue);
-
-        return this;
-    }
-
-    public ExecutionEntity addPluginUsageInstance(PluginUsageInstanceEntity entity) {
-        entity.setExecution(this);
-        this.getPluginUsageInstances().add(entity);
-
-        return this;
     }
 }

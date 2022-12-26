@@ -137,10 +137,9 @@ class ExecutionServiceTest {
         execution = this.service.createNewExecution(job);
         ComplianceRuleEntity cr = new ComplianceRuleEntity("a", "b", "c");
         complianceRuleRepository.save(cr);
-        ComplianceRuleConfigurationEntity configurationEntity = new ComplianceRuleConfigurationEntity(cr, "iss1");
+        ComplianceRuleConfigurationEntity configurationEntity = new ComplianceRuleConfigurationEntity(cr, job, "iss1");
         complianceRuleConfigurationRepository.save(configurationEntity);
-        ComplianceIssueEntity issue = new ComplianceIssueEntity(configurationEntity, "a terrible problem", "iss1");
-        execution.addComplianceIssue(issue);
+        ComplianceIssueEntity issue = new ComplianceIssueEntity(configurationEntity, execution, "a terrible problem", "iss1");
         complianceIssueRepository.save(issue);
         Mockito.when(checkingService.findViolationsOfAllComplianceRules(any(), any()))
                 .thenReturn(Map.of(configurationEntity, List.of(issue)));
@@ -179,19 +178,16 @@ class ExecutionServiceTest {
         ComplianceRuleEntity cr2 = new ComplianceRuleEntity("b", "b", "b");
         complianceRuleRepository.save(cr1);
         complianceRuleRepository.save(cr2);
-        ComplianceRuleConfigurationEntity configurationEntity1 = new ComplianceRuleConfigurationEntity(cr1, "issT");
-        ComplianceRuleConfigurationEntity configurationEntity2 = new ComplianceRuleConfigurationEntity(cr2, "issT");
+        ComplianceRuleConfigurationEntity configurationEntity1 = new ComplianceRuleConfigurationEntity(cr1, job, "issT");
+        ComplianceRuleConfigurationEntity configurationEntity2 = new ComplianceRuleConfigurationEntity(cr2, job, "issT");
         complianceRuleConfigurationRepository.save(configurationEntity1);
         complianceRuleConfigurationRepository.save(configurationEntity2);
-        ComplianceIssueEntity issue1 = new ComplianceIssueEntity(configurationEntity1, "a terrible problem", "issT");
-        ComplianceIssueEntity issue2 = new ComplianceIssueEntity(configurationEntity2, "a horrible problem", "issT");
-        execution.addComplianceIssue(issue1).addComplianceIssue(issue2);
+        ComplianceIssueEntity issue1 = new ComplianceIssueEntity(configurationEntity1, execution, "a terrible problem", "issT");
+        ComplianceIssueEntity issue2 = new ComplianceIssueEntity(configurationEntity2, execution, "a horrible problem", "issT");
         complianceIssueRepository.save(issue1);
         complianceIssueRepository.save(issue2);
-        IssueFixingReportEntity report1 = new IssueFixingReportEntity(true);
-        issue1.addFixingReport(report1);
-        IssueFixingReportEntity report2 = new IssueFixingReportEntity(false);
-        issue2.addFixingReport(report2);
+        IssueFixingReportEntity report1 = new IssueFixingReportEntity(true, issue1);
+        IssueFixingReportEntity report2 = new IssueFixingReportEntity(false, issue2);
         Map<ComplianceIssueEntity, IssueFixingReportEntity> fixingReports = new HashMap<>();
         fixingReports.put(issue1, report1);
         fixingReports.put(issue2, report2);
@@ -211,18 +207,16 @@ class ExecutionServiceTest {
         cr2 = new ComplianceRuleEntity("b", "b", "b");
         complianceRuleRepository.save(cr1);
         complianceRuleRepository.save(cr2);
-        configurationEntity1 = new ComplianceRuleConfigurationEntity(cr1, "issT");
-        configurationEntity2 = new ComplianceRuleConfigurationEntity(cr2, "issT");
+        configurationEntity1 = new ComplianceRuleConfigurationEntity(cr1, job, "issT");
+        configurationEntity2 = new ComplianceRuleConfigurationEntity(cr2, job, "issT");
         complianceRuleConfigurationRepository.save(configurationEntity1);
         complianceRuleConfigurationRepository.save(configurationEntity2);
 
-        issue1 = new ComplianceIssueEntity(configurationEntity1, "a terrible-worrisome problem", "issT");
-        issue2 = new ComplianceIssueEntity(configurationEntity2, "a horrible-worrisome problem", "issT");
-        execution.addComplianceIssue(issue1).addComplianceIssue(issue2);
+        issue1 = new ComplianceIssueEntity(configurationEntity1, execution, "a terrible-worrisome problem", "issT");
+        issue2 = new ComplianceIssueEntity(configurationEntity2, execution, "a horrible-worrisome problem", "issT");
         complianceIssueRepository.save(issue1);
         complianceIssueRepository.save(issue2);
-        report1 = new IssueFixingReportEntity(true);
-        issue1.addFixingReport(report1);
+        report1 = new IssueFixingReportEntity(true, issue1);
         Mockito.when(this.fixingService.fixFirstIssue(any(), any())).thenReturn(report1);
         fixingReports = this.service.fixIssues(execution, instanceModel, false);
         Assertions.assertNotNull(fixingReports);
@@ -249,31 +243,26 @@ class ExecutionServiceTest {
 
     private ComplianceJobEntity createDummyComplianceJob() {
         ComplianceRuleEntity rule = new ComplianceRuleEntity("test", "test", "test");
-        ProductionSystemEntity productionSystem = new ProductionSystemEntity("test", "opentoscacontainer");
-        TriggerEntity trigger = new TriggerEntity("test");
-        ComplianceRuleConfigurationEntity configurationEntity = new ComplianceRuleConfigurationEntity(rule, "issT");
+        PluginUsageEntity checking = new PluginUsageEntity("checker1");
+        pluginUsageRepository.save(checking);
         PluginUsageEntity modelCreation = new PluginUsageEntity("creator1");
         pluginUsageRepository.save(modelCreation);
-        productionSystem.setModelCreationPluginUsage(modelCreation);
+        ProductionSystemEntity productionSystem = new ProductionSystemEntity("test", "opentoscacontainer", modelCreation);
+        TriggerEntity trigger = new TriggerEntity("test");
         productionSystemRepository.save(productionSystem);
         complianceRuleRepository.save(rule);
         triggerRepository.save(trigger);
-        PluginUsageEntity fixer = new PluginUsageEntity("fixer1");
-        IssueFixingConfigurationEntity fixingConfig = new IssueFixingConfigurationEntity("issT");
-        pluginUsageRepository.save(fixer);
-        fixingConfig.setPluginUsage(fixer);
-        PluginUsageEntity checking = new PluginUsageEntity("checker1");
-        pluginUsageRepository.save(checking);
         ComplianceJobEntity job = new ComplianceJobEntity("test", productionSystem, checking);
         job.addTrigger(trigger);
         complianceJobRepository.save(job);
-        PluginUsageEntity refinement = new PluginUsageEntity("refiner1");
-        job.addRefinementPluginUsage(refinement);
-        job.addComplianceRuleConfiguration(configurationEntity);
-        job.addFixingConfiguration(fixingConfig);
-        pluginUsageRepository.save(refinement);
-        complianceRuleConfigurationRepository.save(configurationEntity);
+        PluginUsageEntity fixer = new PluginUsageEntity("fixer1");
+        pluginUsageRepository.save(fixer);
+        IssueFixingConfigurationEntity fixingConfig = new IssueFixingConfigurationEntity("issT", job, fixer);
         issueFixingConfigurationRepository.save(fixingConfig);
+        PluginUsageEntity refinement = new PluginUsageEntity("refiner1", job, 0);
+        pluginUsageRepository.save(refinement);
+        ComplianceRuleConfigurationEntity configurationEntity = new ComplianceRuleConfigurationEntity(rule, job, "issT");
+        complianceRuleConfigurationRepository.save(configurationEntity);
 
         return job;
     }

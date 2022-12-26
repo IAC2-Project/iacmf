@@ -43,11 +43,4 @@ public class ComplianceRuleEntity {
         this.isDeleted = false;
         this.parameters = new ArrayList<>();
     }
-
-    public ComplianceRuleEntity addParameter(ComplianceRuleParameterEntity entity) {
-        entity.setComplianceRule(this);
-        this.getParameters().add(entity);
-
-        return this;
-    }
 }

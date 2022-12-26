@@ -82,32 +82,4 @@ public class ComplianceJobEntity {
 
         return this;
     }
-
-    public ComplianceJobEntity addComplianceRuleConfiguration(ComplianceRuleConfigurationEntity entity) {
-        entity.setComplianceJob(this);
-        this.complianceRuleConfigurations.add(entity);
-
-        return this;
-    }
-
-    public ComplianceJobEntity addExecution(ExecutionEntity execution) {
-        execution.setComplianceJob(this);
-        this.executions.add(execution);
-
-        return this;
-    }
-
-    public ComplianceJobEntity addRefinementPluginUsage(PluginUsageEntity usage) {
-        usage.setComplianceJobRefinement(this);
-        this.modelRefinementStrategy.add(usage);
-
-        return this;
-    }
-
-    public ComplianceJobEntity addFixingConfiguration(IssueFixingConfigurationEntity config) {
-        config.setComplianceJob(this);
-        this.getIssueFixingConfigurations().add(config);
-
-        return this;
-    }
 }

@@ -73,30 +73,24 @@ class IssueFixingServiceTest {
         pluginUsageRepository.save(checkingEntity);
         ProductionSystemEntity productionSystem = new ProductionSystemEntity(
                 "my super system",
-                "opentoscacontainer");
-        productionSystem.setModelCreationPluginUsage(usageEntity);
+                "opentoscacontainer",
+                usageEntity);
         productionSystemRepository.save(productionSystem);
         ComplianceJobEntity complianceJob = new ComplianceJobEntity(
                 "my super job", productionSystem, checkingEntity);
-        ComplianceRuleConfigurationEntity crConfigEntity = new ComplianceRuleConfigurationEntity(complianceRule, "wrong-property-value");
-        complianceRuleConfigurationRepository.save(crConfigEntity);
-        complianceJob.addComplianceRuleConfiguration(crConfigEntity);
         complianceJobRepository.save(complianceJob);
+        ComplianceRuleConfigurationEntity crConfigEntity = new ComplianceRuleConfigurationEntity(complianceRule, complianceJob, "wrong-property-value");
+        complianceRuleConfigurationRepository.save(crConfigEntity);
         ExecutionEntity execution = new ExecutionEntity(complianceJob);
         executionRepository.save(execution);
         PluginUsageEntity fixingPluginUsage = new PluginUsageEntity("bla bla");
         pluginUsageRepository.save(fixingPluginUsage);
-        IssueFixingConfigurationEntity issueFixingConfiguration = new IssueFixingConfigurationEntity("wrong-property-value");
-        issueFixingConfiguration.setPluginUsage(fixingPluginUsage);
-        issueFixingConfiguration.setComplianceJob(complianceJob);
-        complianceJob.addFixingConfiguration(issueFixingConfiguration);
+        IssueFixingConfigurationEntity issueFixingConfiguration = new IssueFixingConfigurationEntity("wrong-property-value", complianceJob, fixingPluginUsage);
         issueFixingConfigurationRepository.save(issueFixingConfiguration);
-        ComplianceIssueEntity issue = new ComplianceIssueEntity(crConfigEntity, "something is wrong!", "wrong-property-value");
         InstanceModel instanceModel = new InstanceModel(null);
         Assertions.assertThrows(IllegalArgumentException.class, () -> service.fixFirstIssue(execution, instanceModel));
-        execution.addComplianceIssue(issue);
+        ComplianceIssueEntity issue = new ComplianceIssueEntity(crConfigEntity, execution, "something is wrong!", "wrong-property-value");
         complianceIssueRepository.save(issue);
-        execution.getComplianceIssueEntities().add(issue);
         IssueFixingReportEntity report = service.fixFirstIssue(execution, instanceModel);
         Assertions.assertNotNull(report);
         Assertions.assertTrue(report.getIsSuccessful());

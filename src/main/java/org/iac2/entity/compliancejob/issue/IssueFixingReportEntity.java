@@ -21,14 +21,16 @@ public class IssueFixingReportEntity {
 
     @NotNull
     private Boolean isSuccessful;
-    
+
     private String description;
 
     @ManyToOne
     @JoinColumn(name = "compliance_issue_id", nullable = false)
     private ComplianceIssueEntity complianceIssue;
 
-    public IssueFixingReportEntity(boolean isSuccessful) {
+    public IssueFixingReportEntity(boolean isSuccessful, ComplianceIssueEntity complianceIssue) {
         this.isSuccessful = isSuccessful;
+        this.complianceIssue = complianceIssue;
+        this.complianceIssue.getFixingReports().add(this);
     }
 }

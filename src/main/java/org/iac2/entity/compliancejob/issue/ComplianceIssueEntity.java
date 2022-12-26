@@ -3,6 +3,7 @@ package org.iac2.entity.compliancejob.issue;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -41,7 +42,7 @@ public class ComplianceIssueEntity {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<IssueFixingReportEntity> fixingReports;
 
-    @OneToMany(mappedBy = "complianceIssue")
+    @OneToMany(mappedBy = "complianceIssue", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<KVEntity> properties;
 
@@ -50,21 +51,19 @@ public class ComplianceIssueEntity {
     @NotNull
     private String type;
 
-    public ComplianceIssueEntity(ComplianceRuleConfigurationEntity complianceRuleConfiguration, String description, String type) {
+    public ComplianceIssueEntity(ComplianceRuleConfigurationEntity complianceRuleConfiguration,
+                                 ExecutionEntity execution,
+                                 String description,
+                                 String type) {
         this.complianceRuleConfiguration = complianceRuleConfiguration;
         this.description = description;
         this.type = type;
+        this.execution = execution;
+        this.execution.getComplianceIssueEntities().add(this);
         fixingReports = new ArrayList<>();
         properties = new ArrayList<>();
     }
-
-    public ComplianceIssueEntity addFixingReport(IssueFixingReportEntity entity) {
-        entity.setComplianceIssue(this);
-        this.getFixingReports().add(entity);
-
-        return this;
-    }
-
+    
     public ComplianceIssueEntity addProperty(KVEntity property) {
         property.setComplianceIssue(this);
         this.getProperties().add(property);

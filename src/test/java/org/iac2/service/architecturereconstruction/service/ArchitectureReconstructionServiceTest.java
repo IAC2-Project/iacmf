@@ -54,9 +54,9 @@ class ArchitectureReconstructionServiceTest {
         pluginUsageRepository.save(usageEntity);
         ProductionSystemEntity system = new ProductionSystemEntity(
                 "this is a production system",
-                "opentoscacontainer"
+                "opentoscacontainer",
+                usageEntity
         );
-        system.setModelCreationPluginUsage(usageEntity);
         productionSystemRepository.save(system);
         List<KVEntity> properties = List.of(new KVEntity("nodes", "3"));
         kVRepository.saveAll(properties);

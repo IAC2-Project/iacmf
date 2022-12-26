@@ -43,19 +43,14 @@ public class ComplianceRuleConfigurationEntity {
     @NotNull
     private String issueType;
 
-    public ComplianceRuleConfigurationEntity(ComplianceRuleEntity complianceRule, String issueType) {
+    public ComplianceRuleConfigurationEntity(ComplianceRuleEntity complianceRule, ComplianceJobEntity complianceJob, String issueType) {
         this.issueType = issueType;
         this.complianceRuleParameterAssignments = new ArrayList<>();
         this.complianceRule = complianceRule;
+        this.complianceJob = complianceJob;
+        this.complianceJob.getComplianceRuleConfigurations().add(this);
     }
-
-    public ComplianceRuleConfigurationEntity addParameterAssignment(ComplianceRuleParameterAssignmentEntity entity) {
-        entity.setComplianceRuleConfiguration(this);
-        this.getComplianceRuleParameterAssignments().add(entity);
-
-        return this;
-    }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

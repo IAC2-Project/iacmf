@@ -36,6 +36,7 @@ public class ComplianceRuleParameterAssignmentEntity {
     public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceRuleConfigurationEntity complianceRuleConfiguration, String value) {
         this.parameter = parameter;
         this.complianceRuleConfiguration = complianceRuleConfiguration;
+        this.complianceRuleConfiguration.getComplianceRuleParameterAssignments().add(this);
         this.value = value;
     }
 
