@@ -1,8 +1,6 @@
 package org.iac2.service.fixing.service;
 
-import java.util.Collection;
-import java.util.Collections;
-
+import org.iac2.common.PluginDescriptor;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
@@ -15,13 +13,13 @@ public class MockIssueFixingPlugin implements IssueFixingPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(MockIssueFixingPlugin.class);
 
     @Override
-    public String getIdentifier() {
-        return "mock";
+    public PluginDescriptor getDescriptor() {
+        return null;
     }
 
     @Override
-    public Collection<String> getRequiredConfigurationEntryNames() {
-        return Collections.emptyList();
+    public String getIdentifier() {
+        return "mock";
     }
 
     @Override
@@ -33,21 +31,6 @@ public class MockIssueFixingPlugin implements IssueFixingPlugin {
     public String getConfigurationEntry(String name) {
         LOGGER.warn("Trying to get user input from a plugin that does not have user inputs!");
         return null;
-    }
-
-    @Override
-    public boolean isSuitableForIssue(ComplianceIssue issue) {
-        return true;
-    }
-
-    @Override
-    public boolean isIaCTechnologySupported(String iacTechnology) {
-        return true;
-    }
-
-    @Override
-    public Collection<String> getRequiredProductionSystemPropertyNames() {
-        return Collections.emptyList();
     }
 
     @Override

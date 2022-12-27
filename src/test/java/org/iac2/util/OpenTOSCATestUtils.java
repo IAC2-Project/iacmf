@@ -1,19 +1,19 @@
 package org.iac2.util;
 
-import com.google.common.collect.Maps;
-import io.swagger.client.model.ServiceTemplateInstanceDTO;
-import org.iac2.common.model.ProductionSystem;
-import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
-import org.junit.jupiter.api.Assertions;
-import org.opentosca.container.client.ContainerClient;
-import org.opentosca.container.client.model.Application;
-import org.opentosca.container.client.model.ApplicationInstance;
-
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.collect.Maps;
+import io.swagger.client.model.ServiceTemplateInstanceDTO;
+import org.iac2.common.model.ProductionSystem;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
+import org.iac2.service.architecturereconstruction.plugin.factory.implementation.SimpleARPluginFactory;
+import org.junit.jupiter.api.Assertions;
+import org.opentosca.container.client.ContainerClient;
+import org.opentosca.container.client.model.Application;
+import org.opentosca.container.client.model.ApplicationInstance;
 
 public class OpenTOSCATestUtils {
 
@@ -36,8 +36,8 @@ public class OpenTOSCATestUtils {
     }
 
     public static ModelCreationPlugin getOpenTOSCAModelCreationPlugin() {
-        SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
-        ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentosca-container-model-creation-plugin");
+        SimpleARPluginFactory instance = SimpleARPluginFactory.getInstance();
+        ModelCreationPlugin plugin = instance.createModelCreationPlugin("opentosca-container-model-creation-plugin");
         return plugin;
     }
 
