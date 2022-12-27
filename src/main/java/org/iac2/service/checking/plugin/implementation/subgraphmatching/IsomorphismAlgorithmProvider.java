@@ -1,14 +1,18 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
+import java.util.Comparator;
+
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
 import org.iac2.common.model.compliancerule.ComplianceRule;
-import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.*;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.ComponentComparatorForMatchingWithInstanceModel;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.ComponentComparatorForRuleValidation;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.ComponentComparisonOutcome;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.RelationComparator;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.SemanticComponentComparator;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.isomorphism.IsomorphismInspector;
 import org.jgrapht.alg.isomorphism.VF2SubgraphIsomorphismInspector;
-
-import java.util.Comparator;
 
 public abstract class IsomorphismAlgorithmProvider {
     public static IsomorphismInspector<RootComponent, RootRelation> forRuleValidation(
@@ -29,7 +33,7 @@ public abstract class IsomorphismAlgorithmProvider {
             Graph<RootComponent, RootRelation> selector) {
         SemanticComponentComparator comparator = getSemanticComponentComparator(rule);
         Comparator<RootComponent> theComparator =
-                (c1, c2) -> comparator.compare(c1, c2) == ComponentComparisonOutcome.MATCH ? 0 : -1;
+                (c1, c2) -> comparator.compare(c1, c2).outcome() == ComponentComparisonOutcome.MATCH ? 0 : -1;
         return new VF2SubgraphIsomorphismInspector<>(
                 instanceModel,
                 selector,
