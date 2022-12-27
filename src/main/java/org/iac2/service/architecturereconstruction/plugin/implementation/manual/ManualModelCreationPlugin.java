@@ -2,10 +2,8 @@ package org.iac2.service.architecturereconstruction.plugin.implementation.manual
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
+import org.iac2.common.PluginDescriptor;
 import org.iac2.common.exception.ConfigurationMissingException;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.common.model.InstanceModel;
@@ -18,11 +16,11 @@ import org.slf4j.LoggerFactory;
 /***
  * Refers to an externally-created EDMM instance model.
  */
-public class ManualModelCreatorPlugin implements ModelCreationPlugin {
+public class ManualModelCreationPlugin implements ModelCreationPlugin {
     public static final String CONFIG_ENTRY_MODEL_PATH = "modelPath";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ManualModelCreatorPlugin.class);
-    private String modelPath;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManualModelCreationPlugin.class);
     private final ManualModelCreationPluginDescriptor descriptor;
+    private String modelPath;
 
     public ManualModelCreationPlugin(ManualModelCreationPluginDescriptor descriptor) {
         this.descriptor = descriptor;
