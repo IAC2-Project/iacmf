@@ -1,8 +1,20 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
+import org.iac2.common.PluginDescriptor;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
@@ -14,16 +26,7 @@ import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.*;
-
 public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlugin {
-    public static final String PLUGIN_ID = "subgraph-matching-checking-plugin";
     public static final String ISSUE_WRONG_ATTRIBUTE_VALUE = "WrongAttributeValueIssue";
     public static final String ISSUE_PROPERTY_INSTANCE_MODEL_COMPONENT_NAME = "INSTANCE_MODEL_COMPONENT_ID";
     public static final String ISSUE_PROPERTY_CHECKER_COMPONENT_NAME = "CHECKER_COMPONENT_ID";
@@ -31,24 +34,26 @@ public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlu
     private static final String requiredStructureSegment = "/requiredstructure/edmm/export?edmmUseAbsolutePaths=true";
     private static final String identifierSegment = "/identifier/edmm/export?edmmUseAbsolutePaths=true";
 
-    public SubgraphMatchingCheckingPlugin() {
+    private final SubgraphMatchingCheckingPluginDescriptor descriptor;
+
+    public SubgraphMatchingCheckingPlugin(SubgraphMatchingCheckingPluginDescriptor descriptor) {
+        this.descriptor = descriptor;
     }
 
     @Override
-    public Set<String> requiredConfiguration() {
-        return new HashSet<>();
+    public PluginDescriptor getDescriptor() {
+        return descriptor;
     }
 
     @Override
-    public void setConfiguration(String key, String value) {
-        if (!requiredConfiguration().contains(key)) {
-            throw new IllegalArgumentException("The configuration key '" + "' is not expected.");
-        }
+    public void setConfigurationEntry(String key, String value) {
+        LOGGER.warn("Trying to pass user input to a plugin that does not need user inputs!");
     }
 
     @Override
-    public boolean isSuitableForComplianceRule(ComplianceRule complianceRule) {
-        return complianceRule.getType().equals("subgraph-matching");
+    public String getConfigurationEntry(String name) {
+        LOGGER.warn("Trying to get user input from a plugin that does not have user inputs!");
+        return null;
     }
 
     @Override
@@ -65,14 +70,9 @@ public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlu
     }
 
     @Override
-    public String getIdentifier() {
-        return PLUGIN_ID;
-    }
-
-    @Override
     public Collection<ComplianceIssue> findIssues(InstanceModel instanceModel, ComplianceRule rule) throws ComplianceRuleTypeNotSupportedException,
             ComplianceRuleMalformattedException {
-        if (!isSuitableForComplianceRule(rule)) {
+        if (!descriptor.isSuitableForComplianceRule(rule)) {
             LOGGER.error("Rule '{}' is not suitable for plugin: {}", rule.getId(), getIdentifier());
             throw new ComplianceRuleTypeNotSupportedException(rule.getType());
         }

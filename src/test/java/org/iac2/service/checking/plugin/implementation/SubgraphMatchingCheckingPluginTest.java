@@ -1,5 +1,11 @@
 package org.iac2.service.checking.plugin.implementation;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Map;
+
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.Property;
 import io.github.edmm.model.component.RootComponent;
@@ -11,6 +17,7 @@ import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.iac2.service.checking.plugin.implementation.subgraphmatching.SubgraphMatchingCheckingPlugin;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.SubgraphMatchingCheckingPluginDescriptor;
 import org.jgrapht.Graph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,12 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Map;
 
 class SubgraphMatchingCheckingPluginTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(SubgraphMatchingCheckingPluginTest.class);
@@ -36,7 +37,7 @@ class SubgraphMatchingCheckingPluginTest {
 
     @Test
     void getRequiredStructure() throws URISyntaxException, IOException, InterruptedException {
-        SubgraphMatchingCheckingPlugin plugin = new SubgraphMatchingCheckingPlugin();
+        SubgraphMatchingCheckingPlugin plugin = new SubgraphMatchingCheckingPlugin(new SubgraphMatchingCheckingPluginDescriptor());
         final String path = String.format("%s/identifier/edmm/export?edmmUseAbsolutePaths=true", RULE_PATH);
 
         Graph<RootComponent, RootRelation> graph = plugin.getRulePart(path);
@@ -53,7 +54,7 @@ class SubgraphMatchingCheckingPluginTest {
 
     @Test
     void testRegularOperation() throws IOException {
-        SubgraphMatchingCheckingPlugin plugin = new SubgraphMatchingCheckingPlugin();
+        SubgraphMatchingCheckingPlugin plugin = new SubgraphMatchingCheckingPlugin(new SubgraphMatchingCheckingPluginDescriptor());
         ClassPathResource resource = new ClassPathResource("edmm/realworld_application_instance_model_docker_refined.yaml");
         InstanceModel instanceModel = new InstanceModel(DeploymentModel.of(resource.getFile()));
         ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", RULE_PATH);

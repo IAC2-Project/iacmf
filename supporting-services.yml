@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: iac2
+      MYSQL_PASSWORD: rootpassword
+      MYSQL_USER: iac2-admin
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_db_data_container:/var/lib/mysql
+  winery:
+    image: opentosca/winery:iac-compliance
+    environment:
+      WINERY_HOSTNAME: 172.17.0.1
+      TOPOLOGYMODELER_HOSTNAME: 172.17.0.1
+      WINERY_FEATURE_EDMM_MODELING: "true"
+      WINERY_FEATURE_UPDATE_TEMPLATES: "true"
+      WINERY_REPOSITORY_URL: "https://github.com/IAC2-Project/compliance-rule-modeling-repository"
+    ports:
+      - '8080:8080'
+volumes:
+  mysql_db_data_container:

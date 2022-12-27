@@ -1,5 +1,9 @@
 package org.iac2.service.utility;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
@@ -7,12 +11,8 @@ import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
-import org.iac2.entity.compliancerule.parameter.assignment.*;
+import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmentEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public class EntityToPojo {
 
@@ -20,7 +20,8 @@ public class EntityToPojo {
 
         ComplianceJobEntity job = complianceIssue.getExecution().getComplianceJob();
         ComplianceRule rule = transformComplianceRule(
-                job.getComplianceRule(), job.getComplianceRuleParameterAssignments());
+                complianceIssue.getComplianceRuleConfiguration().getComplianceRule(),
+                complianceIssue.getComplianceRuleConfiguration().getComplianceRuleParameterAssignments());
 
         return new ComplianceIssue(
                 complianceIssue.getDescription(),
@@ -36,20 +37,15 @@ public class EntityToPojo {
 
         if (assignments != null) {
             assignments.forEach(assignment -> {
-                if (assignment instanceof IntegerParameterAssignmentEntity) {
-                    myCR.addIntParameter(assignment.getParameter().getName(),
-                            ((IntegerParameterAssignmentEntity) assignment).getIntValue());
-                } else if (assignment instanceof StringParameterAssignmentEntity) {
-                    myCR.addStringParameter(assignment.getParameter().getName(),
-                            ((StringParameterAssignmentEntity) assignment).getStringValue());
-                } else if (assignment instanceof DoubleParameterAssignmentEntity) {
-                    myCR.addDoubleParameter(assignment.getParameter().getName(),
-                            ((DoubleParameterAssignmentEntity) assignment).getDoubleValue());
-                } else if (assignment instanceof StringListParameterAssignmentEntity) {
-                    myCR.addStringCollectionParameter(assignment.getParameter().getName(),
-                            ((StringListParameterAssignmentEntity) assignment).getValue());
-                } else {
-                    throw new IllegalArgumentException("Assignment type is not supported!");
+                switch (assignment.getType()) {
+                    case STRING -> myCR.addStringParameter(assignment.getName(), assignment.getValue());
+                    case INT -> myCR.addIntParameter(assignment.getName(), assignment.getIntegerValue().orElseThrow());
+                    case DECIMAL ->
+                            myCR.addDoubleParameter(assignment.getName(), assignment.getDoubleValue().orElseThrow());
+                    case STRING_LIST ->
+                            myCR.addStringCollectionParameter(assignment.getName(), assignment.getStringListValue().orElseThrow());
+                    case BOOLEAN ->
+                            myCR.addBooleanParameter(assignment.getName(), assignment.getBooleanValue().orElseThrow());
                 }
             });
         }
@@ -64,7 +60,7 @@ public class EntityToPojo {
                 productionSystemEntity.getDescription(), properties);
     }
 
-    public static Map<String, String> transformProperties(Collection<? extends KVEntity> keyValuePairs) {
+    public static Map<String, String> transformProperties(Collection<KVEntity> keyValuePairs) {
         Map<String, String> result = new HashMap<>();
 
         for (KVEntity pair : keyValuePairs) {

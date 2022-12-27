@@ -5,5 +5,6 @@ public enum ParameterType {
     INT,
     DECIMAL,
     STRING,
+    STRING_LIST,
     BOOLEAN
 }

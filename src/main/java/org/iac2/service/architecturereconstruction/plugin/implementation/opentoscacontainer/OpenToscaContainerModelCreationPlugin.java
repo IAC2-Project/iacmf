@@ -1,5 +1,13 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+import javax.xml.namespace.QName;
+
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
@@ -10,6 +18,7 @@ import io.github.edmm.model.relation.DependsOn;
 import io.github.edmm.model.relation.HostedOn;
 import io.github.edmm.model.relation.RootRelation;
 import org.assertj.core.util.Sets;
+import org.iac2.common.PluginDescriptor;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
@@ -17,7 +26,14 @@ import org.iac2.common.utility.Edmm;
 import org.iac2.service.architecturereconstruction.common.exception.AppInstanceNodeFoundException;
 import org.iac2.service.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.*;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Java11;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDb;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Nginx;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.RealWorldAngularApp;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.RealWorldApplicationBackendJava11Spring;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.Application;
@@ -27,15 +43,14 @@ import org.opentosca.container.client.model.RelationInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.namespace.QName;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugin {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenToscaContainerModelCreationPlugin.class);
     private final static int OPENTOSCA_CLIENT_TIMEOUT = 10000;
+    private final OpenToscaContainerModelCreationPluginDescriptor descriptor;
 
-    public OpenToscaContainerModelCreationPlugin() {
+    public OpenToscaContainerModelCreationPlugin(OpenToscaContainerModelCreationPluginDescriptor descriptor) {
+        this.descriptor = descriptor;
     }
 
     private static Class<? extends RootRelation> getRelationClass(RelationInstance relationInstance) {
@@ -80,28 +95,24 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
     }
 
     @Override
-    public String getIdentifier() {
-        return "opentosca-container-model-creation-plugin";
+    public PluginDescriptor getDescriptor() {
+        return this.descriptor;
     }
 
     @Override
-    public boolean isIaCTechnologySupported(String iacTechnologyName) {
-        return iacTechnologyName.equalsIgnoreCase("opentoscacontainer");
+    public void setConfigurationEntry(String inputName, String inputValue) {
+        LOGGER.warn("Trying to pass user input to a plugin that does not need user inputs!");
     }
 
     @Override
-    public Collection<String> getRequiredPropertyNames() {
-        return List.of(
-                "opentoscacontainer_hostname",
-                "opentoscacontainer_port",
-                "opentoscacontainer_appId",
-                "opentoscacontainer_instanceId"
-        );
+    public String getConfigurationEntry(String name) {
+        LOGGER.warn("Trying to get user input from a plugin that does not have user inputs!");
+        return null;
     }
 
     @Override
     public InstanceModel reconstructInstanceModel(ProductionSystem productionSystem) throws IaCTechnologyNotSupportedException {
-        if (!isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
+        if (!descriptor.isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
             throw new IaCTechnologyNotSupportedException(productionSystem.getIacTechnologyName());
         }
 

@@ -1,20 +1,20 @@
 package org.iac2.repository.compliancejob;
 
-import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
+import java.util.Arrays;
+import java.util.List;
+
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
-import org.iac2.entity.compliancejob.trigger.CronTriggerEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
+import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.repository.compliancerule.ComplianceRuleRepository;
+import org.iac2.repository.plugin.PluginUsageRepository;
 import org.iac2.repository.productionsystem.ProductionSystemRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,9 +29,8 @@ class TriggerRepositoryTest {
     private TriggerRepository triggerRepository;
     @Autowired
     private ComplianceJobRepository complianceJobRepository;
-
     @Autowired
-    private ModelEnhancementStrategyRepository modelEnhancementStrategyRepository;
+    private PluginUsageRepository pluginUsageRepository;
 
     @Test
     void testTriggersOfJobQuery() {
@@ -50,42 +49,38 @@ class TriggerRepositoryTest {
         this.complianceRuleRepository.save(complianceRule1);
         this.complianceRuleRepository.save(complianceRule2);
 
+        PluginUsageEntity usage = new PluginUsageEntity("opentoscaplugin");
+        this.pluginUsageRepository.save(usage);
+        PluginUsageEntity checkingPluginUsage = new PluginUsageEntity("checkingPlugin");
+        pluginUsageRepository.save(checkingPluginUsage);
         ProductionSystemEntity productionSystem = new ProductionSystemEntity("this is the best production system",
-                "opentoscacontainer", "opentoscaplugin");
+                "opentoscacontainer", usage);
         this.productionSystemRepository.save(productionSystem);
 
-        CronTriggerEntity trigger1 = new CronTriggerEntity("Fire at 12:00 PM (noon) every day", "0 0 12 * * ?");
-        CronTriggerEntity trigger2 = new CronTriggerEntity("Fire at 10:15 AM every day", "0 15 10 * * ?");
-        CronTriggerEntity trigger3 = new CronTriggerEntity("Fire every November 11 at 11:11 AM", "0 11 11 11 11 ?");
+        TriggerEntity trigger1 = new TriggerEntity("Fire at 12:00 PM (noon) every day");
+        trigger1.setCronExpression("0 0 12 * * ?");
+        TriggerEntity trigger2 = new TriggerEntity("Fire at 10:15 AM every day");
+        trigger2.setCronExpression("0 15 10 * * ?");
+        TriggerEntity trigger3 = new TriggerEntity("Fire every November 11 at 11:11 AM");
+        trigger3.setCronExpression("0 11 11 11 11 ?");
 
         this.triggerRepository.save(trigger1);
         this.triggerRepository.save(trigger2);
         this.triggerRepository.save(trigger3);
 
-        List<TriggerEntity> triggers1 = Arrays.asList(new TriggerEntity[]{trigger1, trigger3});
-        List<TriggerEntity> triggers2 = Arrays.asList(new TriggerEntity[]{trigger2});
-
-        ModelEnhancementStrategyEntity strategy1 = new ModelEnhancementStrategyEntity(List.of("p1", "p2"));
-        ModelEnhancementStrategyEntity strategy2 = new ModelEnhancementStrategyEntity(List.of("p3", "p4"));
-        modelEnhancementStrategyRepository.save(strategy1);
-        modelEnhancementStrategyRepository.save(strategy2);
+        List<TriggerEntity> triggers1 = Arrays.asList(trigger1, trigger3);
+        List<TriggerEntity> triggers2 = List.of(trigger2);
 
         ComplianceJobEntity job1 = new ComplianceJobEntity(
                 "this is job 1",
-                "mcp1",
-                "mfp1",
                 productionSystem,
-                complianceRule1,
-                strategy1,
-                triggers1);
+                checkingPluginUsage);
+        job1.addTrigger(trigger1).addTrigger(trigger3);
         ComplianceJobEntity job2 = new ComplianceJobEntity(
                 "this is job 2",
-                "mcp2",
-                "mfp2",
                 productionSystem,
-                complianceRule2,
-                strategy2,
-                triggers2);
+                checkingPluginUsage);
+        job2.addTrigger(trigger2);
 
         this.complianceJobRepository.save(job1);
         this.complianceJobRepository.save(job2);

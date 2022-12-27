@@ -1,18 +1,29 @@
 package org.iac2.entity.productionsystem;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
-import org.iac2.entity.compliancejob.ComplianceJobEntity;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.iac2.entity.KVEntity;
+import org.iac2.entity.plugin.PluginUsageEntity;
 
 @Entity
 @NoArgsConstructor
-@Data
+@Setter
+@Getter
 public class ProductionSystemEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,28 +37,39 @@ public class ProductionSystemEntity {
 
     private String description;
 
-    @OneToMany(mappedBy = "productionSystem")
-    private List<ProductionSystemProperty> properties;
+    @OneToMany(mappedBy = "productionSystem", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    private List<KVEntity> properties;
 
-    @OneToMany(mappedBy = "productionSystem")
-    private List<ComplianceJobEntity> complianceJobs;
+    @OneToOne
+    @JoinColumn(name = "model_creation_plugin_usage_id", nullable = false)
+    private PluginUsageEntity modelCreationPluginUsage;
 
-    @NotNull
-    private String modelCreationPluginId;
-
-    /***
-     * Specifies an optional model enhancement strategy that is applied at the production system level after applying
-     */
-    @ManyToOne
-    @JoinColumn(name = "model_enhancement_strategy_id")
-    private ModelEnhancementStrategyEntity modelEnhancementStrategy;
-
-    public ProductionSystemEntity(String description, String iacTechnologyName, String modelCreationPluginId) {
+    public ProductionSystemEntity(String description, String iacTechnologyName, PluginUsageEntity modelCreationPluginUsage) {
         this.description = description;
         this.iacTechnologyName = iacTechnologyName;
         this.isDeleted = false;
-        this.modelCreationPluginId = modelCreationPluginId;
         this.properties = new ArrayList<>();
-        this.complianceJobs = new ArrayList<>();
+        this.modelCreationPluginUsage = modelCreationPluginUsage;
+        this.modelCreationPluginUsage.setProductionSystem(this);
+    }
+
+    public ProductionSystemEntity addProperty(KVEntity property) {
+        property.setProductionSystem(this);
+        this.getProperties().add(property);
+
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProductionSystemEntity that = (ProductionSystemEntity) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
