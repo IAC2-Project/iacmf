@@ -20,8 +20,6 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
 import org.iac2.common.model.compliancejob.execution.ExecutionStep;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
@@ -63,11 +61,9 @@ public class ExecutionEntity {
     private ComplianceJobEntity complianceJob;
 
     @OneToMany(mappedBy = "execution")
-    @LazyCollection(LazyCollectionOption.FALSE)
     private List<PluginUsageInstanceEntity> pluginUsageInstances;
 
     @OneToMany(mappedBy = "execution")
-    @LazyCollection(LazyCollectionOption.FALSE)
     private List<ComplianceIssueEntity> complianceIssueEntities;
 
     public ExecutionEntity(ComplianceJobEntity complianceJob) {

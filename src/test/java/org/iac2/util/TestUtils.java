@@ -172,38 +172,4 @@ public class TestUtils {
             return "172.17.0.1";
         }
     }
-
-//    private ComplianceJobEntity createDummyComplianceJob(PluginUsageRepository pluginUsageRepository,
-//                                                         ProductionSystemRepository productionSystemRepository,
-//                                                         ComplianceRuleRepository complianceRuleRepository,
-//                                                         TriggerRepository triggerRepository,
-//                                                         ) {
-//        ComplianceRuleEntity rule = new ComplianceRuleEntity("test", "test", "test");
-//        ProductionSystemEntity productionSystem = new ProductionSystemEntity("test", "opentoscacontainer");
-//        TriggerEntity trigger = new TriggerEntity("test");
-//        ComplianceRuleConfigurationEntity configurationEntity = new ComplianceRuleConfigurationEntity(rule, "issT");
-//        PluginUsageEntity modelCreation = new PluginUsageEntity("creator1");
-//        productionSystem.setModelCreationPluginUsage(modelCreation);
-//        pluginUsageRepository.save(modelCreation);
-//        productionSystemRepository.save(productionSystem);
-//        complianceRuleRepository.save(rule);
-//        triggerRepository.save(trigger);
-//        complianceRuleConfigurationRepository.save(configurationEntity);
-//        ComplianceJobEntity job = new ComplianceJobEntity("test", productionSystem);
-//        job.addComplianceRuleConfiguration(configurationEntity).addTrigger(trigger);
-//        PluginUsageEntity refinement = new PluginUsageEntity("refiner1");
-//        PluginUsageEntity checking = new PluginUsageEntity("checker1");
-//        PluginUsageEntity fixer = new PluginUsageEntity("fixer1");
-//        IssueFixingConfigurationEntity fixingConfig = new IssueFixingConfigurationEntity("issT");
-//        fixingConfig.setPluginUsage(fixer);
-//        job.addRefinementPluginUsage(refinement);
-//        job.setCheckingPluginUsage(checking);
-//        job.addFixingConfiguration(fixingConfig);
-//        pluginUsageRepository.save(refinement);
-//        pluginUsageRepository.save(checking);
-//        pluginUsageRepository.save(fixer);
-//        issueFixingConfigurationRepository.save(fixingConfig);
-//
-//        return complianceJobRepository.save(job);
-//    }
 }
