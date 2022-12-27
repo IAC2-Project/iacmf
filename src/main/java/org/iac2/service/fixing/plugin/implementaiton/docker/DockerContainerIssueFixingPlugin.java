@@ -9,7 +9,6 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Container;
 import com.google.common.collect.Maps;
 import io.github.edmm.model.DeploymentModel;
-import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
 import org.assertj.core.util.Lists;
 import org.iac2.common.PluginDescriptor;
@@ -78,7 +77,7 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
                 })
                 .map(c -> (DockerContainer) c)
                 .forEach(c -> {
-                    DockerEngine dockerEngine = this.findDockerEngine(instanceModel.getDeploymentModel().getComponents(), c);
+                    DockerEngine dockerEngine = this.findDockerEngine(instanceModel.getDeploymentModel(), c);
                     if (dockerEngineCollectionMap.containsKey(dockerEngine)) {
                         dockerEngineCollectionMap.get(dockerEngine).add(c);
                     } else {
@@ -130,7 +129,10 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
         return new IssueFixingReport(true, strB.toString());
     }
 
-    public DockerEngine findDockerEngine(Collection<RootComponent> components, DockerContainer dockerContainer) {
-        return dockerContainer.getRelations().stream().filter(r -> r instanceof HostedOn).map(r -> (HostedOn) r).map(r -> r.getTarget()).map(t -> components.stream().filter(c -> c.getId().equals(t)).findFirst().orElse(null)).filter(c -> c != null).filter(c -> c instanceof DockerEngine).map(c -> (DockerEngine) c).findFirst().get();
+    public DockerEngine findDockerEngine(DeploymentModel deploymentModel, DockerContainer dockerContainer) {
+        return (DockerEngine) Edmm.findTargetComponents(deploymentModel, dockerContainer, HostedOn.class)
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 }
