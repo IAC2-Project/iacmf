@@ -1,31 +1,36 @@
 package org.iac2.service.execution;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import io.github.edmm.model.DeploymentModel;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
 import org.iac2.common.model.compliancejob.execution.ExecutionStep;
-import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
+import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
+import org.iac2.entity.compliancejob.issue.IssueFixingConfigurationEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
+import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.repository.compliancejob.ComplianceIssueRepository;
 import org.iac2.repository.compliancejob.ComplianceJobRepository;
+import org.iac2.repository.compliancejob.ComplianceRuleConfigurationRepository;
 import org.iac2.repository.compliancejob.ExecutionRepository;
+import org.iac2.repository.compliancejob.IssueFixingConfigurationRepository;
 import org.iac2.repository.compliancejob.IssueFixingReportRepository;
-import org.iac2.repository.compliancejob.ModelEnhancementStrategyRepository;
 import org.iac2.repository.compliancejob.TriggerRepository;
 import org.iac2.repository.compliancerule.ComplianceRuleRepository;
+import org.iac2.repository.plugin.PluginUsageRepository;
 import org.iac2.repository.productionsystem.ProductionSystemRepository;
 import org.iac2.service.architecturereconstruction.service.ArchitectureReconstructionService;
 import org.iac2.service.checking.service.ComplianceRuleCheckingService;
@@ -39,6 +44,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -46,6 +52,8 @@ import static org.mockito.ArgumentMatchers.any;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Transactional
+@Rollback
 class ExecutionServiceTest {
 
     @MockBean
@@ -62,8 +70,6 @@ class ExecutionServiceTest {
     @Autowired
     private ComplianceRuleRepository complianceRuleRepository;
     @Autowired
-    private ModelEnhancementStrategyRepository modelEnhancementStrategyRepository;
-    @Autowired
     private ComplianceJobRepository complianceJobRepository;
     @Autowired
     private ExecutionRepository executionRepository;
@@ -73,12 +79,18 @@ class ExecutionServiceTest {
     private ComplianceIssueRepository complianceIssueRepository;
     @Autowired
     private IssueFixingReportRepository issueFixingReportRepository;
+    @Autowired
+    private ComplianceRuleConfigurationRepository complianceRuleConfigurationRepository;
+    @Autowired
+    private PluginUsageRepository pluginUsageRepository;
+    @Autowired
+    private IssueFixingConfigurationRepository issueFixingConfigurationRepository;
 
     @Test
     void testReconstruction() throws IOException {
         ClassPathResource iRes = new ClassPathResource("edmm/realworld_application_instance_model_docker_refined.yaml");
         InstanceModel instanceModel = new InstanceModel(DeploymentModel.of(iRes.getFile()));
-        Mockito.when(arService.crteateInstanceModel(any())).thenReturn(instanceModel);
+        Mockito.when(arService.crteateInstanceModel(any(), any())).thenReturn(instanceModel);
         Mockito.doNothing().when(arService).refineInstanceModel(any(), any());
 
         ComplianceJobEntity job = this.createDummyComplianceJob();
@@ -94,7 +106,7 @@ class ExecutionServiceTest {
         Assertions.assertNotNull(execution.getInstanceModel());
 
         // exception
-        Mockito.doThrow(new RuntimeException("fake error")).when(arService).crteateInstanceModel(any());
+        Mockito.doThrow(new RuntimeException("fake error")).when(arService).crteateInstanceModel(any(), any());
         execution = this.service.createNewExecution(job);
         execution = executionRepository.findById(execution.getId()).orElseThrow();
         Assertions.assertEquals(ExecutionStatus.CREATED, execution.getStatus());
@@ -114,9 +126,9 @@ class ExecutionServiceTest {
         ComplianceJobEntity job = this.createDummyComplianceJob();
 
         // no violations
-        Mockito.when(checkingService.findIssuesOfSystemModel(any(), any())).thenReturn(new ArrayList<>());
+        Mockito.when(checkingService.findViolationsOfAllComplianceRules(any(), any())).thenReturn(new HashMap<>());
         ExecutionEntity execution = this.service.createNewExecution(job);
-        Collection<ComplianceIssueEntity> issues = this.service.checkCompliance(execution, instanceModel);
+        Map<ComplianceRuleConfigurationEntity, Collection<ComplianceIssueEntity>> issues = this.service.checkCompliance(execution, instanceModel);
         execution = executionRepository.findById(execution.getId()).orElseThrow();
         Assertions.assertNotNull(issues);
         Assertions.assertTrue(issues.isEmpty());
@@ -128,13 +140,20 @@ class ExecutionServiceTest {
 
         // violations
         execution = this.service.createNewExecution(job);
-        ComplianceIssueEntity issue = new ComplianceIssueEntity(execution, "a terrible problem", "iss1");
-        Mockito.when(checkingService.findIssuesOfSystemModel(any(), any())).thenReturn(List.of(issue));
+        ComplianceRuleEntity cr = new ComplianceRuleEntity("a", "b", "c");
+        complianceRuleRepository.save(cr);
+        ComplianceRuleConfigurationEntity configurationEntity = new ComplianceRuleConfigurationEntity(cr, job, "iss1");
+        complianceRuleConfigurationRepository.save(configurationEntity);
+        ComplianceIssueEntity issue = new ComplianceIssueEntity(configurationEntity, execution, "a terrible problem", "iss1");
+        complianceIssueRepository.save(issue);
+        Mockito.when(checkingService.findViolationsOfAllComplianceRules(any(), any()))
+                .thenReturn(Map.of(configurationEntity, List.of(issue)));
         issues = this.service.checkCompliance(execution, instanceModel);
         execution = executionRepository.findById(execution.getId()).orElseThrow();
         Assertions.assertEquals(1, issues.size());
+        Assertions.assertEquals(1, issues.get(configurationEntity).size());
         Assertions.assertEquals(1, execution.getComplianceIssueEntities().size());
-        Assertions.assertTrue(complianceIssueRepository.existsById(issues.stream().findFirst().orElseThrow().getId()));
+        Assertions.assertTrue(complianceIssueRepository.existsById(issues.get(configurationEntity).stream().findFirst().orElseThrow().getId()));
         Assertions.assertEquals(ExecutionStatus.IDLE, execution.getStatus());
         Assertions.assertEquals(ExecutionStep.CHECKING, execution.getCurrentStep());
         Assertions.assertNull(execution.getEndTime());
@@ -142,7 +161,7 @@ class ExecutionServiceTest {
 
         // Exception
         final ExecutionEntity executionFinal = this.service.createNewExecution(job);
-        Mockito.when(checkingService.findIssuesOfSystemModel(any(), any())).thenThrow(RuntimeException.class);
+        Mockito.when(checkingService.findViolationsOfAllComplianceRules(any(), any())).thenThrow(RuntimeException.class);
         Assertions.assertThrows(RuntimeException.class, () -> this.service.checkCompliance(executionFinal, instanceModel));
         execution = executionRepository.findById(executionFinal.getId()).orElseThrow();
         Assertions.assertEquals(0, execution.getComplianceIssueEntities().size());
@@ -160,8 +179,16 @@ class ExecutionServiceTest {
 
         // batch mode
         ExecutionEntity execution = this.service.createNewExecution(job);
-        ComplianceIssueEntity issue1 = new ComplianceIssueEntity(execution, "a terrible problem", "issT");
-        ComplianceIssueEntity issue2 = new ComplianceIssueEntity(execution, "a horrible problem", "issT");
+        ComplianceRuleEntity cr1 = new ComplianceRuleEntity("a", "a", "a");
+        ComplianceRuleEntity cr2 = new ComplianceRuleEntity("b", "b", "b");
+        complianceRuleRepository.save(cr1);
+        complianceRuleRepository.save(cr2);
+        ComplianceRuleConfigurationEntity configurationEntity1 = new ComplianceRuleConfigurationEntity(cr1, job, "issT");
+        ComplianceRuleConfigurationEntity configurationEntity2 = new ComplianceRuleConfigurationEntity(cr2, job, "issT");
+        complianceRuleConfigurationRepository.save(configurationEntity1);
+        complianceRuleConfigurationRepository.save(configurationEntity2);
+        ComplianceIssueEntity issue1 = new ComplianceIssueEntity(configurationEntity1, execution, "a terrible problem", "issT");
+        ComplianceIssueEntity issue2 = new ComplianceIssueEntity(configurationEntity2, execution, "a horrible problem", "issT");
         complianceIssueRepository.save(issue1);
         complianceIssueRepository.save(issue2);
         IssueFixingReportEntity report1 = new IssueFixingReportEntity(true, issue1);
@@ -181,8 +208,17 @@ class ExecutionServiceTest {
 
         // no batch mode
         execution = this.service.createNewExecution(job);
-        issue1 = new ComplianceIssueEntity(execution, "a terrible-worrisome problem", "issT");
-        issue2 = new ComplianceIssueEntity(execution, "a horrible-worrisome problem", "issT");
+        cr1 = new ComplianceRuleEntity("a", "a", "a");
+        cr2 = new ComplianceRuleEntity("b", "b", "b");
+        complianceRuleRepository.save(cr1);
+        complianceRuleRepository.save(cr2);
+        configurationEntity1 = new ComplianceRuleConfigurationEntity(cr1, job, "issT");
+        configurationEntity2 = new ComplianceRuleConfigurationEntity(cr2, job, "issT");
+        complianceRuleConfigurationRepository.save(configurationEntity1);
+        complianceRuleConfigurationRepository.save(configurationEntity2);
+
+        issue1 = new ComplianceIssueEntity(configurationEntity1, execution, "a terrible-worrisome problem", "issT");
+        issue2 = new ComplianceIssueEntity(configurationEntity2, execution, "a horrible-worrisome problem", "issT");
         complianceIssueRepository.save(issue1);
         complianceIssueRepository.save(issue2);
         report1 = new IssueFixingReportEntity(true, issue1);
@@ -212,22 +248,27 @@ class ExecutionServiceTest {
 
     private ComplianceJobEntity createDummyComplianceJob() {
         ComplianceRuleEntity rule = new ComplianceRuleEntity("test", "test", "test");
-        ProductionSystemEntity productionSystem = new ProductionSystemEntity("test",
-                "opentoscacontainer",
-                "dummy");
-        ModelEnhancementStrategyEntity strategyEntity = new ModelEnhancementStrategyEntity(List.of("test"));
+        PluginUsageEntity checking = new PluginUsageEntity("checker1");
+        pluginUsageRepository.save(checking);
+        PluginUsageEntity modelCreation = new PluginUsageEntity("creator1");
+        pluginUsageRepository.save(modelCreation);
+        ProductionSystemEntity productionSystem = new ProductionSystemEntity("test", "opentoscacontainer", modelCreation);
         TriggerEntity trigger = new TriggerEntity("test");
         productionSystemRepository.save(productionSystem);
         complianceRuleRepository.save(rule);
-        modelEnhancementStrategyRepository.save(strategyEntity);
         triggerRepository.save(trigger);
-        ComplianceJobEntity job = new ComplianceJobEntity("test",
-                "test",
-                "test",
-                productionSystem,
-                rule,
-                strategyEntity,
-                List.of(trigger));
-        return complianceJobRepository.save(job);
+        ComplianceJobEntity job = new ComplianceJobEntity("test", productionSystem, checking);
+        job.addTrigger(trigger);
+        complianceJobRepository.save(job);
+        PluginUsageEntity fixer = new PluginUsageEntity("fixer1");
+        pluginUsageRepository.save(fixer);
+        IssueFixingConfigurationEntity fixingConfig = new IssueFixingConfigurationEntity("issT", job, fixer);
+        issueFixingConfigurationRepository.save(fixingConfig);
+        PluginUsageEntity refinement = new PluginUsageEntity("refiner1", job, 0);
+        pluginUsageRepository.save(refinement);
+        ComplianceRuleConfigurationEntity configurationEntity = new ComplianceRuleConfigurationEntity(rule, job, "issT");
+        complianceRuleConfigurationRepository.save(configurationEntity);
+
+        return job;
     }
 }

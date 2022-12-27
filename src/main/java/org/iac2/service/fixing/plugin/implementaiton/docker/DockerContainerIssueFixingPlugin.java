@@ -13,6 +13,7 @@ import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
 import org.assertj.core.util.Lists;
+import org.iac2.common.PluginDescriptor;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.common.exception.IssueNotSupportedException;
 import org.iac2.common.model.InstanceModel;
@@ -29,35 +30,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerIssueFixingPlugin.class);
 
-    @Override
-    public String getIdentifier() {
-        return "docker-container-issue-fixing-plugin";
+    private final DockerContainerIssueFixingPluginDescriptor descriptor;
+
+    public DockerContainerIssueFixingPlugin(DockerContainerIssueFixingPluginDescriptor descriptor) {
+        this.descriptor = descriptor;
     }
 
     @Override
-    public boolean isSuitableForIssue(ComplianceIssue issue) {
-        return issue.getType().equalsIgnoreCase("WrongAttributeValueIssue")
-                && issue.getProperties().containsKey("INSTANCE_MODEL_COMPONENT_ID")
-                && issue.getProperties().containsKey("CHECKER_COMPONENT_ID");
-    }
-
-    @Override
-    public boolean isIaCTechnologySupported(String iacTechnology) {
-        // this is interesting actually, as this plugin shouldn't actually care about the IaC in particular right?
-        // therefore just set to true
-        return true;
-    }
-
-    @Override
-    public Collection<String> getRequiredProductionSystemPropertyNames() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Collection<String> getRequiredConfigurationEntryNames() {
-        return Collections.emptyList();
+    public PluginDescriptor getDescriptor() {
+        return descriptor;
     }
 
     @Override
@@ -73,11 +57,11 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
 
     @Override
     public IssueFixingReport fixIssue(ComplianceIssue issue, InstanceModel instanceModel, ProductionSystem productionSystem) {
-        if (!isSuitableForIssue(issue)) {
+        if (!descriptor.isSuitableForIssue(issue)) {
             throw new IssueNotSupportedException(issue);
         }
 
-        if (!isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
+        if (!descriptor.isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
             // see at method isSuitableForProd... i don't think this will ever be a problem
             throw new IaCTechnologyNotSupportedException(productionSystem.getIacTechnologyName());
         }

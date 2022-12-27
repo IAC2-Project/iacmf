@@ -12,7 +12,7 @@ import javax.persistence.ManyToOne;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.iac2.entity.compliancejob.ComplianceJobEntity;
+import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.util.StringListConverter;
 
 @Data
@@ -31,31 +31,32 @@ public class ComplianceRuleParameterAssignmentEntity {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    protected ComplianceJobEntity complianceJob;
+    protected ComplianceRuleConfigurationEntity complianceRuleConfiguration;
 
-    public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceJobEntity complianceJob, String value) {
+    public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceRuleConfigurationEntity complianceRuleConfiguration, String value) {
         this.parameter = parameter;
-        this.complianceJob = complianceJob;
+        this.complianceRuleConfiguration = complianceRuleConfiguration;
+        this.complianceRuleConfiguration.getComplianceRuleParameterAssignments().add(this);
         this.value = value;
     }
 
-    public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceJobEntity complianceJob, Integer value) {
-        this(parameter, complianceJob, String.valueOf(value));
+    public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceRuleConfigurationEntity complianceRuleConfiguration, Integer value) {
+        this(parameter, complianceRuleConfiguration, String.valueOf(value));
         assert parameter.getType() == ParameterType.INT;
     }
 
-    public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceJobEntity complianceJob, Boolean value) {
-        this(parameter, complianceJob, String.valueOf(value));
+    public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceRuleConfigurationEntity complianceRuleConfiguration, Boolean value) {
+        this(parameter, complianceRuleConfiguration, String.valueOf(value));
         assert parameter.getType() == ParameterType.BOOLEAN;
     }
 
-    public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceJobEntity complianceJob, Double value) {
-        this(parameter, complianceJob, String.valueOf(value));
+    public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceRuleConfigurationEntity complianceRuleConfiguration, Double value) {
+        this(parameter, complianceRuleConfiguration, String.valueOf(value));
         assert parameter.getType() == ParameterType.DECIMAL;
     }
 
-    public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceJobEntity complianceJob, List<String> value) {
-        this(parameter, complianceJob, (new StringListConverter()).convertToDatabaseColumn(value));
+    public ComplianceRuleParameterAssignmentEntity(ComplianceRuleParameterEntity parameter, ComplianceRuleConfigurationEntity complianceRuleConfiguration, List<String> value) {
+        this(parameter, complianceRuleConfiguration, (new StringListConverter()).convertToDatabaseColumn(value));
         assert parameter.getType() == ParameterType.STRING_LIST;
     }
 

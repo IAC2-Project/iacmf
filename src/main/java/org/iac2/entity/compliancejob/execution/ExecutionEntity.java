@@ -8,7 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,6 +24,7 @@ import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
 import org.iac2.common.model.compliancejob.execution.ExecutionStep;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
+import org.iac2.entity.plugin.PluginUsageInstanceEntity;
 
 @Entity
 @Data
@@ -60,18 +60,21 @@ public class ExecutionEntity {
     @JoinColumn(name = "compliance_job_id", nullable = false)
     private ComplianceJobEntity complianceJob;
 
-    @OneToMany(mappedBy = "execution", fetch = FetchType.EAGER)
-    private List<ComplianceIssueEntity> complianceIssueEntities;
+    @OneToMany(mappedBy = "execution")
+    private List<PluginUsageInstanceEntity> pluginUsageInstances;
 
+    @OneToMany(mappedBy = "execution")
+    private List<ComplianceIssueEntity> complianceIssueEntities;
 
     public ExecutionEntity(ComplianceJobEntity complianceJob) {
         this.complianceJob = complianceJob;
+        this.complianceJob.getExecutions().add(this);
         this.startTime = new Date();
         this.status = ExecutionStatus.CREATED;
         this.currentStep = ExecutionStep.START;
         this.instanceModel = "";
         this.violationsDetected = false;
         this.complianceIssueEntities = new ArrayList<>();
+        this.pluginUsageInstances = new ArrayList<>();
     }
-
 }

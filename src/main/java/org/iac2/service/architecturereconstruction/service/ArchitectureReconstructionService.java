@@ -4,14 +4,15 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.InstanceModel;
-import org.iac2.entity.architecturereconstruction.ModelEnhancementStrategyEntity;
-import org.iac2.entity.compliancejob.ComplianceJobEntity;
+import org.iac2.common.model.ProductionSystem;
+import org.iac2.entity.compliancejob.execution.ExecutionEntity;
+import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
-import org.iac2.service.architecturereconstruction.plugin.manager.ArchitectureReconstructionPluginManager;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPlugin;
+import org.iac2.service.architecturereconstruction.plugin.factory.ArchitectureReconstructionPluginFactory;
+import org.iac2.service.utility.PluginConfigurationHelperService;
 import org.springframework.stereotype.Service;
 
 import static org.iac2.service.utility.EntityToPojo.transformProductionSystemEntity;
@@ -19,45 +20,48 @@ import static org.iac2.service.utility.EntityToPojo.transformProductionSystemEnt
 @Service
 public class ArchitectureReconstructionService {
 
-    private final ArchitectureReconstructionPluginManager pluginManager;
+    private final ArchitectureReconstructionPluginFactory pluginManager;
 
-    public ArchitectureReconstructionService(ArchitectureReconstructionPluginManager pluginManager) {
+    private final PluginConfigurationHelperService helperService;
+
+    public ArchitectureReconstructionService(ArchitectureReconstructionPluginFactory pluginManager, PluginConfigurationHelperService helperService) {
         this.pluginManager = pluginManager;
+        this.helperService = helperService;
     }
 
-
-    public InstanceModel crteateInstanceModel(@NotNull ProductionSystemEntity productionSystemEntity) {
+    public InstanceModel crteateInstanceModel(@NotNull ProductionSystemEntity productionSystemEntity, ExecutionEntity execution) {
         ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
-        ModelCreationPlugin plugin = pluginManager.getModelCreationPlugin(productionSystemEntity.getModelCreationPluginId());
+        PluginUsageEntity pluginUsage = productionSystemEntity.getModelCreationPluginUsage();
+        ModelCreationPlugin plugin = (ModelCreationPlugin) helperService.instantiatePlugin(pluginUsage, execution, pluginManager);
 
         return plugin.reconstructInstanceModel(productionSystem);
     }
 
-    public void refineInstanceModel(@NotNull ComplianceJobEntity complianceJob,
+    public void refineInstanceModel(@NotNull ExecutionEntity execution,
                                     @NotNull InstanceModel instanceModel) {
+        List<PluginUsageEntity> usages = execution.getComplianceJob().getModelRefinementStrategy();
+
         this.refineInstanceModel(
-                complianceJob.getModelEnhancementStrategy(),
-                complianceJob.getProductionSystem(),
+                usages,
+                execution,
                 instanceModel);
     }
 
-    public void refineInstanceModel(@NotNull ModelEnhancementStrategyEntity enhancementStrategy,
-                                    @NotNull ProductionSystemEntity productionSystemEntity,
+    public void refineInstanceModel(@NotNull List<PluginUsageEntity> enhancementStrategy,
+                                    @NotNull ExecutionEntity execution,
                                     @NotNull InstanceModel instanceModel) {
-        ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
-        List<ModelEnhancementPlugin> plugins = enhancementStrategy.getPluginIdList()
+        ProductionSystem productionSystem = transformProductionSystemEntity(execution.getComplianceJob().getProductionSystem());
+        List<ModelRefinementPlugin> plugins = enhancementStrategy
                 .stream()
-                .map(pluginManager::getModelEnhancementPlugin)
+                .map(usage -> (ModelRefinementPlugin) helperService.instantiatePlugin(usage, execution, pluginManager))
                 .toList();
 
-        for (ModelEnhancementPlugin plugin : plugins) {
-            plugin.enhanceModel(instanceModel, productionSystem);
+        for (ModelRefinementPlugin plugin : plugins) {
+            plugin.refineModel(instanceModel, productionSystem);
         }
-
     }
 
-    public ArchitectureReconstructionPluginManager getPluginManager() {
+    public ArchitectureReconstructionPluginFactory getPluginManager() {
         return this.pluginManager;
     }
-
 }
