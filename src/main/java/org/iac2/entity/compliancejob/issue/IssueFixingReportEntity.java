@@ -7,7 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,16 +22,15 @@ public class IssueFixingReportEntity {
     @NotNull
     private Boolean isSuccessful;
 
-    @Null
     private String description;
 
     @ManyToOne
     @JoinColumn(name = "compliance_issue_id", nullable = false)
     private ComplianceIssueEntity complianceIssue;
 
-    public IssueFixingReportEntity(boolean isSuccessful, ComplianceIssueEntity issue) {
+    public IssueFixingReportEntity(boolean isSuccessful, ComplianceIssueEntity complianceIssue) {
         this.isSuccessful = isSuccessful;
-        this.complianceIssue = issue;
+        this.complianceIssue = complianceIssue;
+        this.complianceIssue.getFixingReports().add(this);
     }
-
 }

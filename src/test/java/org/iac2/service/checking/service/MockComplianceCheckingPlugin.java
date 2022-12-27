@@ -3,8 +3,8 @@ package org.iac2.service.checking.service;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
+import org.iac2.common.PluginDescriptor;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
@@ -18,18 +18,8 @@ public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugi
     private static final Logger LOGGER = LoggerFactory.getLogger(MockComplianceCheckingPlugin.class);
 
     @Override
-    public Set<String> getRequiredConfigurationEntryNames() {
-        return null;
-    }
-
-    @Override
     public void setConfigurationEntry(String key, String value) {
 
-    }
-
-    @Override
-    public boolean isSuitableForComplianceRule(ComplianceRule complianceRule) {
-        return complianceRule.getType().equals("ensure-property-value");
     }
 
     @Override
@@ -46,6 +36,11 @@ public class MockComplianceCheckingPlugin implements ComplianceRuleCheckingPlugi
                 return true;
             }
         };
+    }
+
+    @Override
+    public PluginDescriptor getDescriptor() {
+        return null;
     }
 
     @Override

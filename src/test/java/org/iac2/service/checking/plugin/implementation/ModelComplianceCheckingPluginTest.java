@@ -1,11 +1,21 @@
 package org.iac2.service.checking.plugin.implementation;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import javax.xml.namespace.QName;
+
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
+
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
 import org.assertj.core.util.Sets;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
@@ -13,10 +23,10 @@ import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.common.model.compliancerule.parameter.ComplianceRuleParameter;
 import org.iac2.common.model.compliancerule.parameter.StringComplianceRuleParameter;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
-import org.iac2.service.architecturereconstruction.plugin.manager.implementation.SimpleARPluginManager;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPlugin;
+import org.iac2.service.architecturereconstruction.plugin.factory.implementation.SimpleARPluginFactory;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
-import org.iac2.service.checking.plugin.manager.implementation.SimpleCRCheckingManager;
+import org.iac2.service.checking.plugin.factory.implementation.SimpleCRCheckingManager;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
 import org.junit.Assert;
@@ -26,14 +36,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
-
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -54,7 +56,6 @@ public class ModelComplianceCheckingPluginTest {
     // set this to true if you want faster execution of this test when you probably need to run it more often
     private static boolean debugging = true;
 
-
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
         csarPath = TestUtils.fetchCsar(TESTAPPLICATIONSREPOSITORY, csarId);
@@ -72,8 +73,8 @@ public class ModelComplianceCheckingPluginTest {
     }
 
     private InstanceModel reconstructeModel(ProductionSystem productionSystem) {
-        SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
-        ModelCreationPlugin plugin = instance.getModelCreationPlugin("opentosca-container-model-creation-plugin");
+        SimpleARPluginFactory instance = SimpleARPluginFactory.getInstance();
+        ModelCreationPlugin plugin = instance.createModelCreationPlugin("opentosca-container-model-creation-plugin");
         assertNotNull(plugin);
         assertEquals("opentosca-container-model-creation-plugin", plugin.getIdentifier());
 
@@ -85,9 +86,9 @@ public class ModelComplianceCheckingPluginTest {
         Set<RootComponent> comps = instanceModel.getDeploymentModel().getComponents();
         Set<RootRelation> rels = instanceModel.getDeploymentModel().getRelations();
 
-        SimpleARPluginManager instance = SimpleARPluginManager.getInstance();
-        ModelEnhancementPlugin enhancementPlugin = instance.getModelEnhancementPlugin("docker-enhancement-plugin");
-        InstanceModel instanceModel1 = enhancementPlugin.enhanceModel(instanceModel, productionSystem);
+        SimpleARPluginFactory instance = SimpleARPluginFactory.getInstance();
+        ModelRefinementPlugin enhancementPlugin = instance.createModelRefinementPlugin("docker-enhancement-plugin");
+        InstanceModel instanceModel1 = enhancementPlugin.refineModel(instanceModel, productionSystem);
         return instanceModel1;
     }
 
@@ -98,7 +99,7 @@ public class ModelComplianceCheckingPluginTest {
         instanceModel = this.enhanceModel(productionSystem, instanceModel);
 
         SimpleCRCheckingManager manager = SimpleCRCheckingManager.getInstance();
-        ComplianceRuleCheckingPlugin plugin = manager.getPlugin("opentosca-modelcompliance-checking-plugin");
+        ComplianceRuleCheckingPlugin plugin = manager.createPlugin("opentosca-modelcompliance-checking-plugin");
         ComplianceRule rule = new ComplianceRule();
         rule.setType("modelCompliance");
         rule.setLocation("");

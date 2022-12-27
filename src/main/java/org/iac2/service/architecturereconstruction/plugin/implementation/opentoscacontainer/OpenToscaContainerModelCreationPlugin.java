@@ -1,9 +1,7 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +18,7 @@ import io.github.edmm.model.relation.DependsOn;
 import io.github.edmm.model.relation.HostedOn;
 import io.github.edmm.model.relation.RootRelation;
 import org.assertj.core.util.Sets;
+import org.iac2.common.PluginDescriptor;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
@@ -45,10 +44,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugin {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenToscaContainerModelCreationPlugin.class);
     private final static int OPENTOSCA_CLIENT_TIMEOUT = 10000;
+    private final OpenToscaContainerModelCreationPluginDescriptor descriptor;
 
-    public OpenToscaContainerModelCreationPlugin() {
+    public OpenToscaContainerModelCreationPlugin(OpenToscaContainerModelCreationPluginDescriptor descriptor) {
+        this.descriptor = descriptor;
     }
 
     private static Class<? extends RootRelation> getRelationClass(RelationInstance relationInstance) {
@@ -93,18 +95,8 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
     }
 
     @Override
-    public String getIdentifier() {
-        return "opentosca-container-model-creation-plugin";
-    }
-
-    @Override
-    public boolean isIaCTechnologySupported(String iacTechnologyName) {
-        return iacTechnologyName.equalsIgnoreCase("opentoscacontainer");
-    }
-
-    @Override
-    public Collection<String> getRequiredConfigurationEntryNames() {
-        return Collections.emptyList();
+    public PluginDescriptor getDescriptor() {
+        return this.descriptor;
     }
 
     @Override
@@ -119,18 +111,8 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
     }
 
     @Override
-    public Collection<String> getRequiredProductionSystemPropertyNames() {
-        return List.of(
-                "opentoscacontainer_hostname",
-                "opentoscacontainer_port",
-                "opentoscacontainer_appId",
-                "opentoscacontainer_instanceId"
-        );
-    }
-
-    @Override
     public InstanceModel reconstructInstanceModel(ProductionSystem productionSystem) throws IaCTechnologyNotSupportedException {
-        if (!isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
+        if (!descriptor.isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
             throw new IaCTechnologyNotSupportedException(productionSystem.getIacTechnologyName());
         }
 
