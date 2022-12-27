@@ -79,8 +79,21 @@ public class PluginController {
     }
 
     @GetMapping
-    @Operation(summary = "Retrieves all plugins that fulfill certain conditions. If no conditions are provided, all plugins are returned.", responses = {@ApiResponse(content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PluginPojo.class)))), @ApiResponse(responseCode = "400", description = "The plugin type is malformed."), @ApiResponse(responseCode = "404", description = "The compliance rule id or issue id cannot be found.")})
-    public ResponseEntity<Collection<PluginPojo>> getAllPlugins(@Parameter(description = "(filter) The type of the plugins to be retrieved. Must be one of the PluginTypeEnums. This parameter is mandatory if any of the other parameters are not null.") @RequestParam(required = false) String pluginType, @Parameter(description = "(filter) The name of the IaC technology with which the plugins must be compatible. Only for model creation and issue fixing plugins.") @RequestParam(required = false) String iacTechnology, @Parameter(description = "(filter) The id of the compliance rule with which the plugins must be compatible. Only for compliance checking plugins.") @RequestParam(required = false) Long complianceRuleId, @Parameter(description = "(filter) The id of the compliance issue with which the plugins must be compatible. Only for issue fixing plugins.") @RequestParam(required = false) Long issueId) {
+    @Operation(summary = "Retrieves all plugins that fulfill certain conditions. If no conditions are provided, all plugins are returned.",
+            responses = {
+                    @ApiResponse(content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = PluginPojo.class)))),
+                    @ApiResponse(responseCode = "400", description = "The plugin type is malformed."),
+                    @ApiResponse(responseCode = "404", description = "The compliance rule id or issue id cannot be found.")})
+    public ResponseEntity<Collection<PluginPojo>> getAllPlugins(
+            @Parameter(description = "(filter) The type of the plugins to be retrieved. Must be one of the PluginTypeEnums. This parameter is mandatory if any of the other parameters are not null.")
+            @RequestParam(required = false) String pluginType,
+            @Parameter(description = "(filter) The name of the IaC technology with which the plugins must be compatible. Only for model creation and issue fixing plugins.")
+            @RequestParam(required = false) String iacTechnology,
+            @Parameter(description = "(filter) The id of the compliance rule with which the plugins must be compatible. Only for compliance checking plugins.")
+            @RequestParam(required = false) Long complianceRuleId,
+            @Parameter(description = "(filter) The id of the compliance issue with which the plugins must be compatible. Only for issue fixing plugins.")
+            @RequestParam(required = false) Long issueId) {
         Collection<PluginPojo> result = new ArrayList<>();
 
         if (pluginType == null) {
@@ -157,7 +170,11 @@ public class PluginController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "gets a plugin by its identifier", responses = {@ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(implementation = PluginPojo.class))), @ApiResponse(responseCode = "404", description = "Plugin not found")})
+    @Operation(summary = "gets a plugin by its identifier",
+            responses = {
+                    @ApiResponse(content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PluginPojo.class))),
+                    @ApiResponse(responseCode = "404", description = "Plugin not found")})
     public ResponseEntity<PluginPojo> getPlugin(@PathVariable String id) {
         PluginDescriptor plugin;
 
