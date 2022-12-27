@@ -7,17 +7,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
+import org.iac2.common.PluginDescriptor;
 import org.iac2.common.exception.PropertyMissingException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.Edmm;
-import org.iac2.service.architecturereconstruction.common.interfaces.ModelEnhancementPlugin;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPlugin;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDb;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
 import org.slf4j.Logger;
@@ -26,11 +26,16 @@ import org.slf4j.LoggerFactory;
 // see: https://serverfault.com/questions/263868/how-to-know-all-the-users-that-can-access-a-database-mysql
 // see: https://mkyong.com/regular-expressions/how-to-validate-ip-address-with-regular-expression/
 // see: https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-usagenotes-connect-drivermanager.html
-public class MySqlDbModelRefinementPlugin implements ModelEnhancementPlugin {
+public class MySqlDbModelRefinementPlugin implements ModelRefinementPlugin {
     public static final String CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES = "ignoreMissingProperties";
     public static final String EDMM_PROPERTY_NAME_USERS = "users";
     private static final Logger LOGGER = LoggerFactory.getLogger(MySqlDbModelRefinementPlugin.class);
+    private final MySqlDbModelRefinementPluginDescriptor descriptor;
     private boolean ignoreMissingProperties;
+
+    public MySqlDbModelRefinementPlugin(MySqlDbModelRefinementPluginDescriptor descriptor) {
+        this.descriptor = descriptor;
+    }
 
     public static Collection<String> getUsersOfDatabase(String ip, String port, String user, String password, String database) throws SQLException {
         final String connectionString = String.format("jdbc:mysql://%s:%s/mysql?user=%s&password=%s", ip, port, user, password);
@@ -66,13 +71,8 @@ public class MySqlDbModelRefinementPlugin implements ModelEnhancementPlugin {
     }
 
     @Override
-    public String getIdentifier() {
-        return "mysql-db-model-refinement-plugin";
-    }
-
-    @Override
-    public Collection<String> getRequiredConfigurationEntryNames() {
-        return List.of(CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES);
+    public PluginDescriptor getDescriptor() {
+        return descriptor;
     }
 
     @Override
@@ -95,12 +95,7 @@ public class MySqlDbModelRefinementPlugin implements ModelEnhancementPlugin {
     }
 
     @Override
-    public Collection<String> getRequiredProductionSystemPropertyNames() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public InstanceModel enhanceModel(InstanceModel instanceModel, ProductionSystem productionSystem) {
+    public InstanceModel refineModel(InstanceModel instanceModel, ProductionSystem productionSystem) {
         Collection<MySqlDbms> dbmss = Edmm.getAllComponentsOfType(instanceModel.getDeploymentModel(), MySqlDbms.class);
 
         try {
