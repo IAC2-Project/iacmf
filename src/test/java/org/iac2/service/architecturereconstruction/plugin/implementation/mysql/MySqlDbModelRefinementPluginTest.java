@@ -49,10 +49,10 @@ class MySqlDbModelRefinementPluginTest {
     void testEnhancementOnManualInstanceModel() throws IOException, SQLException {
         ClassPathResource resource = new ClassPathResource("edmm/self_instance_model.yaml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
-        MySqlDbModelRefinementPlugin plugin = new MySqlDbModelRefinementPlugin();
+        MySqlDbModelRefinementPlugin plugin = new MySqlDbModelRefinementPlugin(new MySqlDbModelRefinementPluginDescriptor());
         plugin.setConfigurationEntry(MySqlDbModelRefinementPlugin.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES, String.valueOf(false));
         InstanceModel result =
-                plugin.enhanceModel(new InstanceModel(model), new ProductionSystem("", "", new HashMap<>()));
+                plugin.refineModel(new InstanceModel(model), new ProductionSystem("", "", new HashMap<>()));
         Assertions.assertNotNull(result);
         Assertions.assertEquals(4, result.getDeploymentModel().getComponents().size());
         Assertions.assertTrue(result.getDeploymentModel().getComponent("iac2db").isPresent());
@@ -73,10 +73,10 @@ class MySqlDbModelRefinementPluginTest {
             grantS.executeUpdate();
             ClassPathResource resource = new ClassPathResource("edmm/self_instance_model.yaml");
             DeploymentModel model = DeploymentModel.of(resource.getFile());
-            MySqlDbModelRefinementPlugin plugin = new MySqlDbModelRefinementPlugin();
+            MySqlDbModelRefinementPlugin plugin = new MySqlDbModelRefinementPlugin(new MySqlDbModelRefinementPluginDescriptor());
             plugin.setConfigurationEntry(MySqlDbModelRefinementPlugin.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES, String.valueOf(false));
             InstanceModel result =
-                    plugin.enhanceModel(new InstanceModel(model), new ProductionSystem("", "", new HashMap<>()));
+                    plugin.refineModel(new InstanceModel(model), new ProductionSystem("", "", new HashMap<>()));
             Assertions.assertNotNull(result);
             Assertions.assertEquals(4, result.getDeploymentModel().getComponents().size());
             Assertions.assertTrue(result.getDeploymentModel().getComponent("iac2db").isPresent());
