@@ -1,14 +1,16 @@
 package org.iac2.service.fixing.plugin.implementaiton.docker;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import org.iac2.common.Plugin;
-import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPluginDescriptor;
 
 public class DockerContainerIssueFixingPluginDescriptor implements IssueFixingPluginDescriptor {
     public static final String IDENTIFIER = "docker-container-issue-fixing-plugin";
+
+    public static final String[] SUPPORTED_ISSUE_TYPES = {"UNEXPECTED_DOCKER_CONTAINERS"};
 
     @Override
     public String getIdentifier() {
@@ -21,10 +23,8 @@ public class DockerContainerIssueFixingPluginDescriptor implements IssueFixingPl
     }
 
     @Override
-    public boolean isSuitableForIssue(ComplianceIssue issue) {
-        return issue.getType().equalsIgnoreCase("WrongAttributeValueIssue")
-                && issue.getProperties().containsKey("INSTANCE_MODEL_COMPONENT_ID")
-                && issue.getProperties().containsKey("CHECKER_COMPONENT_ID");
+    public boolean isIssueTypeSupported(String issueType) {
+        return Arrays.stream(SUPPORTED_ISSUE_TYPES).anyMatch(t -> t.equalsIgnoreCase(issueType));
     }
 
     @Override
@@ -36,6 +36,11 @@ public class DockerContainerIssueFixingPluginDescriptor implements IssueFixingPl
 
     @Override
     public Collection<String> getRequiredProductionSystemPropertyNames() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Collection<String> getRequiredComplianceRuleParameters() {
         return Collections.emptyList();
     }
 

@@ -17,7 +17,6 @@ import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
-import org.iac2.repository.compliancejob.ComplianceIssueRepository;
 import org.iac2.repository.compliancejob.ExecutionRepository;
 import org.iac2.repository.compliancejob.IssueFixingReportRepository;
 import org.iac2.service.architecturereconstruction.service.ArchitectureReconstructionService;
@@ -35,20 +34,17 @@ public class ExecutionService {
     private final ComplianceRuleCheckingService checkingService;
     private final IssueFixingService fixingService;
     private final ExecutionRepository executionRepository;
-    private final ComplianceIssueRepository complianceIssueRepository;
     private final IssueFixingReportRepository issueFixingReportRepository;
 
     public ExecutionService(ExecutionRepository executionRepository,
                             ArchitectureReconstructionService architectureReconstructionService,
                             ComplianceRuleCheckingService checkingService,
                             IssueFixingService fixingService,
-                            ComplianceIssueRepository complianceIssueRepository,
                             IssueFixingReportRepository issueFixingReportRepository) {
         this.executionRepository = executionRepository;
         this.architectureReconstructionService = architectureReconstructionService;
         this.checkingService = checkingService;
         this.fixingService = fixingService;
-        this.complianceIssueRepository = complianceIssueRepository;
         this.issueFixingReportRepository = issueFixingReportRepository;
     }
 
@@ -154,6 +150,7 @@ public class ExecutionService {
     private RuntimeException handleException(RuntimeException e, ExecutionEntity execution) {
         String message = String.format("The execution with id: (%s) has errored at step: (%s). Reason: %s",
                 execution.getId(), execution.getCurrentStep(), e.getMessage());
+        LOGGER.error(message);
         endExecution(execution, true, message);
         return e;
     }

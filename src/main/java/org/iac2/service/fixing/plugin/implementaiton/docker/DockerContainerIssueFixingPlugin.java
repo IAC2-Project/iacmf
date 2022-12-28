@@ -2,7 +2,6 @@ package org.iac2.service.fixing.plugin.implementaiton.docker;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -56,12 +55,12 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
 
     @Override
     public IssueFixingReport fixIssue(ComplianceIssue issue, InstanceModel instanceModel, ProductionSystem productionSystem) {
-        if (!descriptor.isSuitableForIssue(issue)) {
-            throw new IssueNotSupportedException(issue);
+        if (!descriptor.isIssueTypeSupported(issue.getType())) {
+            throw new IssueNotSupportedException(issue.getType());
         }
 
         if (!descriptor.isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
-            // see at method isSuitableForProd... i don't think this will ever be a problem
+            // see at method isSuitableForProd... I don't think this will ever be a problem
             throw new IaCTechnologyNotSupportedException(productionSystem.getIacTechnologyName());
         }
 
