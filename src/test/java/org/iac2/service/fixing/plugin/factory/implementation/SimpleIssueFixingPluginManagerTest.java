@@ -43,7 +43,7 @@ class SimpleIssueFixingPluginManagerTest {
                 "opentoscacontainer",
                 "bla bla",
                 new HashMap<>());
-        Collection<String> plugins = instance.getSuitablePluginIdentifiers(issue, productionSystem);
+        Collection<String> plugins = instance.getSuitablePluginIdentifiers(issue.getType(), productionSystem);
         assertNotNull(plugins);
         assertEquals(1, plugins.size());
     }

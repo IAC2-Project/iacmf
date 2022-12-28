@@ -179,7 +179,7 @@ class DockerIssueFixingPluginManagerTest {
                 "bla bla",
                 new HashMap<>());
 
-        Collection<String> plugins = instance.getSuitablePluginIdentifiers(params.issue, productionSystem);
+        Collection<String> plugins = instance.getSuitablePluginIdentifiers(params.issue.getType(), productionSystem);
         assertNotNull(plugins);
         assertEquals(1, plugins.size());
 
