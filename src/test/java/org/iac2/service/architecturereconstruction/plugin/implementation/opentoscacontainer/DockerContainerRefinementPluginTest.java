@@ -219,7 +219,7 @@ public class DockerContainerRefinementPluginTest {
         plugin.enhanceModel(model, new ArrayList<>(), engine1, containersOnEngine1);
         model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertEquals(2, model.getComponents().stream().filter(c -> c instanceof DockerEngine).count());
-        Collection<RootComponent> hostedOnEngine1 = Edmm.findDependentComponents(model, engine1, HostedOn.class);
+        Collection<RootComponent> hostedOnEngine1 = Edmm.findSourceComponents(model, engine1, HostedOn.class);
         Assertions.assertEquals(4, hostedOnEngine1.size());
         Assertions.assertEquals(4, hostedOnEngine1.stream().filter(c -> c instanceof DockerContainer).count());
         Assertions.assertEquals(2, hostedOnEngine1.stream().filter(c ->
@@ -232,7 +232,7 @@ public class DockerContainerRefinementPluginTest {
         plugin.enhanceModel(model, new ArrayList<>(), engine2, containersOnEngine2);
         model = new DeploymentModel(model.getName(), model.getGraph());
         Assertions.assertEquals(2, model.getComponents().stream().filter(c -> c instanceof DockerEngine).count());
-        Collection<RootComponent> hostedOnEngine2 = Edmm.findDependentComponents(model, engine2, HostedOn.class);
+        Collection<RootComponent> hostedOnEngine2 = Edmm.findSourceComponents(model, engine2, HostedOn.class);
         Assertions.assertEquals(2, hostedOnEngine2.size());
         Assertions.assertEquals(2, hostedOnEngine2.stream().filter(c -> c instanceof DockerContainer).count());
         Assertions.assertEquals(1, hostedOnEngine2.stream().filter(c ->

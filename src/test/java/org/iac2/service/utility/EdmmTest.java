@@ -224,6 +224,32 @@ class EdmmTest {
     }
 
     @Test
+    void testFindTargetComponents() throws IOException {
+        ClassPathResource resource = new ClassPathResource("edmm/four-components-hosted-on.yml");
+        DeploymentModel model = DeploymentModel.of(resource.getFile());
+        RootComponent tomcat = model.getComponent("tomcat").orElseThrow();
+        Collection<RootComponent> hosts = Edmm.findTargetComponents(model, tomcat, HostedOn.class);
+        Assertions.assertNotNull(hosts);
+        Assertions.assertEquals(1, hosts.size());
+        Assertions.assertEquals("ubuntu", hosts.stream().findFirst().orElseThrow().getName());
+    }
+
+    @Test
+    void testFindDbmsIp() throws IOException {
+        final String IP = "172.17.0.1";
+        ClassPathResource resource = new ClassPathResource("edmm/realworld_application_instance_model_docker_refined.yaml");
+        DeploymentModel model = DeploymentModel.of(resource.getFile());
+        RootComponent db = model.getComponent("MySQL-DB_w1_0").orElseThrow();
+        String ip = Edmm.findHostIp(db, model);
+        Assertions.assertNotNull(ip);
+        Assertions.assertEquals(IP, ip);
+        RootComponent dockerEngine = model.getComponent("DockerEngine").orElseThrow();
+        ip = Edmm.findHostIp(dockerEngine, model);
+        Assertions.assertNotNull(ip);
+        Assertions.assertEquals(IP, ip);
+    }
+    
+    @Test
     void testRemoveComponent() throws IllegalAccessException, IOException {
         ClassPathResource resource = new ClassPathResource("edmm/realworld_application_instance_model_docker_refined.yaml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());

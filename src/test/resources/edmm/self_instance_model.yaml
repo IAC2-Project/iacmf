@@ -1,0 +1,154 @@
+---
+components:
+  iac2db:
+    relations:
+      - '0':
+          hosted_on:
+            type: hosted_on
+            target: MySQL-DBMS_8.0-w1_0
+    type: mysql_database
+    properties:
+      DBPassword:
+        type: string
+        value: rootpassword
+      DBName:
+        type: string
+        value: iac2
+      DBUser:
+        type: string
+        value: iac2-admin
+  DockerContainer:
+    type: docker_container
+    relations:
+      - '0':
+          hosted_on:
+            type: hosted_on
+            target: DockerEngine
+    properties:
+      ContainerIP:
+        type: string
+        value: localhost
+      ContainerID:
+        type: string
+        value: c80a924ae881883d418c699767f188b412c583bb4a186aa997bb18055ecb9269
+      Port:
+        type: string
+        value: '13373'
+      ContainerPort:
+        type: string
+        value: '13373'
+      ImageID:
+        type: string
+        value: ubuntu:22.04
+      structuralState:
+        type: string
+        value: EXPECTED
+      Image:
+        type: string
+        value: sha256:cdb68b455a141ed921945f6d39a8c0694a7e21a37b2b030488d73e38875a26cc
+  DockerEngine:
+    type: docker_engine
+    properties:
+      DockerEngineURL:
+        type: string
+        value: tcp://localhost:2375
+  MySQL-DBMS_8.0-w1_0:
+    relations:
+      - '0':
+          hosted_on:
+            type: hosted_on
+            target: DockerContainer
+    type: mysql_dbms
+    properties:
+      DBMSUser:
+        type: string
+        value: root
+      DBMSPort:
+        type: string
+        value: '3306'
+      DBMSPassword:
+        type: string
+        value: rootpassword
+component_types:
+  mysql_database:
+    extends: database
+    properties:
+      DBPassword:
+        type: string
+      port:
+        type: string
+      name:
+        type: string
+      DBName:
+        type: string
+      DBUser:
+        type: string
+  depends_on:
+    extends: null
+  docker_engine:
+    extends: base
+    properties:
+      DockerEngineCertificate:
+        type: string
+      DockerEngineURL:
+        type: string
+  dbms:
+    extends: software_component
+    properties:
+      port:
+        type: integer
+      root_password:
+        type: string
+  database:
+    extends: base
+    properties:
+      password:
+        type: string
+      schema_name:
+        type: string
+      user:
+        type: string
+  docker_container:
+    extends: software_component
+    properties:
+      HostMountFiles:
+        type: string
+      ContainerIP:
+        type: string
+      PrivilegedMode:
+        type: string
+      ContainerMountPath:
+        type: string
+      ContainerID:
+        type: string
+      State:
+        type: string
+      Port:
+        type: string
+      ContainerPort:
+        type: string
+      ImageId:
+        type: string
+      ImageID:
+        type: string
+      structuralState:
+        type: string
+      Image:
+        type: string
+  mysql_dbms:
+    extends: dbms
+    properties:
+      DBMSUser:
+        type: string
+      DBMSPort:
+        type: string
+      DBMSPassword:
+        type: string
+  software_component:
+    extends: base
+  hosted_on:
+    extends: depends_on
+  connects_to:
+    extends: depends_on
+  base:
+    extends: null
