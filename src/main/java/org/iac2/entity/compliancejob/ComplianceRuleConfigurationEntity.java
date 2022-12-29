@@ -25,6 +25,7 @@ import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmen
 @NoArgsConstructor
 public class ComplianceRuleConfigurationEntity {
     @Id
+    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
@@ -50,7 +51,7 @@ public class ComplianceRuleConfigurationEntity {
         this.complianceJob = complianceJob;
         this.complianceJob.getComplianceRuleConfigurations().add(this);
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

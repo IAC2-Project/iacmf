@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ import org.iac2.entity.util.StringListConverter;
 @Entity
 public class ComplianceRuleParameterAssignmentEntity {
     @Id
+    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
 

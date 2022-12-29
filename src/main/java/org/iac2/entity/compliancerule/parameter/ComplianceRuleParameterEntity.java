@@ -19,6 +19,7 @@ import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 @Entity
 public class ComplianceRuleParameterEntity {
     @Id
+    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 

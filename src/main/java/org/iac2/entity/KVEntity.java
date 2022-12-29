@@ -18,6 +18,7 @@ import org.iac2.entity.productionsystem.ProductionSystemEntity;
 @Entity
 public class KVEntity {
     @Id
+    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
