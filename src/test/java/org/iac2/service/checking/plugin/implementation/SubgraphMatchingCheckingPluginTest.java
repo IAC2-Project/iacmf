@@ -61,6 +61,5 @@ class SubgraphMatchingCheckingPluginTest {
         rule.addStringParameter("ENGINE_URL", "tcp://172.17.0.1:2375");
         Collection<ComplianceIssue> issues = plugin.findIssues(instanceModel, rule);
         Assertions.assertEquals(0, issues.size());
-        Assertions.assertEquals("abc", issues.stream().findFirst().orElseThrow().getType());
     }
 }

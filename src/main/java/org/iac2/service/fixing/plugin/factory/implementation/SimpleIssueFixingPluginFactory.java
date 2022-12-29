@@ -12,6 +12,7 @@ import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPluginDescriptor;
 import org.iac2.service.fixing.plugin.factory.IssueFixingPluginFactory;
 import org.iac2.service.fixing.plugin.implementaiton.docker.DockerContainerIssueFixingPluginDescriptor;
+import org.iac2.service.fixing.plugin.implementaiton.mysql.RemoveDBUsersFixingPluginDescriptor;
 
 public class SimpleIssueFixingPluginFactory implements IssueFixingPluginFactory {
     private static SimpleIssueFixingPluginFactory instance;
@@ -20,7 +21,9 @@ public class SimpleIssueFixingPluginFactory implements IssueFixingPluginFactory 
     private SimpleIssueFixingPluginFactory() {
         this.allPlugins = new HashMap<>();
         DockerContainerIssueFixingPluginDescriptor dockerPlugin = new DockerContainerIssueFixingPluginDescriptor();
+        RemoveDBUsersFixingPluginDescriptor mysql = new RemoveDBUsersFixingPluginDescriptor();
         this.allPlugins.put(dockerPlugin.getIdentifier(), dockerPlugin);
+        this.allPlugins.put(mysql.getIdentifier(), mysql);
     }
 
     public static SimpleIssueFixingPluginFactory getInstance() {
