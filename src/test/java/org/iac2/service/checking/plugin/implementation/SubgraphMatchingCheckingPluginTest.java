@@ -57,9 +57,10 @@ class SubgraphMatchingCheckingPluginTest {
         SubgraphMatchingCheckingPlugin plugin = new SubgraphMatchingCheckingPlugin(new SubgraphMatchingCheckingPluginDescriptor());
         ClassPathResource resource = new ClassPathResource("edmm/realworld_application_instance_model_docker_refined.yaml");
         InstanceModel instanceModel = new InstanceModel(DeploymentModel.of(resource.getFile()));
-        ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", RULE_PATH);
+        ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", RULE_PATH, "abc");
         rule.addStringParameter("ENGINE_URL", "tcp://172.17.0.1:2375");
         Collection<ComplianceIssue> issues = plugin.findIssues(instanceModel, rule);
         Assertions.assertEquals(0, issues.size());
+        Assertions.assertEquals("abc", issues.stream().findFirst().orElseThrow().getType());
     }
 }

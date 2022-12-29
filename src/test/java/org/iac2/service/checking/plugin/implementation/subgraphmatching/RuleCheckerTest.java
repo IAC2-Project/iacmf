@@ -1,9 +1,21 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
-import io.github.edmm.model.component.*;
+import io.github.edmm.model.component.Go;
+import io.github.edmm.model.component.MysqlDatabase;
+import io.github.edmm.model.component.Paas;
+import io.github.edmm.model.component.RootComponent;
+import io.github.edmm.model.component.SoftwareComponent;
+import io.github.edmm.model.component.Tomcat;
+import io.github.edmm.model.component.WebApplication;
+import io.github.edmm.model.component.WebServer;
 import io.github.edmm.model.relation.HostedOn;
 import io.github.edmm.model.relation.RootRelation;
 import org.iac2.common.model.InstanceModel;
@@ -19,11 +31,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 class RuleCheckerTest {
 
@@ -50,7 +57,7 @@ class RuleCheckerTest {
         Edmm.addComponent(instanceModelGraph, "paas1", new HashMap<>(), Paas.class);
         final InstanceModel instanceModel = new InstanceModel(new DeploymentModel("test3", instanceModelGraph));
 
-        final ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", "somewhere");
+        final ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", "somewhere", "dummy");
 
         RuleChecker checker = new RuleChecker(instanceModel);
         RuleCheckingResult result = checker.checkCompliance(rule, selectorGraph, checkerGraph);
@@ -114,7 +121,7 @@ class RuleCheckerTest {
         InstanceModel instanceModel = new InstanceModel(new DeploymentModel("instance-model", instanceGraph));
 
         // create a compliance rule
-        ComplianceRule complianceRule = new ComplianceRule(1L, "subgraph-matching", "nowhere");
+        ComplianceRule complianceRule = new ComplianceRule(1L, "subgraph-matching", "nowhere", "dummy");
         complianceRule.addStringParameter("ENGINE_URL", "https://localhost:1234");
 
         Graph<RootComponent, RootRelation> selectorGraph = EdmmGraphCreator.of(selectorDM);
@@ -179,7 +186,7 @@ class RuleCheckerTest {
         InstanceModel instanceModel = new InstanceModel(new DeploymentModel("instance-model", instanceGraph));
 
         // create a compliance rule
-        ComplianceRule complianceRule = new ComplianceRule(1L, "subgraph-matching", "nowhere");
+        ComplianceRule complianceRule = new ComplianceRule(1L, "subgraph-matching", "nowhere", "dummy");
         complianceRule.addStringParameter("DBMS_NAME", "production");
         complianceRule.addStringCollectionParameter("ALLOWED_USERS", List.of("C", "B", "A"));
 

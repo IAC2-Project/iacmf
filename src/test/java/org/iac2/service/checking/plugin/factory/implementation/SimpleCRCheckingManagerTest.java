@@ -24,7 +24,7 @@ class SimpleCRCheckingManagerTest {
     @Test
     void getPlugin() {
         SimpleCRCheckingManager instance = SimpleCRCheckingManager.getInstance();
-        ComplianceRule cr = new ComplianceRule(1L, "subgraph-matching", "https://nowhere.no");
+        ComplianceRule cr = new ComplianceRule(1L, "subgraph-matching", "https://nowhere.no", "dummy");
         Collection<String> plugins = instance.getPossiblePluginIdentifiersForComplianceRule(cr);
         assertNotNull(plugins);
         assertEquals(1, plugins.size());

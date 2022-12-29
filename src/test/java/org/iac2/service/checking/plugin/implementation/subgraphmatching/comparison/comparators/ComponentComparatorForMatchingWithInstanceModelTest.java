@@ -36,7 +36,7 @@ class ComponentComparatorForMatchingWithInstanceModelTest {
         EntityId paasId = Edmm.addComponent(graph2, "paas", new HashMap<>(), Paas.class);
         DeploymentModel ruleModel = new DeploymentModel("rule", graph1);
         DeploymentModel instanceModel = new DeploymentModel("instance model", graph2);
-        ComplianceRule rule = new ComplianceRule(1L, "a", "b");
+        ComplianceRule rule = new ComplianceRule(1L, "a", "b", "dummy");
 
         db = (Database) ruleModel.getComponent(dbId.getName()).orElseThrow();
         mysqlDatabase = (MysqlDatabase) instanceModel.getComponent(mySqlId.getName()).orElseThrow();

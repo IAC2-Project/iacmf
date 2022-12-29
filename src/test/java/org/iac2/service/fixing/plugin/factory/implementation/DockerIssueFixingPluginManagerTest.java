@@ -35,6 +35,7 @@ import org.iac2.service.checking.plugin.implementation.subgraphmatching.Subgraph
 import org.iac2.service.checking.plugin.implementation.subgraphmatching.SubgraphMatchingCheckingPluginDescriptor;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.service.fixing.plugin.implementaiton.docker.DockerContainerIssueFixingPluginDescriptor;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -137,7 +138,8 @@ class DockerIssueFixingPluginManagerTest {
         instanceModel = enhanceInstance(productionSystem, instanceModel);
         SubgraphMatchingCheckingPlugin checkingPlugin = new SubgraphMatchingCheckingPlugin(new SubgraphMatchingCheckingPluginDescriptor());
 
-        ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", RULE_PATH);
+        ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", RULE_PATH,
+                DockerContainerIssueFixingPluginDescriptor.SUPPORTED_ISSUE_TYPES[0]);
         rule.addStringParameter("ENGINE_URL", "tcp://" + TestUtils.getDockerHost() + ":2375");
         Collection<ComplianceIssue> issues = checkingPlugin.findIssues(instanceModel, rule);
         Assertions.assertEquals(1, issues.size());
