@@ -26,6 +26,7 @@ import org.iac2.entity.productionsystem.ProductionSystemEntity;
 @Data
 public class ComplianceJobEntity {
     @Id
+    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 

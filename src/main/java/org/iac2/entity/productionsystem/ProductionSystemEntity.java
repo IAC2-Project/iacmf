@@ -26,6 +26,7 @@ import org.iac2.entity.plugin.PluginUsageEntity;
 @Getter
 public class ProductionSystemEntity {
     @Id
+    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
