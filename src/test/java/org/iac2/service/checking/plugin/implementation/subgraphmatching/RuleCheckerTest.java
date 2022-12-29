@@ -178,7 +178,7 @@ class RuleCheckerTest {
         EntityId databaseId = Edmm.addComponent(
                 instanceGraph,
                 "database1",
-                Map.of("user", "C,B"),
+                Map.of("users", "C,B"),
                 MysqlDatabase.class
         );
         Edmm.addRelation(instanceGraph, dockerContainerId, dockerEngineId, HostedOn.class);
@@ -202,7 +202,7 @@ class RuleCheckerTest {
 
         EntityId newDb = Edmm.addComponent(instanceGraph,
                 "db-2",
-                Map.of("user", "C,X,B"),
+                Map.of("users", "C,X,B"),
                 MysqlDatabase.class);
         Edmm.addRelation(instanceGraph, newDb, dbmsId, HostedOn.class);
         instanceModel = new InstanceModel(new DeploymentModel("instance-model", instanceGraph));
