@@ -25,6 +25,7 @@ import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlD
 import org.iac2.service.fixing.common.exception.ComplianceRuleMissingRequiredParameterException;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +50,29 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
         }
     }
 
+    @NotNull
+    public static Set<String> findUsersToRemove(ComplianceIssue issue, String modelComponentName, RootComponent db) {
+        // Find out which users to remove
+        Collection<String> currentUsers = Edmm.getAttributeValueAsList(db, MODEL_PROPERTY_NAME_USERS);
+
+        if (currentUsers == null) {
+            throw new MalformedInstanceModelException(modelComponentName, MODEL_PROPERTY_NAME_USERS,
+                    "The component '%s' in the instance model is missing a required property: '%s'".formatted(db, MODEL_PROPERTY_NAME_USERS));
+        }
+
+        final String CR_PROPERTY_NAME = RemoveDBUsersFixingPluginDescriptor.EXPECTED_COMPLIANCE_RULE_PARAMETERS[0];
+        StringCollectionComplianceRuleParameter parameter = (StringCollectionComplianceRuleParameter) issue.getRule()
+                .getParameterAssignments()
+                .stream()
+                .filter(p -> p.getName().equals(CR_PROPERTY_NAME))
+                .findFirst()
+                .orElseThrow();
+        Collection<String> allowed = parameter.getValue();
+        Set<String> usersToRemove = new HashSet<>(currentUsers);
+        usersToRemove.removeAll(allowed);
+        return usersToRemove;
+    }
+
     @Override
     public PluginDescriptor getDescriptor() {
         return descriptor;
@@ -68,27 +92,7 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
     @Override
     public IssueFixingReport fixIssue(ComplianceIssue issue, InstanceModel model, ProductionSystem productionSystem) {
         // Validate some inputs
-        if (!descriptor.isIssueTypeSupported(issue.getType())) {
-            throw new IssueNotSupportedException(issue.getType());
-        }
-
-        if (!issue.getProperties().containsKey("CHECKER_COMPONENT_ID")) {
-            throw new IssueNotSupportedException(issue.getType(),
-                    "The issue is missing a required property: '%s'".formatted("CHECKER_COMPONENT_ID"));
-        }
-
-        if (!descriptor.isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
-            throw new IaCTechnologyNotSupportedException(productionSystem.getIacTechnologyName());
-        }
-
-        String missingCRParam = descriptor.getRequiredComplianceRuleParameters()
-                .stream()
-                .filter(pName -> issue.getRule().getParameterAssignments().stream().noneMatch(p -> p.getName().equals(pName)))
-                .findFirst().orElse(null);
-
-        if (missingCRParam != null) {
-            throw new ComplianceRuleMissingRequiredParameterException(issue.getRule(), missingCRParam);
-        }
+        validateInputs(issue, productionSystem);
 
         String modelComponentName = issue.getProperties().get("CHECKER_COMPONENT_ID");
         RootComponent db = model.getDeploymentModel()
@@ -99,24 +103,7 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
             throw new MalformedInstanceModelException(modelComponentName, null, "Cannot find component referenced in issue!");
         }
 
-        // Find out which users to remove
-        Collection<String> currentUsers = Edmm.getAttributeValueAsList(db, MODEL_PROPERTY_NAME_USERS);
-
-        if (currentUsers == null) {
-            throw new MalformedInstanceModelException(modelComponentName, MODEL_PROPERTY_NAME_USERS,
-                    "The component '%s' in the instance model is missing a required property: '%s'".formatted(db, MODEL_PROPERTY_NAME_USERS));
-        }
-
-        final String CR_PROPERTY_NAME = RemoveDBUsersFixingPluginDescriptor.EXPECTED_COMPLIANCE_RULE_PARAMETERS[0];
-        StringCollectionComplianceRuleParameter parameter = (StringCollectionComplianceRuleParameter) issue.getRule()
-                .getParameterAssignments()
-                .stream()
-                .filter(p -> p.getName().equals(CR_PROPERTY_NAME))
-                .findFirst()
-                .orElseThrow();
-        Collection<String> allowed = parameter.getValue();
-        Set<String> usersToRemove = new HashSet<>(currentUsers);
-        usersToRemove.removeAll(allowed);
+        Set<String> usersToRemove = findUsersToRemove(issue, modelComponentName, db);
 
         // Find out how to connect to the database
         Collection<RootComponent> dbmss = Edmm.findTargetComponents(model.getDeploymentModel(), db, HostedOn.class);
@@ -155,6 +142,30 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
                     String.format("The plugin (id: %s) is trying to access a missing property (name: %s)" +
                                     " in the component (id: %s) of the reconstructed instance model.",
                             getIdentifier(), dbms.getName(), missingPropertyName));
+        }
+    }
+
+    public void validateInputs(ComplianceIssue issue, ProductionSystem productionSystem) {
+        if (!descriptor.isIssueTypeSupported(issue.getType())) {
+            throw new IssueNotSupportedException(issue.getType());
+        }
+
+        if (!issue.getProperties().containsKey("CHECKER_COMPONENT_ID")) {
+            throw new IssueNotSupportedException(issue.getType(),
+                    "The issue is missing a required property: '%s'".formatted("CHECKER_COMPONENT_ID"));
+        }
+
+        if (!descriptor.isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
+            throw new IaCTechnologyNotSupportedException(productionSystem.getIacTechnologyName());
+        }
+
+        String missingCRParam = descriptor.getRequiredComplianceRuleParameters()
+                .stream()
+                .filter(pName -> issue.getRule().getParameterAssignments().stream().noneMatch(p -> p.getName().equals(pName)))
+                .findFirst().orElse(null);
+
+        if (missingCRParam != null) {
+            throw new ComplianceRuleMissingRequiredParameterException(issue.getRule(), missingCRParam);
         }
     }
 }
