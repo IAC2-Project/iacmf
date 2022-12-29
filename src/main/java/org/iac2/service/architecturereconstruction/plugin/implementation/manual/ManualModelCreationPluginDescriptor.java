@@ -2,12 +2,13 @@ package org.iac2.service.architecturereconstruction.plugin.implementation.manual
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.iac2.common.Plugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPluginDescriptor;
 
 public class ManualModelCreationPluginDescriptor implements ModelCreationPluginDescriptor {
-    public static final String IDENTIFIER = "manualplugin";
+    public static final String IDENTIFIER = "manual-model-creation-plugin";
 
     @Override
     public String getIdentifier() {
@@ -16,7 +17,7 @@ public class ManualModelCreationPluginDescriptor implements ModelCreationPluginD
 
     @Override
     public Collection<String> getRequiredConfigurationEntryNames() {
-        return Collections.emptyList();
+        return List.of(ManualModelCreationPlugin.CONFIG_ENTRY_MODEL_PATH);
     }
 
     @Override
@@ -31,6 +32,7 @@ public class ManualModelCreationPluginDescriptor implements ModelCreationPluginD
 
     @Override
     public boolean isIaCTechnologySupported(String iacTechnologyName) {
-        return iacTechnologyName.equalsIgnoreCase("opentoscacontainer");
+        // all iac technologies are supported since no iac tools are actually accessed by this plugin.
+        return true;
     }
 }
