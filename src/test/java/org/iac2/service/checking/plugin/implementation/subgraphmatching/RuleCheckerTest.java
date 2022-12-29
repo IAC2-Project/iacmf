@@ -21,6 +21,7 @@ import io.github.edmm.model.relation.RootRelation;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.common.utility.Edmm;
+import org.iac2.common.utility.EdmmGraphCreator;
 import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
