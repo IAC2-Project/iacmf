@@ -5,12 +5,13 @@ components:
       configure: C:\Users\falazigb\winery-repositories\modeling-repository/artifacttemplates/https%3A%2F%2Fedmm.uni-stuttgart.de%2Fartifacttemplates/MySQL_Database-Configure/files/configure.sh
     type: mysql_database
     properties:
-      password: ""
+      password: ''
       name: MySQL_Database
-      componentName: ""
-      schema_name: ""
-      user: "#ALLOWED_USERS.containsAll(value)"
-multi_id: "12345"
+      componentName: ''
+      schema_name: ''
+      user: ''
+      users: '#ALLOWED_USERS.containsAll(value)'
+multi_id: '12345'
 component_types:
   database:
     extends: base
@@ -23,6 +24,9 @@ component_types:
         type: string
   mysql_database:
     extends: database
+    properties:
+      users:
+        type: string
   base:
     extends: null
     properties:

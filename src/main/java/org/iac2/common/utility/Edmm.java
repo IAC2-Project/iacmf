@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -242,7 +243,8 @@ public class Edmm {
                 .stream()
                 .filter(r -> relationType.isAssignableFrom(r.getClass()))
                 .map(RootRelation::getTarget)
-                .map(name -> model.getComponent(name).orElseThrow())
+                .map(name -> model.getComponent(name).orElse(null))
+                .filter(Objects::nonNull)
                 .toList();
     }
 

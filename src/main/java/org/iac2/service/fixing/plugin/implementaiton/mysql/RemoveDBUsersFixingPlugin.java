@@ -44,7 +44,7 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
 
         try (Connection conn = DriverManager.getConnection(connectionString)) {
             for (String user : usersToRemove) {
-                PreparedStatement remUserS = conn.prepareStatement("REVOKE ALL ON %s FROM '%s'@'%%'".formatted(dbName, user));
+                PreparedStatement remUserS = conn.prepareStatement("REVOKE ALL ON %s.* FROM '%s'@'%%'".formatted(dbName, user));
                 remUserS.executeUpdate();
             }
         }
@@ -71,6 +71,24 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
         Set<String> usersToRemove = new HashSet<>(currentUsers);
         usersToRemove.removeAll(allowed);
         return usersToRemove;
+    }
+
+    @NotNull
+    public static ConnectionInformation getConnectionInformation(InstanceModel model, RootComponent db) {
+        Collection<RootComponent> dbmss = Edmm.findTargetComponents(model.getDeploymentModel(), db, HostedOn.class);
+
+        if (dbmss == null || dbmss.size() != 1 || !(dbmss.stream().findFirst().get() instanceof MySqlDbms dbms)) {
+            throw new MalformedInstanceModelException(null, null,
+                    "Cannot find the DBMS component hosting the database: %s".formatted(db.getName()));
+        }
+
+        String userNameS = dbms.getProperty(MySqlDbms.DBMSUser).orElse(null);
+        String passwordS = dbms.getProperty(MySqlDbms.DBMSPassword).orElse(null);
+        String portS = dbms.getProperty(MySqlDbms.DBMSPort).orElse(null);
+        String ipS = Edmm.findHostIp(dbms, model.getDeploymentModel());
+        String dbNameS = db.getProperty(MySqlDb.DBName).orElse(null);
+
+        return new ConnectionInformation(userNameS, passwordS, portS, ipS, dbNameS, dbms);
     }
 
     @Override
@@ -103,22 +121,21 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
             throw new MalformedInstanceModelException(modelComponentName, null, "Cannot find component referenced in issue!");
         }
 
+        // Find out which users need to be removed
         Set<String> usersToRemove = findUsersToRemove(issue, modelComponentName, db);
 
-        // Find out how to connect to the database
-        Collection<RootComponent> dbmss = Edmm.findTargetComponents(model.getDeploymentModel(), db, HostedOn.class);
-
-        if (dbmss == null || dbmss.size() != 1 || dbmss.stream().findFirst().get() instanceof MySqlDb) {
-            throw new MalformedInstanceModelException(null, null,
-                    "Cannot find the DBMS component hosting the database: %s".formatted(db.getName()));
+        if (usersToRemove.size() == 0) {
+            new IssueFixingReport(true, "No users found to be removed!");
         }
 
-        MySqlDb dbms = (MySqlDb) dbmss.stream().findFirst().get();
-        String userName = dbms.getProperty(MySqlDbms.DBMSUser).orElse(null);
-        String password = dbms.getProperty(MySqlDbms.DBMSPassword).orElse(null);
-        String port = dbms.getProperty(MySqlDbms.DBMSPort).orElse(null);
-        String ip = Edmm.findHostIp(dbms, model.getDeploymentModel());
-        String dbName = db.getProperty(MySqlDb.DBName).orElse(null);
+        // Find out how to connect to the database
+        ConnectionInformation connectionInformation = getConnectionInformation(model, db);
+
+        String userName = connectionInformation.userName;
+        String ip = connectionInformation.ip;
+        String password = connectionInformation.password;
+        String port = connectionInformation.port;
+        String dbName = connectionInformation.dbName;
 
         if (ip != null && userName != null && password != null && port != null && dbName != null) {
             try {
@@ -138,10 +155,10 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
                             userName == null ? MySqlDbms.DBMSUser.getName() :
                                     password == null ? MySqlDbms.DBMSPassword.getName() :
                                             port == null ? MySqlDbms.DBMSPort.getName() : "IP";
-            throw new MalformedInstanceModelException(dbms.getName(), missingPropertyName,
+            throw new MalformedInstanceModelException(connectionInformation.dbms.getName(), missingPropertyName,
                     String.format("The plugin (id: %s) is trying to access a missing property (name: %s)" +
                                     " in the component (id: %s) of the reconstructed instance model.",
-                            getIdentifier(), dbms.getName(), missingPropertyName));
+                            getIdentifier(), connectionInformation.dbms.getName(), missingPropertyName));
         }
     }
 
@@ -166,6 +183,24 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
 
         if (missingCRParam != null) {
             throw new ComplianceRuleMissingRequiredParameterException(issue.getRule(), missingCRParam);
+        }
+    }
+
+    static class ConnectionInformation {
+        String userName;
+        String password;
+        String port;
+        String ip;
+        String dbName;
+        MySqlDbms dbms;
+
+        public ConnectionInformation(String userName, String password, String port, String ip, String dbName, MySqlDbms dbms) {
+            this.userName = userName;
+            this.password = password;
+            this.port = port;
+            this.ip = ip;
+            this.dbName = dbName;
+            this.dbms = dbms;
         }
     }
 }
