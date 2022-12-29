@@ -26,6 +26,7 @@ import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 @NoArgsConstructor
 public class ComplianceIssueEntity {
     @Id
+    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
@@ -63,7 +64,7 @@ public class ComplianceIssueEntity {
         fixingReports = new ArrayList<>();
         properties = new ArrayList<>();
     }
-    
+
     public ComplianceIssueEntity addProperty(KVEntity property) {
         property.setComplianceIssue(this);
         this.getProperties().add(property);

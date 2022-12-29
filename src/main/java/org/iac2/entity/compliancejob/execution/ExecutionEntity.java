@@ -31,6 +31,7 @@ import org.iac2.entity.plugin.PluginUsageInstanceEntity;
 @NoArgsConstructor
 public class ExecutionEntity {
     @Id
+    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 

@@ -19,6 +19,7 @@ import org.iac2.entity.plugin.PluginUsageEntity;
 @NoArgsConstructor
 public class IssueFixingConfigurationEntity {
     @Id
+    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 

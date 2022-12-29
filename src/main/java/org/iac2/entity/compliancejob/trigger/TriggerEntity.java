@@ -22,6 +22,7 @@ import org.springframework.scheduling.support.CronExpression;
 @NoArgsConstructor
 public class TriggerEntity {
     @Id
+    @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
