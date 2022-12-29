@@ -1,6 +1,11 @@
 package org.iac2.common.utility;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +15,7 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import io.github.edmm.model.DeploymentModel;
 
 public class Utils {
 
@@ -64,5 +70,15 @@ public class Utils {
 
         URI url = parseUrl(value);
         return url != null ? url.getHost() : null;
+    }
+    
+    public static DeploymentModel fetchEdmmDeploymentModel(String fullUrl) throws URISyntaxException, IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder(new URI(fullUrl))
+                .GET()
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String edmmModel = response.body();
+        return DeploymentModel.of(edmmModel);
     }
 }
