@@ -41,7 +41,7 @@ public class PluginUsageEntity extends PluginUsage {
     @OneToOne(mappedBy = "checkingPluginUsage")
     private ComplianceJobEntity complianceJobChecking;
 
-    // checking plugin
+    // fixing plugin
     @OneToOne(mappedBy = "pluginUsage")
     private IssueFixingConfigurationEntity issueFixingConfiguration;
 
