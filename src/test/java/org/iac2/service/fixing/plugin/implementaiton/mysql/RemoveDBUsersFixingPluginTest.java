@@ -39,7 +39,7 @@ class RemoveDBUsersFixingPluginTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveDBUsersFixingPluginTest.class);
 
     @BeforeEach
-    private void init() {
+    public void init() {
         EdmmTypeResolver.initDefaultMappings();
     }
 
