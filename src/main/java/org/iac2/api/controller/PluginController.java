@@ -58,21 +58,21 @@ public class PluginController {
         this.complianceIssueRepository = complianceIssueRepository;
     }
 
-    private static PluginPojo createPluginPojo(PluginDescriptor plugin) {
+    private static PluginPojo createPluginPojo(PluginDescriptor pluginDescriptor) {
         PluginType type;
 
         // todo add more cases when new plugin types are implemented
-        if (plugin instanceof ModelCreationPlugin) {
+        if (pluginDescriptor.createPlugin() instanceof ModelCreationPlugin) {
             type = PluginType.MODEL_CREATION;
-        } else if (plugin instanceof ModelRefinementPlugin) {
+        } else if (pluginDescriptor.createPlugin() instanceof ModelRefinementPlugin) {
             type = PluginType.MODEL_REFINEMENT;
-        } else if (plugin instanceof ComplianceRuleCheckingPlugin) {
+        } else if (pluginDescriptor.createPlugin() instanceof ComplianceRuleCheckingPlugin) {
             type = PluginType.ISSUE_CHECKING;
         } else {
             type = PluginType.ISSUE_FIXING;
         }
 
-        return new PluginPojo(plugin.getIdentifier(), type, plugin.getRequiredConfigurationEntryNames());
+        return new PluginPojo(pluginDescriptor.getIdentifier(), type, pluginDescriptor.getRequiredConfigurationEntryNames());
     }
 
     @GetMapping
