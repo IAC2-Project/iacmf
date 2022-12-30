@@ -13,7 +13,7 @@ import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
 import org.iac2.common.PluginDescriptor;
-import org.iac2.common.exception.PropertyMissingException;
+import org.iac2.common.exception.MalformedInstanceModelException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.Edmm;
@@ -115,7 +115,10 @@ public class MySqlDbModelRefinementPlugin implements ModelRefinementPlugin {
                             Edmm.addPropertyAssignments(instanceModel.getDeploymentModel().getGraph(),
                                     db.getEntity().getId(), Map.of(EDMM_PROPERTY_NAME_USERS, users));
                         } else if (!ignoreMissingProperties) {
-                            throw new PropertyMissingException(getIdentifier(), db.getName(), MySqlDb.DBName.getName());
+                            throw new MalformedInstanceModelException(db.getName(), MySqlDb.DBName.getName(),
+                                    String.format("The plugin (id: %s) is trying to access a missing property (name: %s)" +
+                                                    " in the component (id: %s) of the reconstructed instance model.",
+                                            getIdentifier(), db.getName(), MySqlDb.DBName.getName()));
                         }
                     }
                 } else if (!ignoreMissingProperties) {
@@ -123,7 +126,10 @@ public class MySqlDbModelRefinementPlugin implements ModelRefinementPlugin {
                             userName == null ? MySqlDbms.DBMSUser.getName() :
                                     password == null ? MySqlDbms.DBMSPassword.getName() :
                                             port == null ? MySqlDbms.DBMSPort.getName() : "IP";
-                    throw new PropertyMissingException(getIdentifier(), dbms.getName(), missingPropertyName);
+                    throw new MalformedInstanceModelException(dbms.getName(), missingPropertyName,
+                            String.format("The plugin (id: %s) is trying to access a missing property (name: %s)" +
+                                            " in the component (id: %s) of the reconstructed instance model.",
+                                    getIdentifier(), dbms.getName(), missingPropertyName));
                 }
             }
         } catch (SQLException e) {

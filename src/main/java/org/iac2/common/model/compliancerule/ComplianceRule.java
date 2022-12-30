@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.iac2.common.model.compliancerule.parameter.BooleanComplianceRuleParameter;
 import org.iac2.common.model.compliancerule.parameter.ComplianceRuleParameter;
@@ -13,19 +12,23 @@ import org.iac2.common.model.compliancerule.parameter.IntegerComplianceRuleParam
 import org.iac2.common.model.compliancerule.parameter.StringCollectionComplianceRuleParameter;
 import org.iac2.common.model.compliancerule.parameter.StringComplianceRuleParameter;
 
-@Setter
 @Getter
-@NoArgsConstructor
 public class ComplianceRule {
-    private Long id;
-    private String type;
-    private String location;
+    private final Long id;
+    private final String type;
+    private final String location;
+    /**
+     * The type of the issue to be "thrown" if this compliance rule is found to be violated (as configured in the compliance job).
+     */
+    private final String issueType;
+    @Setter
     private Collection<ComplianceRuleParameter> parameterAssignments;
 
-    public ComplianceRule(Long id, String type, String location) {
+    public ComplianceRule(Long id, String type, String location, String issueType) {
         this.id = id;
         this.type = type;
         this.location = location;
+        this.issueType = issueType;
         parameterAssignments = new ArrayList<>();
     }
 

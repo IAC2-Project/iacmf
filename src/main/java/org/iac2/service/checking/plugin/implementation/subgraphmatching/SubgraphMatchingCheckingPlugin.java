@@ -24,9 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlugin {
-    public static final String ISSUE_WRONG_ATTRIBUTE_VALUE = "WrongAttributeValueIssue";
     public static final String ISSUE_PROPERTY_INSTANCE_MODEL_COMPONENT_NAME = "INSTANCE_MODEL_COMPONENT_ID";
     public static final String ISSUE_PROPERTY_CHECKER_COMPONENT_NAME = "CHECKER_COMPONENT_ID";
+    public static final String ISSUE_PROPERTY_PROPERTY_NAME = "PROPERTY_NAME";
+    public static final String ISSUE_PROPERTY_EXPRESSION = "RULE_PROPERTY_EXPRESSION";
+    public static final String ISSUE_PROPERTY_PROBLEM = "PROBLEM";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SubgraphMatchingCheckingPlugin.class);
     private static final String requiredStructureSegment = "/requiredstructure/edmm/export?edmmUseAbsolutePaths=true";
     private static final String identifierSegment = "/identifier/edmm/export?edmmUseAbsolutePaths=true";
@@ -92,9 +95,12 @@ public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlu
                 ComplianceIssue issue = new ComplianceIssue(
                         result.getErrorMessage(),
                         rule,
-                        ISSUE_WRONG_ATTRIBUTE_VALUE,
+                        rule.getIssueType(),
                         Map.of(ISSUE_PROPERTY_INSTANCE_MODEL_COMPONENT_NAME, result.getInstanceModelComponent().getId(),
-                                ISSUE_PROPERTY_CHECKER_COMPONENT_NAME, result.getCheckerComponent().getId())
+                                ISSUE_PROPERTY_CHECKER_COMPONENT_NAME, result.getCheckerComponent().getId(),
+                                ISSUE_PROPERTY_PROPERTY_NAME, result.getPropertyName(),
+                                ISSUE_PROPERTY_EXPRESSION, result.getRuleExpression(),
+                                ISSUE_PROPERTY_PROBLEM, result.getOutcome().name())
                 );
 
                 return List.of(issue);

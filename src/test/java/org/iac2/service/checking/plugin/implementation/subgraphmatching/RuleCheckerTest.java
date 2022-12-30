@@ -58,7 +58,7 @@ class RuleCheckerTest {
         Edmm.addComponent(instanceModelGraph, "paas1", new HashMap<>(), Paas.class);
         final InstanceModel instanceModel = new InstanceModel(new DeploymentModel("test3", instanceModelGraph));
 
-        final ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", "somewhere");
+        final ComplianceRule rule = new ComplianceRule(1L, "subgraph-matching", "somewhere", "dummy");
 
         RuleChecker checker = new RuleChecker(instanceModel);
         RuleCheckingResult result = checker.checkCompliance(rule, selectorGraph, checkerGraph);
@@ -122,7 +122,7 @@ class RuleCheckerTest {
         InstanceModel instanceModel = new InstanceModel(new DeploymentModel("instance-model", instanceGraph));
 
         // create a compliance rule
-        ComplianceRule complianceRule = new ComplianceRule(1L, "subgraph-matching", "nowhere");
+        ComplianceRule complianceRule = new ComplianceRule(1L, "subgraph-matching", "nowhere", "dummy");
         complianceRule.addStringParameter("ENGINE_URL", "https://localhost:1234");
 
         Graph<RootComponent, RootRelation> selectorGraph = EdmmGraphCreator.of(selectorDM);
@@ -178,7 +178,7 @@ class RuleCheckerTest {
         EntityId databaseId = Edmm.addComponent(
                 instanceGraph,
                 "database1",
-                Map.of("user", "C,B"),
+                Map.of("users", "C,B"),
                 MysqlDatabase.class
         );
         Edmm.addRelation(instanceGraph, dockerContainerId, dockerEngineId, HostedOn.class);
@@ -187,7 +187,7 @@ class RuleCheckerTest {
         InstanceModel instanceModel = new InstanceModel(new DeploymentModel("instance-model", instanceGraph));
 
         // create a compliance rule
-        ComplianceRule complianceRule = new ComplianceRule(1L, "subgraph-matching", "nowhere");
+        ComplianceRule complianceRule = new ComplianceRule(1L, "subgraph-matching", "nowhere", "dummy");
         complianceRule.addStringParameter("DBMS_NAME", "production");
         complianceRule.addStringCollectionParameter("ALLOWED_USERS", List.of("C", "B", "A"));
 
@@ -202,7 +202,7 @@ class RuleCheckerTest {
 
         EntityId newDb = Edmm.addComponent(instanceGraph,
                 "db-2",
-                Map.of("user", "C,X,B"),
+                Map.of("users", "C,X,B"),
                 MysqlDatabase.class);
         Edmm.addRelation(instanceGraph, newDb, dbmsId, HostedOn.class);
         instanceModel = new InstanceModel(new DeploymentModel("instance-model", instanceGraph));
