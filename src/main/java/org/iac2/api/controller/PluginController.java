@@ -14,10 +14,8 @@ import org.apache.commons.lang3.EnumUtils;
 import org.iac2.api.model.PluginPojo;
 import org.iac2.common.PluginDescriptor;
 import org.iac2.common.model.PluginType;
-import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
-import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.repository.compliancejob.ComplianceIssueRepository;
 import org.iac2.repository.compliancerule.ComplianceRuleRepository;
@@ -45,9 +43,7 @@ public class PluginController {
     private final ArchitectureReconstructionPluginFactory arPluginManager;
     private final ComplianceRuleCheckingPluginFactory checkingPluginManager;
     private final IssueFixingPluginFactory fixingPluginManager;
-
     private final ComplianceRuleRepository complianceRuleRepository;
-
     private final ComplianceIssueRepository complianceIssueRepository;
 
     public PluginController(ArchitectureReconstructionPluginFactory arPluginManager,
@@ -191,13 +187,8 @@ public class PluginController {
 
     private ComplianceRule getComplianceRule(Long id) {
         ComplianceRuleEntity crEntity = this.complianceRuleRepository.findById(id).orElseThrow();
-        ComplianceRuleConfigurationEntity dummy = new ComplianceRuleConfigurationEntity(crEntity, null, "");
+        ComplianceRuleConfigurationEntity crConfig = new ComplianceRuleConfigurationEntity(crEntity, null, "");
 
-        return EntityToPojo.transformComplianceRule(dummy);
-    }
-
-    private ComplianceIssue getComplianceIssue(Long id) {
-        ComplianceIssueEntity issueEntity = this.complianceIssueRepository.findById(id).orElseThrow();
-        return EntityToPojo.transformIssue(issueEntity);
+        return EntityToPojo.transformComplianceRule(crConfig);
     }
 }
