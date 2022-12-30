@@ -1,5 +1,9 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import io.github.edmm.model.Property;
 import io.github.edmm.model.component.RootComponent;
 import lombok.Getter;
@@ -9,10 +13,6 @@ import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparis
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.expression.ExpressionException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 @Getter
 public class ComponentComparatorForMatchingWithInstanceModel implements SemanticComponentComparator {
@@ -40,9 +40,9 @@ public class ComponentComparatorForMatchingWithInstanceModel implements Semantic
         return CaseUtils.toCamelCase(property, false, '_');
     }
 
-    public ComponentComparisonOutcome compare(RootComponent instanceModelComponent, RootComponent ruleComponent) {
+    public ComponentComparisonResult compare(RootComponent instanceModelComponent, RootComponent ruleComponent) {
         if (!ruleComponent.getClass().isAssignableFrom(instanceModelComponent.getClass())) {
-            return ComponentComparisonOutcome.WRONG_TYPE;
+            return new ComponentComparisonResult(ComponentComparisonOutcome.WRONG_TYPE, null, null);
         }
 
         String expression;
@@ -73,12 +73,12 @@ public class ComponentComparatorForMatchingWithInstanceModel implements Semantic
                         try {
                             if (!AttributeComparator.evaluateAttribute(expression, instanceProperty, rule)) {
                                 // the attribute values do not match!
-                                return ComponentComparisonOutcome.WRONG_VALUE;
+                                return new ComponentComparisonResult(ComponentComparisonOutcome.WRONG_VALUE, name, expression);
                             }
                         } catch (ExpressionException e) {
                             // expression does not have a boolean value! (we should have discovered this problem earlier!)
                             LOGGER.error("expression '{}' in property '{}' cannot be evaluated to a boolean value.", expression, name);
-                            return ComponentComparisonOutcome.NOT_BOOLEAN;
+                            return new ComponentComparisonResult(ComponentComparisonOutcome.NOT_BOOLEAN, name, expression);
                         }
                         LOGGER.info("Property '{}.{}' with value '{}' matches property '{}.{}' with value '{}'",
                                 instanceModelComponent.getName(),
@@ -93,12 +93,12 @@ public class ComponentComparatorForMatchingWithInstanceModel implements Semantic
 
                 // a required property in the compliance rule is not found in the instance model component.
                 if (!isFound) {
-                    return ComponentComparisonOutcome.MISSING_PROPERTY;
+                    return new ComponentComparisonResult(ComponentComparisonOutcome.MISSING_PROPERTY, name, null);
                 }
             }
         }
 
         // no problems found! the components match!
-        return ComponentComparisonOutcome.MATCH;
+        return new ComponentComparisonResult(ComponentComparisonOutcome.MATCH, null, null);
     }
 }

@@ -2,14 +2,12 @@ package org.iac2.service.fixing.plugin.factory.implementation;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
-import com.google.common.collect.Maps;
 import org.iac2.common.exception.PluginNotFoundException;
 import org.iac2.common.model.ProductionSystem;
-import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
-import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
+import org.iac2.service.fixing.plugin.implementaiton.docker.DockerContainerIssueFixingPluginDescriptor;
+import org.iac2.service.fixing.plugin.implementaiton.mysql.RemoveDBUsersFixingPluginDescriptor;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,21 +27,16 @@ class SimpleIssueFixingPluginManagerTest {
     @Test
     void getSuitablePlugins() {
         SimpleIssueFixingPluginFactory instance = SimpleIssueFixingPluginFactory.getInstance();
-        ComplianceRule rule = new ComplianceRule();
-
-        Map<String, String> issueProps = Maps.newHashMap();
-        issueProps.put("INSTANCE_MODEL_COMPONENT_ID", "bla");
-        issueProps.put("CHECKER_COMPONENT_ID", "blub");
-        ComplianceIssue issue = new ComplianceIssue(
-                "I have a bad feeling about this!",
-                rule,
-                "WrongAttributeValueIssue",
-                issueProps);
+        String issueType = DockerContainerIssueFixingPluginDescriptor.SUPPORTED_ISSUE_TYPES[0];
         ProductionSystem productionSystem = new ProductionSystem(
                 "opentoscacontainer",
                 "bla bla",
                 new HashMap<>());
-        Collection<String> plugins = instance.getSuitablePluginIdentifiers(issue, productionSystem);
+        Collection<String> plugins = instance.getSuitablePluginIdentifiers(issueType, productionSystem);
+        assertNotNull(plugins);
+        assertEquals(1, plugins.size());
+        issueType = RemoveDBUsersFixingPluginDescriptor.SUPPORTED_ISSUE_TYPES[0];
+        plugins = instance.getSuitablePluginIdentifiers(issueType, productionSystem);
         assertNotNull(plugins);
         assertEquals(1, plugins.size());
     }

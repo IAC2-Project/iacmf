@@ -2,9 +2,11 @@ package org.iac2.common.utility;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -26,6 +28,11 @@ import io.github.edmm.model.support.BaseElement;
 import io.github.edmm.model.support.ModelEntity;
 
 public class Edmm {
+
+    private static final String LIST_DELIMITER = ",";
+    private static final String LIST_TYPE = "list";
+    private static final String BOOLEAN_TYPE = "boolean";
+
     public static Entity addType(EntityGraph graph, Class<? extends ModelEntity> componentType) throws IllegalAccessException {
         if (graph.getEntity(EntityGraph.COMPONENT_TYPES).isEmpty()) {
             graph.addEntity(new MappingEntity(EntityGraph.COMPONENT_TYPES, graph));
@@ -236,7 +243,8 @@ public class Edmm {
                 .stream()
                 .filter(r -> relationType.isAssignableFrom(r.getClass()))
                 .map(RootRelation::getTarget)
-                .map(name -> model.getComponent(name).orElseThrow())
+                .map(name -> model.getComponent(name).orElse(null))
+                .filter(Objects::nonNull)
                 .toList();
     }
 
@@ -263,11 +271,18 @@ public class Edmm {
 
     private static void addPropertyDefinition(Attribute<?> attribute, Entity propertiesEntity) {
         String propertyName = attribute.getName();
-        String edmmType = switch (attribute.getType().getName()) {
-            case "java.lang.Integer", "java.lang.Long" -> DefaultKeys.INTEGER;
-            case "java.lang.Float", "java.lang.Double" -> DefaultKeys.FLOAT;
-            default -> DefaultKeys.STRING;
-        };
+        String edmmType = DefaultKeys.STRING;
+        Class<?> javaType = attribute.getType();
+
+        if (Integer.class.equals(javaType) || Long.class.equals(javaType)) {
+            edmmType = DefaultKeys.INTEGER;
+        } else if (Float.class.equals(javaType) || Double.class.equals(javaType)) {
+            edmmType = DefaultKeys.FLOAT;
+        } else if (Boolean.class.equals(javaType)) {
+            edmmType = BOOLEAN_TYPE;
+        } else if (Collection.class.isAssignableFrom(javaType)) {
+            edmmType = LIST_TYPE;
+        }
 
         addProperty(propertiesEntity, edmmType, propertyName, false, null);
     }
@@ -281,8 +296,8 @@ public class Edmm {
     }
 
     private static String convertAttributeValue(String edmmBasicType, Object value) {
-        if (edmmBasicType.equals("list")) {
-            return String.join(",", (Collection<String>) value);
+        if (edmmBasicType.equals(LIST_TYPE)) {
+            return String.join(LIST_DELIMITER, (Collection<String>) value);
         }
 
         return String.valueOf(value);
@@ -355,5 +370,15 @@ public class Edmm {
                 .extend(propertyName);
 
         return graph.getEntity(propertyDefinitionId).isPresent();
+    }
+
+    public static Collection<String> getAttributeValueAsList(RootComponent component, String attName) {
+        Property property = component.getProperty(attName).orElse(null);
+
+        if (property == null) {
+            return null;
+        }
+
+        return Arrays.stream(property.getValue().split(LIST_DELIMITER)).toList();
     }
 }

@@ -8,6 +8,7 @@ import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.common.utility.EdmmGraphCreator;
 import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.ComponentComparisonOutcome;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.ComponentComparisonResult;
 import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.SemanticComponentComparator;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphMapping;
@@ -41,11 +42,11 @@ public class RuleChecker {
 
                     // the checker component might be null because the rule does not enforce restrictions on this component.
                     if (checkerComponent != null) {
-                        ComponentComparisonOutcome outcome = semanticComparator.compare(instanceModelComponent, checkerComponent);
+                        ComponentComparisonResult result = semanticComparator.compare(instanceModelComponent, checkerComponent);
 
-                        if (outcome != ComponentComparisonOutcome.MATCH) {
-                            return new RuleCheckingResult(RuleCheckingOutcome.COMPLIANCE_VIOLATION,
-                                    checkerComponent, instanceModelComponent, String.valueOf(outcome));
+                        if (result.outcome() != ComponentComparisonOutcome.MATCH) {
+                            return new RuleCheckingResult(RuleCheckingOutcome.COMPLIANCE_VIOLATION, checkerComponent,
+                                    instanceModelComponent, result.propertyName(), result.expression(), String.valueOf(result));
                         }
                     }
                 }
@@ -55,6 +56,6 @@ public class RuleChecker {
         }
 
         return new RuleCheckingResult(RuleCheckingOutcome.INVALID_RULE,
-                null, null, String.valueOf(validationResult.getOutcome()));
+                null, null, null, null, String.valueOf(validationResult.getOutcome()));
     }
 }

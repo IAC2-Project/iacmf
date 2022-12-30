@@ -1,5 +1,8 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.comparators.attribute;
 
+import java.util.List;
+import java.util.Map;
+
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
@@ -14,14 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.ExpressionException;
 
-import java.util.List;
-import java.util.Map;
-
 class AttributeComparatorTest {
 
     @Test
     void testExpressionNoVariables() throws IllegalAccessException {
-        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere");
+        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere", "dummy");
         EntityGraph instanceModel = new EntityGraph();
 
         Edmm.addComponent(instanceModel, "comp1", Map.of("structuralState", "EXPECTED"), SoftwareComponent.class);
@@ -36,7 +36,7 @@ class AttributeComparatorTest {
 
     @Test
     void testExpressionWithVariables() throws IllegalAccessException {
-        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere");
+        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere", "dummy");
         rule.addStringParameter("HOST", "http://localhost");
         rule.addIntParameter("PORT", 1234);
         EntityGraph instanceModel = new EntityGraph();
@@ -51,7 +51,7 @@ class AttributeComparatorTest {
 
     @Test
     void testMissingVariables() throws IllegalAccessException {
-        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere");
+        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere", "dummy");
         rule.addStringParameter("HOST", "http://localhost");
         EntityGraph instanceModel = new EntityGraph();
 
@@ -64,7 +64,7 @@ class AttributeComparatorTest {
 
     @Test
     void testNotBoolean() throws IllegalAccessException {
-        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere");
+        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere", "dummy");
         rule.addStringParameter("HOST", "http://localhost");
         rule.addIntParameter("PORT", 1234);
         EntityGraph instanceModel = new EntityGraph();
@@ -78,7 +78,7 @@ class AttributeComparatorTest {
 
     @Test
     void testListContainment() throws IllegalAccessException {
-        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere");
+        ComplianceRule rule = new ComplianceRule(1L, "isomeso", "somewhere", "dummy");
         rule.addStringCollectionParameter("ALLOWED", List.of("A", "B"));
         EntityGraph instanceModel = new EntityGraph();
 

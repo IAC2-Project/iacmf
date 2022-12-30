@@ -9,6 +9,7 @@ import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
+import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmentEntity;
@@ -19,9 +20,7 @@ public class EntityToPojo {
     public static ComplianceIssue transformIssue(ComplianceIssueEntity complianceIssue) {
 
         ComplianceJobEntity job = complianceIssue.getExecution().getComplianceJob();
-        ComplianceRule rule = transformComplianceRule(
-                complianceIssue.getComplianceRuleConfiguration().getComplianceRule(),
-                complianceIssue.getComplianceRuleConfiguration().getComplianceRuleParameterAssignments());
+        ComplianceRule rule = transformComplianceRule(complianceIssue.getComplianceRuleConfiguration());
 
         return new ComplianceIssue(
                 complianceIssue.getDescription(),
@@ -31,9 +30,11 @@ public class EntityToPojo {
         );
     }
 
-    public static ComplianceRule transformComplianceRule(ComplianceRuleEntity complianceRule,
-                                                         Collection<ComplianceRuleParameterAssignmentEntity> assignments) {
-        ComplianceRule myCR = new ComplianceRule(complianceRule.getId(), complianceRule.getType(), complianceRule.getLocation());
+    public static ComplianceRule transformComplianceRule(ComplianceRuleConfigurationEntity complianceRuleConfiguration) {
+        ComplianceRuleEntity complianceRule = complianceRuleConfiguration.getComplianceRule();
+        Collection<ComplianceRuleParameterAssignmentEntity> assignments = complianceRuleConfiguration.getComplianceRuleParameterAssignments();
+        String issueType = complianceRuleConfiguration.getIssueType();
+        ComplianceRule myCR = new ComplianceRule(complianceRule.getId(), complianceRule.getType(), complianceRule.getLocation(), issueType);
 
         if (assignments != null) {
             assignments.forEach(assignment -> {

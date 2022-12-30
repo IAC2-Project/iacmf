@@ -8,11 +8,11 @@ import org.iac2.common.PluginDescriptor;
 import org.iac2.common.exception.PluginNotFoundException;
 import org.iac2.common.model.PluginType;
 import org.iac2.common.model.ProductionSystem;
-import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPluginDescriptor;
 import org.iac2.service.fixing.plugin.factory.IssueFixingPluginFactory;
 import org.iac2.service.fixing.plugin.implementaiton.docker.DockerContainerIssueFixingPluginDescriptor;
+import org.iac2.service.fixing.plugin.implementaiton.mysql.RemoveDBUsersFixingPluginDescriptor;
 
 public class SimpleIssueFixingPluginFactory implements IssueFixingPluginFactory {
     private static SimpleIssueFixingPluginFactory instance;
@@ -21,7 +21,9 @@ public class SimpleIssueFixingPluginFactory implements IssueFixingPluginFactory 
     private SimpleIssueFixingPluginFactory() {
         this.allPlugins = new HashMap<>();
         DockerContainerIssueFixingPluginDescriptor dockerPlugin = new DockerContainerIssueFixingPluginDescriptor();
+        RemoveDBUsersFixingPluginDescriptor mysql = new RemoveDBUsersFixingPluginDescriptor();
         this.allPlugins.put(dockerPlugin.getIdentifier(), dockerPlugin);
+        this.allPlugins.put(mysql.getIdentifier(), mysql);
     }
 
     public static SimpleIssueFixingPluginFactory getInstance() {
@@ -33,11 +35,11 @@ public class SimpleIssueFixingPluginFactory implements IssueFixingPluginFactory 
     }
 
     @Override
-    public Collection<String> getSuitablePluginIdentifiers(ComplianceIssue complianceIssue, ProductionSystem productionSystem) {
+    public Collection<String> getSuitablePluginIdentifiers(String complianceIssue, ProductionSystem productionSystem) {
         return allPlugins
                 .values()
                 .stream()
-                .filter(p -> p.isSuitableForIssue(complianceIssue) &&
+                .filter(p -> p.isIssueTypeSupported(complianceIssue) &&
                         p.isIaCTechnologySupported(productionSystem.getIacTechnologyName()))
                 .map(PluginDescriptor::getIdentifier)
                 .toList();

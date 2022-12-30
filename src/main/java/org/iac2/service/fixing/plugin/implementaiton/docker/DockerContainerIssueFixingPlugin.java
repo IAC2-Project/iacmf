@@ -44,7 +44,7 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
 
     @Override
     public void setConfigurationEntry(String inputName, String inputValue) {
-
+        LOGGER.warn("Trying to set user input in a plugin that does not expect user inputs!");
     }
 
     @Override
@@ -55,12 +55,12 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
 
     @Override
     public IssueFixingReport fixIssue(ComplianceIssue issue, InstanceModel instanceModel, ProductionSystem productionSystem) {
-        if (!descriptor.isSuitableForIssue(issue)) {
-            throw new IssueNotSupportedException(issue);
+        if (!descriptor.isIssueTypeSupported(issue.getType())) {
+            throw new IssueNotSupportedException(issue.getType());
         }
 
         if (!descriptor.isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {
-            // see at method isSuitableForProd... i don't think this will ever be a problem
+            // see at method isSuitableForProd... I don't think this will ever be a problem
             throw new IaCTechnologyNotSupportedException(productionSystem.getIacTechnologyName());
         }
 
