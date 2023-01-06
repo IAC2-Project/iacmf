@@ -10,7 +10,9 @@ import org.iac2.service.fixing.common.interfaces.IssueFixingPluginDescriptor;
 public class BashFixingPluginDescriptor implements IssueFixingPluginDescriptor {
     public static final String IDENTIFIER = "bash-fixing-plugin";
     public static final String CONFIGURATION_ENTRY_SCRIPT = "script";
-    public static final String CONFIGURATION_ENTRY_ARGUMENTS = "script_arguments";
+    public static final String CONFIGURATION_ENTRY_COMPLIANCE_RULE_ARGUMENTS = "compliance-rule-arguments";
+    public static final String CONFIGURATION_ENTRY_USERNAME = "username";
+    public static final String CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY = "default-private-key";
 
     @Override
     public String getIdentifier() {
@@ -19,7 +21,11 @@ public class BashFixingPluginDescriptor implements IssueFixingPluginDescriptor {
 
     @Override
     public Collection<String> getRequiredConfigurationEntryNames() {
-        return List.of(CONFIGURATION_ENTRY_SCRIPT, CONFIGURATION_ENTRY_ARGUMENTS);
+        return List.of(
+                CONFIGURATION_ENTRY_SCRIPT,
+                CONFIGURATION_ENTRY_COMPLIANCE_RULE_ARGUMENTS,
+                CONFIGURATION_ENTRY_USERNAME,
+                CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY);
     }
 
     @Override
