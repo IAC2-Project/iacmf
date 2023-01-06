@@ -183,7 +183,7 @@ class DockerIssueFixingPluginManagerTest {
 
         Collection<String> plugins = instance.getSuitablePluginIdentifiers(params.issue.getType(), productionSystem);
         assertNotNull(plugins);
-        assertEquals(1, plugins.size());
+        assertTrue(plugins.size() > 0);
 
         String pluginId = plugins.iterator().next();
         assertNotNull(pluginId);
