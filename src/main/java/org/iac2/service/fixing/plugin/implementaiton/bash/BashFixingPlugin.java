@@ -64,12 +64,12 @@ public class BashFixingPlugin implements IssueFixingPlugin {
     @Override
     public void setConfigurationEntry(String inputName, String inputValue) {
         switch (inputName) {
-            case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_SCRIPT -> this.script = inputName;
+            case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_SCRIPT -> this.script = inputValue;
             case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_COMPLIANCE_RULE_ARGUMENTS ->
-                    this.complianceRuleArguments = inputName;
-            case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_USERNAME -> this.userName = inputName;
+                    this.complianceRuleArguments = inputValue;
+            case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_USERNAME -> this.userName = inputValue;
             case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY ->
-                    this.defaultPrivateKey = inputName;
+                    this.defaultPrivateKey = inputValue;
             default -> LOGGER.warn("Trying to set an expected configuration entry '{}'. Ignored!", inputName);
         }
     }
@@ -204,17 +204,17 @@ public class BashFixingPlugin implements IssueFixingPlugin {
                             .formatted(getIdentifier(), vmNodeId, osFamily));
         }
 
-        String instanceType = component.getProperty(Compute.INSTANCE_TYPE).orElse(null);
+        String machineImage = component.getProperty(Compute.MACHINE_IMAGE).orElse(null);
 
-        if (instanceType == null || instanceType.isEmpty()) {
-            throw new MalformedInstanceModelException(vmNodeId, Compute.INSTANCE_TYPE.getName(),
-                    "The component (id: %s) is missing a property '%s'".formatted(vmNodeId, Compute.INSTANCE_TYPE.getName()));
+        if (machineImage == null || machineImage.isEmpty()) {
+            throw new MalformedInstanceModelException(vmNodeId, Compute.MACHINE_IMAGE.getName(),
+                    "The component (id: %s) is missing a property '%s'".formatted(vmNodeId, Compute.MACHINE_IMAGE.getName()));
         }
 
-        if (!"ubuntu".equalsIgnoreCase(instanceType)) {
-            throw new MalformedInstanceModelException(vmNodeId, Compute.INSTANCE_TYPE.getName(),
+        if (!"ubuntu".equalsIgnoreCase(machineImage)) {
+            throw new MalformedInstanceModelException(vmNodeId, Compute.MACHINE_IMAGE.getName(),
                     "The plugin (id: %s) expects the component (id: %s) to represent a linux-based (ubuntu) OS , but was a linux-based (%s) OS instead."
-                            .formatted(getIdentifier(), vmNodeId, instanceType));
+                            .formatted(getIdentifier(), vmNodeId, machineImage));
         }
 
         return (Compute) component;

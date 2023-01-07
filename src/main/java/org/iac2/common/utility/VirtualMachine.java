@@ -45,7 +45,7 @@ public class VirtualMachine {
 
         LOG.info("Checking if VM '{}' is available", this);
         long startTime = System.currentTimeMillis();
-        long endTime = startTime + 1200000;
+        long endTime = startTime + 30 * 1000;
         Exception error = null;
         while (System.currentTimeMillis() < endTime) {
             try {
