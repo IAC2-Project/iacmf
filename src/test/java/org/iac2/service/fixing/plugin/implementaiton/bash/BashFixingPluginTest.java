@@ -217,6 +217,15 @@ class BashFixingPluginTest {
         report = plugin.fixIssue(issue1, model, null);
         Assertions.assertNotNull(report);
         Assertions.assertTrue(report.isSuccessful());
+
+        ComplianceIssue issue2 = createDummyIssue(Map.of("param1", "'hello world!'"), "vm1");
+        plugin.setConfigurationEntry(BashFixingPluginDescriptor.CONFIGURATION_ENTRY_SCRIPT, "echo");
+        plugin.setConfigurationEntry(BashFixingPluginDescriptor.CONFIGURATION_ENTRY_COMPLIANCE_RULE_ARGUMENTS, "param1");
+        report = plugin.fixIssue(issue2, model, null);
+        Assertions.assertNotNull(report);
+        Assertions.assertTrue(report.isSuccessful());
+        Assertions.assertTrue(report.getDescription().contains("echo 'hello world!'"));
+        Assertions.assertTrue(report.getDescription().contains("The resulting output was: hello world!"));
     }
 
     @Test

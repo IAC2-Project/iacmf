@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 
 import io.github.edmm.model.component.Compute;
 import io.github.edmm.model.component.RootComponent;
@@ -19,6 +20,7 @@ import org.iac2.common.exception.ProductionSystemPropertyMissingException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
+import org.iac2.common.model.compliancerule.parameter.ComplianceRuleParameter;
 import org.iac2.common.utility.VirtualMachine;
 import org.iac2.service.fixing.common.exception.ComplianceRuleMissingRequiredParameterException;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
@@ -104,14 +106,25 @@ public class BashFixingPlugin implements IssueFixingPlugin {
                         "The component (id: %s) is missing a property '%s'".formatted(vmComponent.getId(), Compute.PUBLIC_ADDRESS.getName())));
         String privateKey = readPrivateKey(vmComponent);
         VirtualMachine virtualMachine = new VirtualMachine(hostname, null, userName, privateKey);
+        String script = this.script;
 
+        if (complianceRuleArguments != null && !complianceRuleArguments.isEmpty()) {
+            String[] names = complianceRuleArguments.split(",");
+            List<String> arguments = issue.getRule().getParameterAssignments()
+                    .stream()
+                    .filter(a -> List.of(names).contains(a.getName()))
+                    .map(ComplianceRuleParameter::getValueAsString)
+                    .toList();
+            script = "%s %s".formatted(script, String.join(" ", arguments));
+        }
+        
         StringBuilder builder = new StringBuilder();
         boolean isSuccessful = true;
 
         try {
             virtualMachine.connect();
             builder.append("Connected to vm (%s).\n".formatted(virtualMachine));
-            String script = virtualMachine.replaceHome(this.script);
+            script = virtualMachine.replaceHome(script);
             builder.append("Replaced root with the current path.\n");
             String output = virtualMachine.execCommand(script);
             builder.append("Executed command: ")
