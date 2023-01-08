@@ -1,4 +1,4 @@
-package org.iac2.service.fixing.plugin.factory.implementation;
+package org.iac2.service.fixing.plugin.implementaiton.docker;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -35,7 +35,7 @@ import org.iac2.service.checking.plugin.implementation.subgraphmatching.Subgraph
 import org.iac2.service.checking.plugin.implementation.subgraphmatching.SubgraphMatchingCheckingPluginDescriptor;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
-import org.iac2.service.fixing.plugin.implementaiton.docker.DockerContainerIssueFixingPluginDescriptor;
+import org.iac2.service.fixing.plugin.factory.implementation.SimpleIssueFixingPluginFactory;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -53,7 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class DockerIssueFixingPluginManagerTest {
+class DockerIssueFixingPluginTest {
 
     // TODO we should move all this opentosca startup code into a separate abstract class
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerContainerRefinementPluginTest.class);

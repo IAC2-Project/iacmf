@@ -2,6 +2,7 @@ package org.iac2.service.fixing.plugin.implementaiton.bash;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -19,6 +20,7 @@ import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.common.utility.Edmm;
+import org.iac2.common.utility.VirtualMachine;
 import org.iac2.service.fixing.common.exception.ComplianceRuleMissingRequiredParameterException;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
 import org.junit.jupiter.api.Assertions;
@@ -29,6 +31,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.io.ClassPathResource;
 
 class BashFixingPluginTest {
+    final static String host = "193.196.53.165";
+    final static String user = "ubuntu";
+    final String privateKeyPath;
+
+    public BashFixingPluginTest() throws IOException {
+        ClassPathResource resource = new ClassPathResource("sec/cloud.key");
+        this.privateKeyPath = resource.getFile().getAbsolutePath();
+    }
+
     public static Stream<Arguments> invalidInputsProvider() throws IOException, IllegalAccessException {
         ClassPathResource resource = new ClassPathResource("sec/cloud.key");
         String privateKeyPath = resource.getFile().getAbsolutePath();
@@ -178,12 +189,7 @@ class BashFixingPluginTest {
     }
 
     @Test
-    void testFixing() throws IOException, IllegalAccessException {
-        final String user = "ubuntu";
-        final String host = "193.196.53.165";
-
-        ClassPathResource resource = new ClassPathResource("sec/cloud.key");
-        String privateKeyPath = resource.getFile().getAbsolutePath();
+    void testFixing() throws IllegalAccessException {
         ComplianceIssue issue1 = createDummyIssue(Map.of(), "vm1");
         InstanceModel model1 = createDummyInstanceModel("", privateKeyPath, "linux", "ubuntu");
         BashFixingPlugin plugin = createPlugin("sudo dir", user, null);
@@ -211,6 +217,54 @@ class BashFixingPluginTest {
         report = plugin.fixIssue(issue1, model, null);
         Assertions.assertNotNull(report);
         Assertions.assertTrue(report.isSuccessful());
+    }
+
+    @Test
+    void realWorldScenario() throws Exception {
+        final String command = "sudo sed -i -e 's/nullok//g' /etc/pam.d/common-password";
+        setupRealWorldScenario();
+
+        try {
+            BashFixingPlugin plugin = createPlugin(command, user, null);
+            ComplianceIssue issue = createDummyIssue(new HashMap<>(), "vm1");
+            InstanceModel instanceModel = createDummyInstanceModel(host, privateKeyPath, "linux", "ubuntu");
+            IssueFixingReport report = plugin.fixIssue(issue, instanceModel, null);
+            Assertions.assertNotNull(report);
+            Assertions.assertTrue(report.isSuccessful());
+        } finally {
+            teardownRealWorldScenario();
+        }
+    }
+
+    /**
+     * Backs up the common-password file and then adds the modifier 'nullok' to one of the entries (STIG ID: UBTU-20-010463).
+     *
+     * @throws Exception if a failure occurs.
+     */
+    void setupRealWorldScenario() throws Exception {
+        VirtualMachine vm = new VirtualMachine(host, null, user, Files.readString(Path.of(privateKeyPath)));
+        try {
+            vm.connect();
+            vm.execCommand("sudo cp /etc/pam.d/common-password /etc/pam.d/common-password.back");
+            vm.execCommand("sudo sed -i -e 's/pam_unix.so obscure/pam_unix.so nullok obscure/g' /etc/pam.d/common-password");
+        } finally {
+            vm.disconnect();
+        }
+    }
+
+    /**
+     * Restores the original common-password file.
+     *
+     * @throws Exception if a failure occurs.
+     */
+    void teardownRealWorldScenario() throws Exception {
+        VirtualMachine vm = new VirtualMachine(host, null, user, Files.readString(Path.of(privateKeyPath)));
+        try {
+            vm.connect();
+            vm.execCommand("sudo cp /etc/pam.d/common-password.back /etc/pam.d/common-password");
+        } finally {
+            vm.disconnect();
+        }
     }
 
     @Test
