@@ -9,8 +9,6 @@ import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
-import org.iac2.entity.compliancerule.ComplianceRuleEntity;
-import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmentEntity;
 import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.repository.compliancejob.ComplianceIssueRepository;
 import org.iac2.repository.productionsystem.KVRepository;
@@ -67,10 +65,7 @@ public class ComplianceRuleCheckingService {
     public Collection<ComplianceIssueEntity> findViolationsOfComplianceRule(ExecutionEntity execution,
                                                                             ComplianceRuleConfigurationEntity complianceRuleConfiguration,
                                                                             InstanceModel instanceModel) {
-        ComplianceRuleEntity complianceRule = complianceRuleConfiguration.getComplianceRule();
-        Collection<ComplianceRuleParameterAssignmentEntity> assignments =
-                complianceRuleConfiguration.getComplianceRuleParameterAssignments();
-        ComplianceRule myCR = EntityToPojo.transformComplianceRule(complianceRule, assignments);
+        ComplianceRule myCR = EntityToPojo.transformComplianceRule(complianceRuleConfiguration);
         PluginUsageEntity usageEntity = execution.getComplianceJob().getCheckingPluginUsage();
         ComplianceRuleCheckingPlugin plugin = (ComplianceRuleCheckingPlugin) helperService.instantiatePlugin(usageEntity, execution, pluginManager);
 

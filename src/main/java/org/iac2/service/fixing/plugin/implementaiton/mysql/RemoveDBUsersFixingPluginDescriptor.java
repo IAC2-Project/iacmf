@@ -1,25 +1,31 @@
-package org.iac2.service.fixing.plugin.implementaiton.docker;
+package org.iac2.service.fixing.plugin.implementaiton.mysql;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.iac2.common.Plugin;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPluginDescriptor;
 
-public class DockerContainerIssueFixingPluginDescriptor implements IssueFixingPluginDescriptor {
-    public static final String IDENTIFIER = "docker-container-issue-fixing-plugin";
-
-    public static final String[] SUPPORTED_ISSUE_TYPES = {"UNEXPECTED_DOCKER_CONTAINERS"};
+public class RemoveDBUsersFixingPluginDescriptor implements IssueFixingPluginDescriptor {
+    public static final String[] SUPPORTED_ISSUE_TYPES = {"UNEXPECTED_MYSQL_DB_USERS"};
+    public static final String[] EXPECTED_COMPLIANCE_RULE_PARAMETERS = {"ALLOWED_USERS"};
 
     @Override
     public String getIdentifier() {
-        return IDENTIFIER;
+        return "remove-mysql-db-users-fixing-plugin";
+    }
+
+    @Override
+    public Collection<String> getRequiredConfigurationEntryNames() {
+        return new ArrayList<>();
     }
 
     @Override
     public Plugin createPlugin() {
-        return new DockerContainerIssueFixingPlugin(this);
+        return new RemoveDBUsersFixingPlugin(this);
     }
 
     @Override
@@ -29,8 +35,6 @@ public class DockerContainerIssueFixingPluginDescriptor implements IssueFixingPl
 
     @Override
     public boolean isIaCTechnologySupported(String iacTechnology) {
-        // this is interesting actually, as this plugin shouldn't actually care about the IaC in particular right?
-        // therefore just set to true
         return true;
     }
 
@@ -41,11 +45,6 @@ public class DockerContainerIssueFixingPluginDescriptor implements IssueFixingPl
 
     @Override
     public Collection<String> getRequiredComplianceRuleParameters() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Collection<String> getRequiredConfigurationEntryNames() {
-        return Collections.emptyList();
+        return List.of(EXPECTED_COMPLIANCE_RULE_PARAMETERS);
     }
 }
