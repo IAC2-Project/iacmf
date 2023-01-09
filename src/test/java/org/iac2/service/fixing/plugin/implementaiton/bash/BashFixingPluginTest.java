@@ -1,8 +1,10 @@
 package org.iac2.service.fixing.plugin.implementaiton.bash;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -11,6 +13,7 @@ import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.Compute;
 import io.github.edmm.model.component.Paas;
+import org.apache.commons.io.FileUtils;
 import org.iac2.common.exception.ConfigurationEntryMissingException;
 import org.iac2.common.exception.IacmfException;
 import org.iac2.common.exception.IssueNotSupportedException;
@@ -23,26 +26,57 @@ import org.iac2.common.utility.Edmm;
 import org.iac2.common.utility.VirtualMachine;
 import org.iac2.service.fixing.common.exception.ComplianceRuleMissingRequiredParameterException;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.core.io.ClassPathResource;
 
+@EnabledIf("isPrivateKeyAccessible")
 class BashFixingPluginTest {
+    final static String ENV_VARIABLE = "VM_PRIVATE_KEY";
     final static String host = "193.196.53.165";
     final static String user = "ubuntu";
-    final String privateKeyPath;
+    static String privateKeyPath;
 
-    public BashFixingPluginTest() throws IOException {
-        ClassPathResource resource = new ClassPathResource("sec/cloud.key");
-        this.privateKeyPath = resource.getFile().getAbsolutePath();
+    private static boolean isPrivateKeyAccessible() {
+        String privateKeyContent = System.getenv(ENV_VARIABLE);
+
+        return privateKeyContent != null;
     }
 
-    public static Stream<Arguments> invalidInputsProvider() throws IOException, IllegalAccessException {
-        ClassPathResource resource = new ClassPathResource("sec/cloud.key");
-        String privateKeyPath = resource.getFile().getAbsolutePath();
+    private static String fetchPrivateKey() {
+        String privateKeyContent = System.getenv(ENV_VARIABLE);
+        Assertions.assertNotNull(privateKeyContent);
+
+        if (!privateKeyContent.contains("BEGIN RSA PRIVATE KEY")) {
+            Base64.Decoder dec = Base64.getDecoder();
+            privateKeyContent = new String(dec.decode(privateKeyContent));
+        }
+
+        return privateKeyContent;
+    }
+
+    @BeforeAll
+    public static void init() throws IOException {
+        String privateKeyContent = fetchPrivateKey();
+        File file = File.createTempFile("key", "tmp", FileUtils.getTempDirectory());
+        FileUtils.write(file, privateKeyContent, "UTF-8");
+        privateKeyPath = file.getAbsolutePath();
+    }
+
+    @AfterAll
+    public static void teardown() throws IOException {
+        if (privateKeyPath != null) {
+            File file = new File(privateKeyPath);
+            FileUtils.forceDelete(file);
+        }
+    }
+
+    public static Stream<Arguments> invalidInputsProvider() throws IllegalAccessException {
         InstanceModel instanceModel = createDummyInstanceModel("http://a.com", privateKeyPath, "linux", "ubuntu");
         EntityGraph graph = instanceModel.getDeploymentModel().getGraph();
         Edmm.addComponent(graph, "abc", new HashMap<>(), Paas.class);
@@ -277,11 +311,9 @@ class BashFixingPluginTest {
     }
 
     @Test
-    void testFetchPrivateKey() throws IOException, IllegalAccessException {
+    void testFetchPrivateKey() throws IllegalAccessException {
         BashFixingPlugin plugin = new BashFixingPlugin(new BashFixingPluginDescriptor());
-        ClassPathResource resource = new ClassPathResource("sec/cloud.key");
-        String privateKeyPath = resource.getFile().getAbsolutePath();
-        String content = Files.readString(resource.getFile().toPath());
+        String content = fetchPrivateKey();
 
         InstanceModel instanceModel = createDummyInstanceModel(null, privateKeyPath, null, null);
         String privateKey = plugin.readPrivateKey((Compute) instanceModel.getDeploymentModel().getComponent("vm1").orElseThrow());

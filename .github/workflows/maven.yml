@@ -39,6 +39,8 @@ jobs:
         with:
           time: '120s'
       - name: Build with Maven
+        env: # Or as an environment variable
+          VM_PRIVATE_KEY: ${{ secrets.VM_PRIVATE_KEY }}
         run: mvn -B package --file pom.xml --fail-at-end
       - name: Log container run
         if: failure()
