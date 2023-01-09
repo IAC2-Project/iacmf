@@ -34,10 +34,10 @@ class SimpleIssueFixingPluginManagerTest {
                 new HashMap<>());
         Collection<String> plugins = instance.getSuitablePluginIdentifiers(issueType, productionSystem);
         assertNotNull(plugins);
-        assertEquals(1, plugins.size());
+        assertEquals(2, plugins.size());
         issueType = RemoveDBUsersFixingPluginDescriptor.SUPPORTED_ISSUE_TYPES[0];
         plugins = instance.getSuitablePluginIdentifiers(issueType, productionSystem);
         assertNotNull(plugins);
-        assertEquals(1, plugins.size());
+        assertEquals(2, plugins.size());
     }
 }
