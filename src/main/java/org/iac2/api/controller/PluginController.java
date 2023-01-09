@@ -22,6 +22,7 @@ import org.iac2.repository.compliancerule.ComplianceRuleRepository;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPluginDescriptor;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPlugin;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPluginDescriptor;
 import org.iac2.service.architecturereconstruction.plugin.factory.ArchitectureReconstructionPluginFactory;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPluginDescriptor;
@@ -59,11 +60,11 @@ public class PluginController {
         PluginType type;
 
         // todo add more cases when new plugin types are implemented
-        if (pluginDescriptor.createPlugin() instanceof ModelCreationPlugin) {
+        if (pluginDescriptor instanceof ModelCreationPluginDescriptor) {
             type = PluginType.MODEL_CREATION;
-        } else if (pluginDescriptor.createPlugin() instanceof ModelRefinementPlugin) {
+        } else if (pluginDescriptor instanceof ModelRefinementPluginDescriptor) {
             type = PluginType.MODEL_REFINEMENT;
-        } else if (pluginDescriptor.createPlugin() instanceof ComplianceRuleCheckingPlugin) {
+        } else if (pluginDescriptor instanceof ComplianceRuleCheckingPluginDescriptor) {
             type = PluginType.ISSUE_CHECKING;
         } else {
             type = PluginType.ISSUE_FIXING;
