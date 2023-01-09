@@ -15,7 +15,7 @@ public class SpringDataRestConfig
 
         cors.addMapping("/*")
                 .allowedOrigins("*")
-                .allowedMethods("GET", "PUT", "DELETE", "POST", "PATCH")
+                .allowedMethods("GET", "PUT", "DELETE", "POST", "PATCH", "OPTIONS")
                 .allowCredentials(false).maxAge(3600);
     }
 }
