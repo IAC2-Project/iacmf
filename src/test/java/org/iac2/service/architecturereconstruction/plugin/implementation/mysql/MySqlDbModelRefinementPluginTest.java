@@ -50,7 +50,7 @@ class MySqlDbModelRefinementPluginTest {
         ClassPathResource resource = new ClassPathResource("edmm/self_instance_model.yaml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
         MySqlDbModelRefinementPlugin plugin = new MySqlDbModelRefinementPlugin(new MySqlDbModelRefinementPluginDescriptor());
-        plugin.setConfigurationEntry(MySqlDbModelRefinementPlugin.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES, String.valueOf(false));
+        plugin.setConfigurationEntry(MySqlDbModelRefinementPluginDescriptor.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES, String.valueOf(false));
         InstanceModel result =
                 plugin.refineModel(new InstanceModel(model), new ProductionSystem("", "", new HashMap<>()));
         Assertions.assertNotNull(result);
@@ -74,7 +74,7 @@ class MySqlDbModelRefinementPluginTest {
             ClassPathResource resource = new ClassPathResource("edmm/self_instance_model.yaml");
             DeploymentModel model = DeploymentModel.of(resource.getFile());
             MySqlDbModelRefinementPlugin plugin = new MySqlDbModelRefinementPlugin(new MySqlDbModelRefinementPluginDescriptor());
-            plugin.setConfigurationEntry(MySqlDbModelRefinementPlugin.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES, String.valueOf(false));
+            plugin.setConfigurationEntry(MySqlDbModelRefinementPluginDescriptor.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES, String.valueOf(false));
             InstanceModel result =
                     plugin.refineModel(new InstanceModel(model), new ProductionSystem("", "", new HashMap<>()));
             Assertions.assertNotNull(result);

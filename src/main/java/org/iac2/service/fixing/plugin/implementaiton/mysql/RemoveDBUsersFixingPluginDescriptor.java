@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.iac2.common.Plugin;
+import org.iac2.common.model.PluginConfigurationEntryDescriptor;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPluginDescriptor;
 
 public class RemoveDBUsersFixingPluginDescriptor implements IssueFixingPluginDescriptor {
@@ -19,7 +20,13 @@ public class RemoveDBUsersFixingPluginDescriptor implements IssueFixingPluginDes
     }
 
     @Override
-    public Collection<String> getRequiredConfigurationEntryNames() {
+    public String getDescription() {
+        return "This plugin removes the permissions over MySQL databases from all the users that are not allowed to have access " +
+                "to these databases as determined by the compliance rule (as determined by the `ALLOWED_USERS` compliance rule property).";
+    }
+
+    @Override
+    public Collection<PluginConfigurationEntryDescriptor> getConfigurationEntryDescriptors() {
         return new ArrayList<>();
     }
 

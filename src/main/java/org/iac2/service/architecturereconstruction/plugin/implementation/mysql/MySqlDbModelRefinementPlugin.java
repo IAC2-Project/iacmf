@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 // see: https://mkyong.com/regular-expressions/how-to-validate-ip-address-with-regular-expression/
 // see: https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-usagenotes-connect-drivermanager.html
 public class MySqlDbModelRefinementPlugin implements ModelRefinementPlugin {
-    public static final String CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES = "ignoreMissingProperties";
     public static final String EDMM_PROPERTY_NAME_USERS = "users";
     private static final Logger LOGGER = LoggerFactory.getLogger(MySqlDbModelRefinementPlugin.class);
     private final MySqlDbModelRefinementPluginDescriptor descriptor;
@@ -77,7 +76,7 @@ public class MySqlDbModelRefinementPlugin implements ModelRefinementPlugin {
 
     @Override
     public void setConfigurationEntry(String inputName, String inputValue) {
-        if (CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES.equals(inputName)) {
+        if (MySqlDbModelRefinementPluginDescriptor.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES.equals(inputName)) {
             this.ignoreMissingProperties = Boolean.parseBoolean(inputValue);
         } else {
             LOGGER.warn("Trying to pass a user input not expected by the plugin!");
@@ -86,7 +85,7 @@ public class MySqlDbModelRefinementPlugin implements ModelRefinementPlugin {
 
     @Override
     public String getConfigurationEntry(String name) {
-        if (CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES.equals(name)) {
+        if (MySqlDbModelRefinementPluginDescriptor.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES.equals(name)) {
             return String.valueOf(ignoreMissingProperties);
         }
 
