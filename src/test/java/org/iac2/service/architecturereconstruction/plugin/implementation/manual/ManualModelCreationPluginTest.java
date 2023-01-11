@@ -15,7 +15,7 @@ class ManualModelCreationPluginTest {
     @Test
     void testFetchFromWinery() {
         ManualModelCreationPlugin plugin = new ManualModelCreationPlugin(new ManualModelCreationPluginDescriptor());
-        plugin.setConfigurationEntry(ManualModelCreationPlugin.CONFIG_ENTRY_MODEL_PATH, path);
+        plugin.setConfigurationEntry(ManualModelCreationPluginDescriptor.CONFIG_ENTRY_MODEL_PATH, path);
         InstanceModel result = plugin.reconstructInstanceModel(
                 new ProductionSystem("none of your business", "saaa", new HashMap<>()));
         Assertions.assertNotNull(result);
@@ -29,10 +29,10 @@ class ManualModelCreationPluginTest {
         Assertions.assertTrue(((ManualModelCreationPluginDescriptor) plugin.getDescriptor()).isIaCTechnologySupported("opentoscacontainer"));
         Assertions.assertTrue(((ManualModelCreationPluginDescriptor) plugin.getDescriptor()).isIaCTechnologySupported("random tech name"));
         Assertions.assertEquals(0, ((ManualModelCreationPluginDescriptor) plugin.getDescriptor()).getRequiredProductionSystemPropertyNames().size());
-        Assertions.assertEquals(1, plugin.getDescriptor().getRequiredConfigurationEntryNames().size());
+        Assertions.assertEquals(1, plugin.getDescriptor().getConfigurationEntryDescriptors().size());
         Assertions.assertThrows(ConfigurationMissingException.class, () ->
                 plugin.reconstructInstanceModel(new ProductionSystem("", "", new HashMap<>())));
-        plugin.setConfigurationEntry(ManualModelCreationPlugin.CONFIG_ENTRY_MODEL_PATH, "random path!");
+        plugin.setConfigurationEntry(ManualModelCreationPluginDescriptor.CONFIG_ENTRY_MODEL_PATH, "random path!");
         Assertions.assertThrows(RuntimeException.class, () ->
                 plugin.reconstructInstanceModel(new ProductionSystem("", "", new HashMap<>())));
     }

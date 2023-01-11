@@ -70,7 +70,7 @@ public class PluginController {
             type = PluginType.ISSUE_FIXING;
         }
 
-        return new PluginPojo(pluginDescriptor.getIdentifier(), type, pluginDescriptor.getRequiredConfigurationEntryNames());
+        return new PluginPojo(pluginDescriptor.getIdentifier(), pluginDescriptor.getDescription(), type, pluginDescriptor.getConfigurationEntryDescriptors());
     }
 
     @GetMapping

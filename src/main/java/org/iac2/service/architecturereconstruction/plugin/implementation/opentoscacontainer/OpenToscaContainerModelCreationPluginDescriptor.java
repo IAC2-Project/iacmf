@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.iac2.common.Plugin;
+import org.iac2.common.model.PluginConfigurationEntryDescriptor;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPluginDescriptor;
 
 public class OpenToscaContainerModelCreationPluginDescriptor implements ModelCreationPluginDescriptor {
@@ -17,7 +18,13 @@ public class OpenToscaContainerModelCreationPluginDescriptor implements ModelCre
     }
 
     @Override
-    public Collection<String> getRequiredConfigurationEntryNames() {
+    public String getDescription() {
+        return "This plugin creates an instance model for a cloud application deployed and managed by the OpenTOSCA " +
+                "Container IaC technology (http://opentosca.github.io/container/).";
+    }
+
+    @Override
+    public Collection<PluginConfigurationEntryDescriptor> getConfigurationEntryDescriptors() {
         return Collections.emptyList();
     }
 

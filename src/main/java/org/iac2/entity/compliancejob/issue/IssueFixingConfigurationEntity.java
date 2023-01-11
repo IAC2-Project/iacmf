@@ -14,6 +14,9 @@ import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.plugin.PluginUsageEntity;
 
+/**
+ * Determines which issue fixing plugin will be used for which issue type in a given compliance job.
+ */
 @Entity
 @Data
 @NoArgsConstructor

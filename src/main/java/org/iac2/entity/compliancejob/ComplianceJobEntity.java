@@ -16,6 +16,7 @@ import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingConfigurationEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
@@ -24,11 +25,15 @@ import org.iac2.entity.productionsystem.ProductionSystemEntity;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class ComplianceJobEntity {
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NotNull
+    private String name;
 
     private String description;
 
@@ -59,13 +64,11 @@ public class ComplianceJobEntity {
     @JoinColumn(name = "production_system_id", nullable = false)
     private ProductionSystemEntity productionSystem;
 
-    public ComplianceJobEntity() {
-
-    }
-
-    public ComplianceJobEntity(String description,
+    public ComplianceJobEntity(String name,
+                               String description,
                                @NotNull ProductionSystemEntity productionSystem,
                                @NotNull PluginUsageEntity checkingPluginUsage) {
+        this.name = name;
         this.productionSystem = productionSystem;
         this.checkingPluginUsage = checkingPluginUsage;
         this.checkingPluginUsage.setComplianceJobChecking(this);

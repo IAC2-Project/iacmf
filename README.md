@@ -1,16 +1,77 @@
 # Infrastructure-as-Code Compliance Management Framework (IACMF) Core
 
-## Existing Plugins
+Existing Plugins
+--
 
-### Model Creation Plugins
+## Model Creation Plugins
 
-### Model Refinement Plugins
+### OpenTOSCA Container Model Creation Plugin
 
-### Compliance Checking Plugins
+**Summary**: This plugin creates an instance model for a cloud application deployed and managed by the OpenTOSCA
+Container IaC technology (http://opentosca.github.io/container/).
 
-### Compliance Issue Fixing Plugins
+**Plugin Identifier**: `opentosca-container-model-creation-plugin`
 
-#### Bash-based Ubuntu Issue Fixing Plugin
+### Manual Instance Model Creation Plugin
+
+**Summary**: This plugin allows creating an EDMM-based instance model using an external tool (such as Winery) or even
+manually.
+The plugin only requires a URL to the EDMM file that represents the instance model.
+This is especially helpful if there is still no model creation plugin for the used IaC technology, or if no IaC
+technology for deployment management is used in the first place.
+
+**Plugin Identifier**: `manual-model-creation-plugin`
+
+## Model Refinement Plugins
+
+### Docker Container Refinement Plugin
+
+**Summary**: This plugin allows identifying which reachable docker containers were expected or unexpected according to
+the original instance model (i.e., before applying this plugin). Furthermore, it helps in detecting unexpectedly removed
+docker containers.
+
+**Plugin Identifier**: `docker-refinement-plugin`
+
+### MySQL Database Model Refinement Plugin
+
+**Summary**: This plugin allows refining the instance model with information about all the users that have permissions
+on the
+MySQL database components present in the instance model. This information will be stored as a comma-separated list of
+usernames
+assigned to a property called `users`.
+
+**Plugin Identifier**: `mysql-db-model-refinement-plugin`
+
+## Compliance Checking Plugins
+
+### Subgraph-Matching Compliance Checking Plugin
+
+**Summary**: This plugin checks the compliance of the reconstructed instance model to compliance rules of
+type `subgraph-matching`.
+Such compliance rules are modelled as graphs, and therefore, the compliance checking process uses a subgraph matching
+algorithm.
+
+**Plugin Identifier**: `subgraph-matching-checking-plugin`
+
+## Compliance Issue Fixing Plugins
+
+### Docker Container Issue Fixing Plugin
+
+**Summary**: This plugin stops and removes unexpected docker containers (i.e., the ones that have a
+property `structuralState`
+with the value: `UNEXPECTED`)
+
+**Plugin Identifier**: `docker-container-issue-fixing-plugin`
+
+### Unexpected MySQL Database Users Removal Plugin
+
+**Summary**: This plugin removes the permissions over MySQL databases from all the users that are not allowed to have
+access
+to these databases as determined by the compliance rule (as determined by the `ALLOWED_USERS` compliance rule property).
+
+**Plugin Identifier**: `remove-mysql-db-users-fixing-plugin`
+
+### Bash-based Ubuntu Issue Fixing Plugin
 
 **Summary**: This plugin allows executing bash commands on an ubuntu (virtual-)machine via ssh for the purpose of fixing
 a detected compliance issue.
@@ -51,16 +112,17 @@ a detected compliance issue.
    corresponding compliance rule attributes will be used as command-line arguments to the script that will be executed
    on the ubuntu (vritual-)machine via ssh.
 
-## Example Compliance Rules
+Example Compliance Rules
+--
 
-### 1. The Ubuntu operating system must not allow accounts configured with blank or null passwords
+## 1. The Ubuntu operating system must not allow accounts configured with blank or null passwords
 
-#### Source
+### Source
 
 _Canonical Ubuntu 20.04 LTS Security Technical Implementation Guide :: Version 1, Release: 6 Benchmark Date: 27 Oct
 2022_ (STIG-ID: UBTU-20-010463)
 
-#### Model Refinement Plugin
+### Model Refinement Plugin
 
 Please use the `bash-based-model-refinement-plugin` to create an attribute in Ubuntu-based VM nodes called `nullok` with
 a boolean
@@ -72,14 +134,14 @@ The bash command to be executed should be:
 sudo grep nullok /etc/pam.d/common-password
 ```
 
-#### Compliance Rule
+### Compliance Rule
 
 - __Type__: Subgraph Isomorphism
 - __Selector__: Selects all `Compute` nodes that host an `ubuntu` OS.
 - __Checker__: Confirms that the value of the attribute `nullok` is `false`.
 - __IssueType__: `null-passwords-allowed`
 
-#### Issue Fixing Plugin
+### Issue Fixing Plugin
 
 Please use the `bash-based-issue-fixing-plugin`.
 It must be mapped to IssueTypes of the value `null-passwords-allowed`.

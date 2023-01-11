@@ -24,6 +24,9 @@ public class ComplianceRuleEntity {
     private Long id;
 
     @NotNull
+    private String name;
+
+    @NotNull
     private String type;
 
     @NotNull
@@ -37,7 +40,8 @@ public class ComplianceRuleEntity {
     @OneToMany(mappedBy = "complianceRule")
     private List<ComplianceRuleParameterEntity> parameters;
 
-    public ComplianceRuleEntity(String type, String location, String description) {
+    public ComplianceRuleEntity(String name, String type, String location, String description) {
+        this.name = name;
         this.type = type;
         this.location = location;
         this.description = description;
