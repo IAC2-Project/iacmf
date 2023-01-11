@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
 import org.iac2.common.PluginDescriptor;
@@ -136,8 +135,8 @@ public class MySqlDbModelRefinementPlugin implements ModelRefinementPlugin {
             throw new RuntimeException(e);
         }
 
-        return new InstanceModel(new DeploymentModel(
-                instanceModel.getDeploymentModel().getName(),
-                instanceModel.getDeploymentModel().getGraph()));
+        instanceModel.reCreateDeploymentModel();
+
+        return instanceModel;
     }
 }

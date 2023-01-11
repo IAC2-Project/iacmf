@@ -1,9 +1,11 @@
 package org.iac2.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -27,11 +29,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.iac2.common.utility.VirtualMachine;
+import org.junit.jupiter.api.Assertions;
 
 import static org.eclipse.winery.common.Constants.DEFAULT_LOCAL_REPO_NAME;
 
 public class TestUtils {
 
+    public final static String ENV_VARIABLE = "VM_PRIVATE_KEY";
     private static final Logger LOGGER = LogManager.getLogger();
 
     private static IRepository fetchRepository(RepositoryConfigurationObject.RepositoryProvider provider, Path repositoryInputPath, String remoteUrl) throws GitAPIException, IOException {
@@ -170,6 +175,57 @@ public class TestUtils {
             return "host.docker.internal";
         } else {
             return "172.17.0.1";
+        }
+    }
+
+    public static String fetchAndStorePrivateKeyTemporarily() throws IOException {
+        String privateKeyContent = TestUtils.fetchPrivateKey();
+        File file = File.createTempFile("key", "tmp", FileUtils.getTempDirectory());
+        FileUtils.write(file, privateKeyContent, "UTF-8");
+
+        return file.getAbsolutePath();
+    }
+
+    public static String fetchPrivateKey() {
+        String privateKeyContent = System.getenv(ENV_VARIABLE);
+        Assertions.assertNotNull(privateKeyContent);
+
+        if (!privateKeyContent.contains("BEGIN RSA PRIVATE KEY")) {
+            Base64.Decoder dec = Base64.getDecoder();
+            privateKeyContent = new String(dec.decode(privateKeyContent));
+        }
+
+        return privateKeyContent;
+    }
+
+    /**
+     * Backs up the common-password file and then adds the modifier 'nullok' to one of the entries (STIG ID: UBTU-20-010463).
+     *
+     * @throws Exception if a failure occurs.
+     */
+    public static void setupRealWorldScenario(String host, String user, String privateKeyPath) throws Exception {
+        VirtualMachine vm = new VirtualMachine(host, null, user, Files.readString(Path.of(privateKeyPath)));
+        try {
+            vm.connect();
+            vm.execCommand("sudo cp /etc/pam.d/common-password /etc/pam.d/common-password.back");
+            vm.execCommand("sudo sed -i -e 's/pam_unix.so \\s*obscure/pam_unix.so nullok obscure/g' /etc/pam.d/common-password");
+        } finally {
+            vm.disconnect();
+        }
+    }
+
+    /**
+     * Restores the original common-password file.
+     *
+     * @throws Exception if a failure occurs.
+     */
+    public static void teardownRealWorldScenario(String host, String user, String privateKeyPath) throws Exception {
+        VirtualMachine vm = new VirtualMachine(host, null, user, Files.readString(Path.of(privateKeyPath)));
+        try {
+            vm.connect();
+            vm.execCommand("sudo cp /etc/pam.d/common-password.back /etc/pam.d/common-password");
+        } finally {
+            vm.disconnect();
         }
     }
 }

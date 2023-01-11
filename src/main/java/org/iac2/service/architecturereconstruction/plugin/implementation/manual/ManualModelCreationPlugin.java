@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.iac2.common.PluginDescriptor;
-import org.iac2.common.exception.ConfigurationMissingException;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
+import org.iac2.common.exception.MissingConfigurationEntryException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.Utils;
@@ -57,7 +57,7 @@ public class ManualModelCreationPlugin implements ModelCreationPlugin {
             throw new IaCTechnologyNotSupportedException(productionSystem.getIacTechnologyName());
         }
         if (modelPath == null || modelPath.length() == 0) {
-            throw new ConfigurationMissingException(getIdentifier(), CONFIG_ENTRY_MODEL_PATH);
+            throw new MissingConfigurationEntryException(getIdentifier(), CONFIG_ENTRY_MODEL_PATH);
         }
 
         try {
