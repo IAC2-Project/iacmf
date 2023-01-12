@@ -273,10 +273,10 @@ class BashFixingPluginTest {
         InstanceModel instanceModel2 = createDummyInstanceModel(null, null, null, null);
         Assertions.assertThrows(MissingConfigurationEntryException.class, () -> plugin.readPrivateKey((Compute) instanceModel2.getDeploymentModel().getComponent("vm1").orElseThrow()));
 
-        plugin.setConfigurationEntry(BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY, "abc");
+        plugin.setConfigurationEntry(BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY_PATH, "abc");
         Assertions.assertThrows(PrivateKeyNotAccessibleException.class, () -> plugin.readPrivateKey((Compute) instanceModel2.getDeploymentModel().getComponent("vm1").orElseThrow()));
 
-        plugin.setConfigurationEntry(BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY, privateKeyPath);
+        plugin.setConfigurationEntry(BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY_PATH, privateKeyPath);
         instanceModel = createDummyInstanceModel(null, null, null, null);
         privateKey = plugin.readPrivateKey((Compute) instanceModel.getDeploymentModel().getComponent("vm1").orElseThrow());
         Assertions.assertNotNull(privateKey);

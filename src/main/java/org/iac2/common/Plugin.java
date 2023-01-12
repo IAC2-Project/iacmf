@@ -16,7 +16,8 @@ public interface Plugin {
 
     default Map<String, String> getConfigurationEntries() {
         Map<String, String> result = new HashMap<>();
-        getDescriptor().getRequiredConfigurationEntryNames().forEach(name -> result.put(name, getConfigurationEntry(name)));
+        getDescriptor().getConfigurationEntryDescriptors()
+                .forEach(descriptor -> result.put(descriptor.getName(), getConfigurationEntry(descriptor.getDescription())));
 
         return result;
     }

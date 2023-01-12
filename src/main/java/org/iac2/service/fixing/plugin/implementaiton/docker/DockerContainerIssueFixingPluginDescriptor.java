@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.iac2.common.Plugin;
+import org.iac2.common.model.PluginConfigurationEntryDescriptor;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPluginDescriptor;
 
 public class DockerContainerIssueFixingPluginDescriptor implements IssueFixingPluginDescriptor {
@@ -15,6 +16,12 @@ public class DockerContainerIssueFixingPluginDescriptor implements IssueFixingPl
     @Override
     public String getIdentifier() {
         return IDENTIFIER;
+    }
+
+    @Override
+    public String getDescription() {
+        return "This plugin stops and removes unexpected docker containers (i.e., the ones that have a property `structuralState` " +
+                "with the value: `UNEXPECTED`)";
     }
 
     @Override
@@ -45,7 +52,7 @@ public class DockerContainerIssueFixingPluginDescriptor implements IssueFixingPl
     }
 
     @Override
-    public Collection<String> getRequiredConfigurationEntryNames() {
+    public Collection<PluginConfigurationEntryDescriptor> getConfigurationEntryDescriptors() {
         return Collections.emptyList();
     }
 }

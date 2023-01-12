@@ -67,7 +67,7 @@ public class BashFixingPlugin implements IssueFixingPlugin {
             case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_COMPLIANCE_RULE_ARGUMENTS ->
                     this.complianceRuleArguments = inputValue;
             case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_USERNAME -> this.userName = inputValue;
-            case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY ->
+            case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY_PATH ->
                     this.defaultPrivateKey = inputValue;
             default -> LOGGER.warn("Trying to set an expected configuration entry '{}'. Ignored!", inputName);
         }
@@ -85,7 +85,7 @@ public class BashFixingPlugin implements IssueFixingPlugin {
             case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_USERNAME -> {
                 return this.userName;
             }
-            case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY -> {
+            case BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY_PATH -> {
                 return this.defaultPrivateKey;
             }
             default -> {

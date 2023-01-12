@@ -31,6 +31,9 @@ public class ProductionSystemEntity {
     private Long id;
 
     @NotNull
+    private String name;
+
+    @NotNull
     private Boolean isDeleted;
 
     @NotNull
@@ -45,7 +48,8 @@ public class ProductionSystemEntity {
     @JoinColumn(name = "model_creation_plugin_usage_id", nullable = false)
     private PluginUsageEntity modelCreationPluginUsage;
 
-    public ProductionSystemEntity(String description, String iacTechnologyName, PluginUsageEntity modelCreationPluginUsage) {
+    public ProductionSystemEntity(String name, String description, String iacTechnologyName, PluginUsageEntity modelCreationPluginUsage) {
+        this.name = name;
         this.description = description;
         this.iacTechnologyName = iacTechnologyName;
         this.isDeleted = false;

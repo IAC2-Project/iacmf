@@ -60,6 +60,7 @@ class ArchitectureReconstructionServiceTest {
         pluginUsageRepository.save(checking);
         pluginUsageRepository.save(usageEntity);
         ProductionSystemEntity system = new ProductionSystemEntity(
+                "abc",
                 "this is a production system",
                 "opentoscacontainer",
                 usageEntity
@@ -67,7 +68,7 @@ class ArchitectureReconstructionServiceTest {
         productionSystemRepository.save(system);
         List<KVEntity> properties = List.of(new KVEntity("nodes", "3"));
         kVRepository.saveAll(properties);
-        ComplianceJobEntity complianceJob = new ComplianceJobEntity("job1", system, checking);
+        ComplianceJobEntity complianceJob = new ComplianceJobEntity("job1", "job1", system, checking);
         complianceJobRepository.save(complianceJob);
         ExecutionEntity execution = new ExecutionEntity(complianceJob);
         executionRepository.save(execution);
