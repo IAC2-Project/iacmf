@@ -28,6 +28,9 @@ public class TriggerEntity {
 
     private String description;
 
+    @NotNull
+    private String name;
+
     /**
      * if set to true, this indicates that this trigger must not be shown to the UI.
      * However, triggers are not removed from the database, since they might be referenced by job executions.
@@ -41,7 +44,8 @@ public class TriggerEntity {
     @ManyToMany(mappedBy = "triggers")
     private List<ComplianceJobEntity> complianceJobs;
 
-    public TriggerEntity(String description) {
+    public TriggerEntity(String name, String description) {
+        this.name = name;
         this.description = description;
         this.isDeleted = false;
         this.complianceJobs = new ArrayList<>();

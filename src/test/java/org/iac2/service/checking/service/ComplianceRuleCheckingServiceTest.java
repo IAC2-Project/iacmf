@@ -64,6 +64,7 @@ class ComplianceRuleCheckingServiceTest {
                 .thenReturn(new MockComplianceCheckingPlugin());
 
         ComplianceRuleEntity cr = new ComplianceRuleEntity(
+                "cr",
                 "ensure-property-value",
                 "http://nowherer.no",
                 "compliacne rule for fooling around");
@@ -71,13 +72,14 @@ class ComplianceRuleCheckingServiceTest {
         PluginUsageEntity usage = new PluginUsageEntity("opentosca-container-model-creation-plugin");
         pluginUsageRepository.save(usage);
         ProductionSystemEntity productionSystem = new ProductionSystemEntity(
+                "abc",
                 "some system",
                 "opentoscacontainer",
                 usage);
         productionSystemRepository.save(productionSystem);
         PluginUsageEntity checkingUsage = new PluginUsageEntity("checking");
         pluginUsageRepository.save(checkingUsage);
-        ComplianceJobEntity complianceJob = new ComplianceJobEntity(
+        ComplianceJobEntity complianceJob = new ComplianceJobEntity("job1",
                 "a fine job", productionSystem, checkingUsage);
         complianceJobRepository.save(complianceJob);
         ComplianceRuleConfigurationEntity crConfig = new ComplianceRuleConfigurationEntity(cr, complianceJob, "issueType1");

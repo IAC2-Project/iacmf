@@ -69,6 +69,7 @@ class IssueFixingServiceTest {
                 .thenReturn(new MockIssueFixingPlugin());
 
         ComplianceRuleEntity complianceRule = new ComplianceRuleEntity(
+                "cr1",
                 "ensure-property-value",
                 "",
                 "my useless compliance rule!"
@@ -79,11 +80,12 @@ class IssueFixingServiceTest {
         pluginUsageRepository.save(usageEntity);
         pluginUsageRepository.save(checkingEntity);
         ProductionSystemEntity productionSystem = new ProductionSystemEntity(
+                "abc",
                 "my super system",
                 "opentoscacontainer",
                 usageEntity);
         productionSystemRepository.save(productionSystem);
-        ComplianceJobEntity complianceJob = new ComplianceJobEntity(
+        ComplianceJobEntity complianceJob = new ComplianceJobEntity("job1",
                 "my super job", productionSystem, checkingEntity);
         complianceJobRepository.save(complianceJob);
         ComplianceRuleConfigurationEntity crConfigEntity = new ComplianceRuleConfigurationEntity(complianceRule, complianceJob, "wrong-property-value");

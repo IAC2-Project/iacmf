@@ -115,7 +115,7 @@ public class DockerContainerRefinementPluginTest {
         Set<RootRelation> rels = instanceModel.getDeploymentModel().getRelations();
 
         SimpleARPluginFactory instance = SimpleARPluginFactory.getInstance();
-        ModelRefinementPlugin enhancementPlugin = instance.createModelRefinementPlugin("docker-enhancement-plugin");
+        ModelRefinementPlugin enhancementPlugin = instance.createModelRefinementPlugin("docker-refinement-plugin");
         InstanceModel instanceModel1 = enhancementPlugin.refineModel(instanceModel, productionSystem);
 
         Set<RootComponent> newComps = instanceModel1.getDeploymentModel().getComponents();

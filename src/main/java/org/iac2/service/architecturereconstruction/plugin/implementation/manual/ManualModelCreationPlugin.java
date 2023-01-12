@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * Refers to an externally-created EDMM instance model.
  */
 public class ManualModelCreationPlugin implements ModelCreationPlugin {
-    public static final String CONFIG_ENTRY_MODEL_PATH = "modelPath";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ManualModelCreationPlugin.class);
     private final ManualModelCreationPluginDescriptor descriptor;
     private String modelPath;
@@ -33,7 +33,7 @@ public class ManualModelCreationPlugin implements ModelCreationPlugin {
 
     @Override
     public void setConfigurationEntry(String inputName, String inputValue) {
-        if (inputName.equals(CONFIG_ENTRY_MODEL_PATH)) {
+        if (inputName.equals(ManualModelCreationPluginDescriptor.CONFIG_ENTRY_MODEL_PATH)) {
             this.modelPath = inputValue;
         } else {
             LOGGER.warn("Trying to set a user input not expected by the plugin (plugin-id: {})", getIdentifier());
@@ -42,7 +42,7 @@ public class ManualModelCreationPlugin implements ModelCreationPlugin {
 
     @Override
     public String getConfigurationEntry(String name) {
-        if (name.equals(CONFIG_ENTRY_MODEL_PATH)) {
+        if (name.equals(ManualModelCreationPluginDescriptor.CONFIG_ENTRY_MODEL_PATH)) {
             return this.modelPath;
         } else {
             LOGGER.warn("Trying to get user input not used by a plugin (plugin-id: {}). Returning 'null' instead!", getIdentifier());
@@ -57,7 +57,7 @@ public class ManualModelCreationPlugin implements ModelCreationPlugin {
             throw new IaCTechnologyNotSupportedException(productionSystem.getIacTechnologyName());
         }
         if (modelPath == null || modelPath.length() == 0) {
-            throw new ConfigurationMissingException(getIdentifier(), CONFIG_ENTRY_MODEL_PATH);
+            throw new ConfigurationMissingException(getIdentifier(), ManualModelCreationPluginDescriptor.CONFIG_ENTRY_MODEL_PATH);
         }
 
         try {

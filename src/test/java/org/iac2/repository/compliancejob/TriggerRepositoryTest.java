@@ -35,12 +35,14 @@ class TriggerRepositoryTest {
     @Test
     void testTriggersOfJobQuery() {
         ComplianceRuleEntity complianceRule1 = new ComplianceRuleEntity(
+                "cr1",
                 "polymorphism",
                 "https://localhost/rule-1",
                 "my awesome rule"
         );
 
         ComplianceRuleEntity complianceRule2 = new ComplianceRuleEntity(
+                "cr2",
                 "polymorphism",
                 "https://localhost/rule-2",
                 "my very awesome rule"
@@ -53,15 +55,15 @@ class TriggerRepositoryTest {
         this.pluginUsageRepository.save(usage);
         PluginUsageEntity checkingPluginUsage = new PluginUsageEntity("checkingPlugin");
         pluginUsageRepository.save(checkingPluginUsage);
-        ProductionSystemEntity productionSystem = new ProductionSystemEntity("this is the best production system",
+        ProductionSystemEntity productionSystem = new ProductionSystemEntity("abc", "this is the best production system",
                 "opentoscacontainer", usage);
         this.productionSystemRepository.save(productionSystem);
 
-        TriggerEntity trigger1 = new TriggerEntity("Fire at 12:00 PM (noon) every day");
+        TriggerEntity trigger1 = new TriggerEntity("t1", "Fire at 12:00 PM (noon) every day");
         trigger1.setCronExpression("0 0 12 * * ?");
-        TriggerEntity trigger2 = new TriggerEntity("Fire at 10:15 AM every day");
+        TriggerEntity trigger2 = new TriggerEntity("t2", "Fire at 10:15 AM every day");
         trigger2.setCronExpression("0 15 10 * * ?");
-        TriggerEntity trigger3 = new TriggerEntity("Fire every November 11 at 11:11 AM");
+        TriggerEntity trigger3 = new TriggerEntity("t3", "Fire every November 11 at 11:11 AM");
         trigger3.setCronExpression("0 11 11 11 11 ?");
 
         this.triggerRepository.save(trigger1);
@@ -72,11 +74,13 @@ class TriggerRepositoryTest {
         List<TriggerEntity> triggers2 = List.of(trigger2);
 
         ComplianceJobEntity job1 = new ComplianceJobEntity(
+                "job1",
                 "this is job 1",
                 productionSystem,
                 checkingPluginUsage);
         job1.addTrigger(trigger1).addTrigger(trigger3);
         ComplianceJobEntity job2 = new ComplianceJobEntity(
+                "job2",
                 "this is job 2",
                 productionSystem,
                 checkingPluginUsage);

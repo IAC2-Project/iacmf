@@ -97,7 +97,7 @@ class DockerIssueFixingPluginTest {
 
     private static InstanceModel enhanceInstance(ProductionSystem productionSystem, InstanceModel instanceModel) {
         SimpleARPluginFactory instance = SimpleARPluginFactory.getInstance();
-        ModelRefinementPlugin enhancementPlugin = instance.createModelRefinementPlugin("docker-enhancement-plugin");
+        ModelRefinementPlugin enhancementPlugin = instance.createModelRefinementPlugin("docker-refinement-plugin");
         return enhancementPlugin.refineModel(instanceModel, productionSystem);
     }
 

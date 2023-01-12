@@ -140,7 +140,7 @@ class ExecutionServiceTest {
 
         // violations
         execution = this.service.createNewExecution(job);
-        ComplianceRuleEntity cr = new ComplianceRuleEntity("a", "b", "c");
+        ComplianceRuleEntity cr = new ComplianceRuleEntity("cr", "a", "b", "c");
         complianceRuleRepository.save(cr);
         ComplianceRuleConfigurationEntity configurationEntity = new ComplianceRuleConfigurationEntity(cr, job, "iss1");
         complianceRuleConfigurationRepository.save(configurationEntity);
@@ -179,8 +179,8 @@ class ExecutionServiceTest {
 
         // batch mode
         ExecutionEntity execution = this.service.createNewExecution(job);
-        ComplianceRuleEntity cr1 = new ComplianceRuleEntity("a", "a", "a");
-        ComplianceRuleEntity cr2 = new ComplianceRuleEntity("b", "b", "b");
+        ComplianceRuleEntity cr1 = new ComplianceRuleEntity("cr1", "a", "a", "a");
+        ComplianceRuleEntity cr2 = new ComplianceRuleEntity("cr2", "b", "b", "b");
         complianceRuleRepository.save(cr1);
         complianceRuleRepository.save(cr2);
         ComplianceRuleConfigurationEntity configurationEntity1 = new ComplianceRuleConfigurationEntity(cr1, job, "issT");
@@ -208,8 +208,8 @@ class ExecutionServiceTest {
 
         // no batch mode
         execution = this.service.createNewExecution(job);
-        cr1 = new ComplianceRuleEntity("a", "a", "a");
-        cr2 = new ComplianceRuleEntity("b", "b", "b");
+        cr1 = new ComplianceRuleEntity("cr1", "a", "a", "a");
+        cr2 = new ComplianceRuleEntity("cr2", "b", "b", "b");
         complianceRuleRepository.save(cr1);
         complianceRuleRepository.save(cr2);
         configurationEntity1 = new ComplianceRuleConfigurationEntity(cr1, job, "issT");
@@ -247,17 +247,17 @@ class ExecutionServiceTest {
     }
 
     private ComplianceJobEntity createDummyComplianceJob() {
-        ComplianceRuleEntity rule = new ComplianceRuleEntity("test", "test", "test");
+        ComplianceRuleEntity rule = new ComplianceRuleEntity("cr1", "test", "test", "test");
         PluginUsageEntity checking = new PluginUsageEntity("checker1");
         pluginUsageRepository.save(checking);
         PluginUsageEntity modelCreation = new PluginUsageEntity("creator1");
         pluginUsageRepository.save(modelCreation);
-        ProductionSystemEntity productionSystem = new ProductionSystemEntity("test", "opentoscacontainer", modelCreation);
-        TriggerEntity trigger = new TriggerEntity("test");
+        ProductionSystemEntity productionSystem = new ProductionSystemEntity("abc", "test", "opentoscacontainer", modelCreation);
+        TriggerEntity trigger = new TriggerEntity("t1", "test");
         productionSystemRepository.save(productionSystem);
         complianceRuleRepository.save(rule);
         triggerRepository.save(trigger);
-        ComplianceJobEntity job = new ComplianceJobEntity("test", productionSystem, checking);
+        ComplianceJobEntity job = new ComplianceJobEntity("job1", "test", productionSystem, checking);
         job.addTrigger(trigger);
         complianceJobRepository.save(job);
         PluginUsageEntity fixer = new PluginUsageEntity("fixer1");
