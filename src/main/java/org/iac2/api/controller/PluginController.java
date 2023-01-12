@@ -22,6 +22,7 @@ import org.iac2.repository.compliancerule.ComplianceRuleRepository;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPluginDescriptor;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPlugin;
+import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPluginDescriptor;
 import org.iac2.service.architecturereconstruction.plugin.factory.ArchitectureReconstructionPluginFactory;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPluginDescriptor;
@@ -30,15 +31,12 @@ import org.iac2.service.fixing.common.interfaces.IssueFixingPluginDescriptor;
 import org.iac2.service.fixing.plugin.factory.IssueFixingPluginFactory;
 import org.iac2.service.utility.EntityToPojo;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "plugins")
 @Tag(name = "plugin")
+@CrossOrigin( origins = "*" , allowedHeaders = "*" , methods = {RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.POST, RequestMethod.PATCH, RequestMethod.OPTIONS})
 public class PluginController {
     private final ArchitectureReconstructionPluginFactory arPluginManager;
     private final ComplianceRuleCheckingPluginFactory checkingPluginManager;
@@ -58,21 +56,21 @@ public class PluginController {
         this.complianceIssueRepository = complianceIssueRepository;
     }
 
-    private static PluginPojo createPluginPojo(PluginDescriptor plugin) {
+    private static PluginPojo createPluginPojo(PluginDescriptor pluginDescriptor) {
         PluginType type;
 
         // todo add more cases when new plugin types are implemented
-        if (plugin instanceof ModelCreationPlugin) {
+        if (pluginDescriptor instanceof ModelCreationPluginDescriptor) {
             type = PluginType.MODEL_CREATION;
-        } else if (plugin instanceof ModelRefinementPlugin) {
+        } else if (pluginDescriptor instanceof ModelRefinementPluginDescriptor) {
             type = PluginType.MODEL_REFINEMENT;
-        } else if (plugin instanceof ComplianceRuleCheckingPlugin) {
+        } else if (pluginDescriptor instanceof ComplianceRuleCheckingPluginDescriptor) {
             type = PluginType.ISSUE_CHECKING;
         } else {
             type = PluginType.ISSUE_FIXING;
         }
 
-        return new PluginPojo(plugin.getIdentifier(), plugin.getDescription(), type, plugin.getConfigurationEntryDescriptors());
+        return new PluginPojo(pluginDescriptor.getIdentifier(), pluginDescriptor.getDescription(), type, pluginDescriptor.getConfigurationEntryDescriptors());
     }
 
     @GetMapping
