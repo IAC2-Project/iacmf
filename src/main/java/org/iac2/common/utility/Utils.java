@@ -99,7 +99,7 @@ public class Utils {
             LOGGER.warn("The vm component (id: {}) does not declare a path to a private key file. Looking for a default file instead!", vmComponent.getId());
 
             if (defaultPrivateKeyPath == null) {
-                throw new MissingConfigurationEntryException(pluginId, BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY);
+                throw new MissingConfigurationEntryException(pluginId, BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY_PATH);
             }
 
             privateKeyPath = defaultPrivateKeyPath;
