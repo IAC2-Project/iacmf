@@ -1,26 +1,23 @@
 package org.iac2.service.fixing.plugin.implementaiton.bash;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import io.github.edmm.model.component.Compute;
 import io.github.edmm.model.component.RootComponent;
-import org.h2.store.fs.FileUtils;
 import org.iac2.common.PluginDescriptor;
-import org.iac2.common.exception.ConfigurationEntryMissingException;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
 import org.iac2.common.exception.IssueNotSupportedException;
 import org.iac2.common.exception.MalformedInstanceModelException;
+import org.iac2.common.exception.MissingConfigurationEntryException;
+import org.iac2.common.exception.MissingProductionSystemPropertyException;
 import org.iac2.common.exception.PrivateKeyNotAccessibleException;
-import org.iac2.common.exception.ProductionSystemPropertyMissingException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.parameter.ComplianceRuleParameter;
+import org.iac2.common.utility.Utils;
 import org.iac2.common.utility.VirtualMachine;
 import org.iac2.service.fixing.common.exception.ComplianceRuleMissingRequiredParameterException;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
@@ -99,7 +96,7 @@ public class BashFixingPlugin implements IssueFixingPlugin {
     }
 
     @Override
-    public IssueFixingReport fixIssue(ComplianceIssue issue, InstanceModel model, ProductionSystem productionSystem) throws ComplianceRuleMissingRequiredParameterException, ConfigurationEntryMissingException, ProductionSystemPropertyMissingException, IaCTechnologyNotSupportedException, IssueNotSupportedException {
+    public IssueFixingReport fixIssue(ComplianceIssue issue, InstanceModel model, ProductionSystem productionSystem) throws ComplianceRuleMissingRequiredParameterException, MissingConfigurationEntryException, MissingProductionSystemPropertyException, IaCTechnologyNotSupportedException, IssueNotSupportedException {
         Compute vmComponent = validateInputs(issue, model);
         String hostname = vmComponent.getProperty(Compute.PUBLIC_ADDRESS).filter(a -> !a.isEmpty()).orElseThrow(() ->
                 new MalformedInstanceModelException(vmComponent.getId(), Compute.PUBLIC_ADDRESS.getName(),
@@ -109,12 +106,21 @@ public class BashFixingPlugin implements IssueFixingPlugin {
         String script = this.script;
 
         if (complianceRuleArguments != null && !complianceRuleArguments.isEmpty()) {
-            String[] names = complianceRuleArguments.split(",");
-            List<String> arguments = issue.getRule().getParameterAssignments()
-                    .stream()
-                    .filter(a -> List.of(names).contains(a.getName()))
-                    .map(ComplianceRuleParameter::getValueAsString)
-                    .toList();
+            List<String> names = Arrays.stream(complianceRuleArguments.split(",")).map(String::trim).toList();
+            // be sure to maintain the ordering of names.
+            List<String> arguments = new ArrayList<>();
+
+            for (String name : names) {
+                arguments.add(issue.getRule().getParameterAssignments()
+                        .stream()
+                        .filter(a -> name.equals(a.getName()))
+                        .map(ComplianceRuleParameter::getValueAsString)
+                        .findFirst()
+                        // we know there will be no nulls!
+                        .orElse(null)
+                );
+            }
+
             script = "%s %s".formatted(script, String.join(" ", arguments));
         }
 
@@ -145,36 +151,16 @@ public class BashFixingPlugin implements IssueFixingPlugin {
     }
 
     public String readPrivateKey(Compute vmComponent) throws PrivateKeyNotAccessibleException {
-        String privateKeyPath = vmComponent.getProperty(Compute.PRIVATE_KEY_PATH).filter(p -> !p.isEmpty()).orElse(null);
-
-        if (privateKeyPath == null) {
-            LOGGER.warn("The vm component (id: {}) does not declare a path to a private key file. Looking for a default file instead!", vmComponent.getId());
-
-            if (defaultPrivateKey == null) {
-                throw new ConfigurationEntryMissingException(getIdentifier(), BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY_PATH);
-            }
-
-            privateKeyPath = this.defaultPrivateKey;
-        }
-
-        if (!FileUtils.exists(privateKeyPath)) {
-            throw new PrivateKeyNotAccessibleException(new FileNotFoundException("The file '%s' does not exist!".formatted(privateKeyPath)));
-        }
-
-        try {
-            return Files.readString(Path.of(privateKeyPath));
-        } catch (IOException e) {
-            throw new PrivateKeyNotAccessibleException(e);
-        }
+        return Utils.readPrivateKey(vmComponent, this.defaultPrivateKey, getIdentifier());
     }
 
     public Compute validateInputs(ComplianceIssue issue, InstanceModel model) {
         if (script == null || script.isEmpty()) {
-            throw new ConfigurationEntryMissingException(getIdentifier(), BashFixingPluginDescriptor.CONFIGURATION_ENTRY_SCRIPT);
+            throw new MissingConfigurationEntryException(getIdentifier(), BashFixingPluginDescriptor.CONFIGURATION_ENTRY_SCRIPT);
         }
 
         if (userName == null || userName.isEmpty()) {
-            throw new ConfigurationEntryMissingException(getIdentifier(), BashFixingPluginDescriptor.CONFIGURATION_ENTRY_USERNAME);
+            throw new MissingConfigurationEntryException(getIdentifier(), BashFixingPluginDescriptor.CONFIGURATION_ENTRY_USERNAME);
         }
 
         if (complianceRuleArguments != null && !complianceRuleArguments.isEmpty()) {

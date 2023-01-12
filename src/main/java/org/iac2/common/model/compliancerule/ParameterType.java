@@ -1,4 +1,4 @@
-package org.iac2.entity.compliancerule.parameter;
+package org.iac2.common.model.compliancerule;
 
 // careful when changing enum. see: https://www.baeldung.com/jpa-persisting-enums-in-jpa#ordinal
 public enum ParameterType {

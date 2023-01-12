@@ -2,7 +2,7 @@ package org.iac2.service.architecturereconstruction.plugin.implementation.manual
 
 import java.util.HashMap;
 
-import org.iac2.common.exception.ConfigurationMissingException;
+import org.iac2.common.exception.MissingConfigurationEntryException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.junit.jupiter.api.Assertions;
@@ -30,7 +30,7 @@ class ManualModelCreationPluginTest {
         Assertions.assertTrue(((ManualModelCreationPluginDescriptor) plugin.getDescriptor()).isIaCTechnologySupported("random tech name"));
         Assertions.assertEquals(0, ((ManualModelCreationPluginDescriptor) plugin.getDescriptor()).getRequiredProductionSystemPropertyNames().size());
         Assertions.assertEquals(1, plugin.getDescriptor().getConfigurationEntryDescriptors().size());
-        Assertions.assertThrows(ConfigurationMissingException.class, () ->
+        Assertions.assertThrows(MissingConfigurationEntryException.class, () ->
                 plugin.reconstructInstanceModel(new ProductionSystem("", "", new HashMap<>())));
         plugin.setConfigurationEntry(ManualModelCreationPluginDescriptor.CONFIG_ENTRY_MODEL_PATH, "random path!");
         Assertions.assertThrows(RuntimeException.class, () ->

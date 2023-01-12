@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 
 import org.iac2.common.Plugin;
-import org.iac2.common.exception.ConfigurationEntryMissingException;
+import org.iac2.common.exception.MissingConfigurationEntryException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
@@ -24,5 +24,5 @@ public interface ComplianceRuleCheckingPlugin extends Plugin {
 
     // todo do we need additional parameters?
     Collection<ComplianceIssue> findIssues(InstanceModel instanceModel, ComplianceRule rule)
-            throws ComplianceRuleTypeNotSupportedException, ComplianceRuleMalformattedException, ConfigurationEntryMissingException;
+            throws ComplianceRuleTypeNotSupportedException, ComplianceRuleMalformattedException, MissingConfigurationEntryException;
 }

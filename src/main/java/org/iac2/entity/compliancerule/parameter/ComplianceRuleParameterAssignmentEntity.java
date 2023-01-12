@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.iac2.common.model.compliancerule.ParameterType;
 import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.util.StringListConverter;
 

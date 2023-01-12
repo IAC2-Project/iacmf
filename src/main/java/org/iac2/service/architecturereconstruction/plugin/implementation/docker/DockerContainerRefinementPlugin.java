@@ -101,7 +101,9 @@ public class DockerContainerRefinementPlugin implements ModelRefinementPlugin {
             }
         }
 
-        return new InstanceModel(new DeploymentModel(deploymentModel.getName(), deploymentModel.getGraph()));
+        instanceModel.reCreateDeploymentModel();
+
+        return instanceModel;
     }
 
     public void enhanceModel(DeploymentModel deploymentModel,

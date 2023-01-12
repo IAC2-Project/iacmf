@@ -17,6 +17,10 @@ public class InstanceModel {
         this.deploymentModel = deploymentModel;
         this.properties = new HashMap<>();
     }
+
+    public void reCreateDeploymentModel() {
+        this.deploymentModel = new DeploymentModel(deploymentModel.getName(), deploymentModel.getGraph());
+    }
 }
 
 

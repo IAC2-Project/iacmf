@@ -73,7 +73,7 @@ class RemoveDBUsersFixingPluginTest {
             RootComponent component = instanceModel.getDeploymentModel().getComponent(dbComponent).orElseThrow();
             RootComponent dbms = RemoveDBUsersFixingPlugin.getConnectionInformation(instanceModel, component).dbms;
             Edmm.addPropertyAssignments(instanceModel.getDeploymentModel().getGraph(), dbms.getEntity().getId(), Map.of(MySqlDbms.DBMSPassword.getName(), "abc"));
-            instanceModel = new InstanceModel(new DeploymentModel(instanceModel.getDeploymentModel().getName(), instanceModel.getDeploymentModel().getGraph()));
+            instanceModel.reCreateDeploymentModel();
             report = plugin.fixIssue(issue, instanceModel, productionSystem);
             Assertions.assertNotNull(report);
             Assertions.assertNotNull(report.getDescription());
@@ -93,10 +93,9 @@ class RemoveDBUsersFixingPluginTest {
         // throw exception (missing db component)
         RootComponent component = instanceModel.getDeploymentModel().getComponent("iac2db").orElseThrow();
         Edmm.removeComponents(instanceModel.getDeploymentModel().getGraph(), List.of(component));
-        final InstanceModel instanceModel1 = new InstanceModel(new DeploymentModel(instanceModel.getDeploymentModel().getName(),
-                instanceModel.getDeploymentModel().getGraph()));
+        instanceModel.reCreateDeploymentModel();
         ComplianceIssue issue = createComplianceIssue(ruleUsers, dbComponent);
-        Assertions.assertThrows(MalformedInstanceModelException.class, () -> plugin.fixIssue(issue, instanceModel1, productionSystem));
+        Assertions.assertThrows(MalformedInstanceModelException.class, () -> plugin.fixIssue(issue, instanceModel, productionSystem));
     }
 
     @Test
@@ -118,10 +117,9 @@ class RemoveDBUsersFixingPluginTest {
         Assertions.assertEquals("root", info.password);
 
         Edmm.removeComponents(instanceModel.getDeploymentModel().getGraph(), List.of(info.dbms));
-        final InstanceModel instanceModel2 = new InstanceModel(new DeploymentModel(instanceModel.getDeploymentModel().getName(),
-                instanceModel.getDeploymentModel().getGraph()));
-        final RootComponent db2 = instanceModel2.getDeploymentModel().getComponent(DB_COMPONENT).orElseThrow();
-        Assertions.assertThrows(MalformedInstanceModelException.class, () -> RemoveDBUsersFixingPlugin.getConnectionInformation(instanceModel2, db2));
+        instanceModel.reCreateDeploymentModel();
+        final RootComponent db2 = instanceModel.getDeploymentModel().getComponent(DB_COMPONENT).orElseThrow();
+        Assertions.assertThrows(MalformedInstanceModelException.class, () -> RemoveDBUsersFixingPlugin.getConnectionInformation(instanceModel, db2));
     }
 
     @Test

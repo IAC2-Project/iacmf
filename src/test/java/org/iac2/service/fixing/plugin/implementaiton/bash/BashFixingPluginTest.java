@@ -2,9 +2,6 @@ package org.iac2.service.fixing.plugin.implementaiton.bash;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -14,18 +11,18 @@ import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.Compute;
 import io.github.edmm.model.component.Paas;
 import org.apache.commons.io.FileUtils;
-import org.iac2.common.exception.ConfigurationEntryMissingException;
 import org.iac2.common.exception.IacmfException;
 import org.iac2.common.exception.IssueNotSupportedException;
 import org.iac2.common.exception.MalformedInstanceModelException;
+import org.iac2.common.exception.MissingConfigurationEntryException;
 import org.iac2.common.exception.PrivateKeyNotAccessibleException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.common.utility.Edmm;
-import org.iac2.common.utility.VirtualMachine;
 import org.iac2.service.fixing.common.exception.ComplianceRuleMissingRequiredParameterException;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.util.TestUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,35 +34,19 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @EnabledIf("isPrivateKeyAccessible")
 class BashFixingPluginTest {
-    final static String ENV_VARIABLE = "VM_PRIVATE_KEY";
     final static String host = "193.196.53.165";
     final static String user = "ubuntu";
     static String privateKeyPath;
 
-    private static boolean isPrivateKeyAccessible() {
-        String privateKeyContent = System.getenv(ENV_VARIABLE);
+    public static boolean isPrivateKeyAccessible() {
+        String privateKeyContent = System.getenv(TestUtils.ENV_VARIABLE);
 
         return privateKeyContent != null;
     }
 
-    private static String fetchPrivateKey() {
-        String privateKeyContent = System.getenv(ENV_VARIABLE);
-        Assertions.assertNotNull(privateKeyContent);
-
-        if (!privateKeyContent.contains("BEGIN RSA PRIVATE KEY")) {
-            Base64.Decoder dec = Base64.getDecoder();
-            privateKeyContent = new String(dec.decode(privateKeyContent));
-        }
-
-        return privateKeyContent;
-    }
-
     @BeforeAll
     public static void init() throws IOException {
-        String privateKeyContent = fetchPrivateKey();
-        File file = File.createTempFile("key", "tmp", FileUtils.getTempDirectory());
-        FileUtils.write(file, privateKeyContent, "UTF-8");
-        privateKeyPath = file.getAbsolutePath();
+        privateKeyPath = TestUtils.fetchAndStorePrivateKeyTemporarily();
     }
 
     @AfterAll
@@ -87,22 +68,22 @@ class BashFixingPluginTest {
                         createPlugin(null, "a", "a"),
                         createDummyIssue(Map.of("a", "a"), "vm1"),
                         createDummyInstanceModel("http://a.com", privateKeyPath, "linux", "ubuntu"),
-                        ConfigurationEntryMissingException.class),
+                        MissingConfigurationEntryException.class),
                 Arguments.of(
                         createPlugin("", "a", "a"),
                         createDummyIssue(Map.of("a", "a"), "vm1"),
                         createDummyInstanceModel("http://a.com", privateKeyPath, "linux", "ubuntu"),
-                        ConfigurationEntryMissingException.class),
+                        MissingConfigurationEntryException.class),
                 Arguments.of(
                         createPlugin("sudo dir", null, "a"),
                         createDummyIssue(Map.of("a", "a"), "vm1"),
                         createDummyInstanceModel("http://a.com", privateKeyPath, "linux", "ubuntu"),
-                        ConfigurationEntryMissingException.class),
+                        MissingConfigurationEntryException.class),
                 Arguments.of(
                         createPlugin("sudo dir", "", "a"),
                         createDummyIssue(Map.of("a", "a"), "vm1"),
                         createDummyInstanceModel("http://a.com", privateKeyPath, "linux", "ubuntu"),
-                        ConfigurationEntryMissingException.class),
+                        MissingConfigurationEntryException.class),
                 Arguments.of(
                         createPlugin("sudo dir", "a", "a,b"),
                         createDummyIssue(Map.of("a", "aa"), "vm1"),
@@ -264,8 +245,8 @@ class BashFixingPluginTest {
 
     @Test
     void realWorldScenario() throws Exception {
-        final String command = "sudo sed -i -e 's/nullok//g' /etc/pam.d/common-password";
-        setupRealWorldScenario();
+        final String command = "sudo sed -i -e 's/\\s*nullok\\s*/ /g' /etc/pam.d/common-password";
+        TestUtils.setupRealWorldScenario(host, user, privateKeyPath);
 
         try {
             BashFixingPlugin plugin = createPlugin(command, user, null);
@@ -275,45 +256,14 @@ class BashFixingPluginTest {
             Assertions.assertNotNull(report);
             Assertions.assertTrue(report.isSuccessful());
         } finally {
-            teardownRealWorldScenario();
-        }
-    }
-
-    /**
-     * Backs up the common-password file and then adds the modifier 'nullok' to one of the entries (STIG ID: UBTU-20-010463).
-     *
-     * @throws Exception if a failure occurs.
-     */
-    void setupRealWorldScenario() throws Exception {
-        VirtualMachine vm = new VirtualMachine(host, null, user, Files.readString(Path.of(privateKeyPath)));
-        try {
-            vm.connect();
-            vm.execCommand("sudo cp /etc/pam.d/common-password /etc/pam.d/common-password.back");
-            vm.execCommand("sudo sed -i -e 's/pam_unix.so obscure/pam_unix.so nullok obscure/g' /etc/pam.d/common-password");
-        } finally {
-            vm.disconnect();
-        }
-    }
-
-    /**
-     * Restores the original common-password file.
-     *
-     * @throws Exception if a failure occurs.
-     */
-    void teardownRealWorldScenario() throws Exception {
-        VirtualMachine vm = new VirtualMachine(host, null, user, Files.readString(Path.of(privateKeyPath)));
-        try {
-            vm.connect();
-            vm.execCommand("sudo cp /etc/pam.d/common-password.back /etc/pam.d/common-password");
-        } finally {
-            vm.disconnect();
+            TestUtils.teardownRealWorldScenario(host, user, privateKeyPath);
         }
     }
 
     @Test
     void testFetchPrivateKey() throws IllegalAccessException {
         BashFixingPlugin plugin = new BashFixingPlugin(new BashFixingPluginDescriptor());
-        String content = fetchPrivateKey();
+        String content = TestUtils.fetchPrivateKey();
 
         InstanceModel instanceModel = createDummyInstanceModel(null, privateKeyPath, null, null);
         String privateKey = plugin.readPrivateKey((Compute) instanceModel.getDeploymentModel().getComponent("vm1").orElseThrow());
@@ -321,7 +271,7 @@ class BashFixingPluginTest {
         Assertions.assertEquals(content, privateKey);
 
         InstanceModel instanceModel2 = createDummyInstanceModel(null, null, null, null);
-        Assertions.assertThrows(ConfigurationEntryMissingException.class, () -> plugin.readPrivateKey((Compute) instanceModel2.getDeploymentModel().getComponent("vm1").orElseThrow()));
+        Assertions.assertThrows(MissingConfigurationEntryException.class, () -> plugin.readPrivateKey((Compute) instanceModel2.getDeploymentModel().getComponent("vm1").orElseThrow()));
 
         plugin.setConfigurationEntry(BashFixingPluginDescriptor.CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY_PATH, "abc");
         Assertions.assertThrows(PrivateKeyNotAccessibleException.class, () -> plugin.readPrivateKey((Compute) instanceModel2.getDeploymentModel().getComponent("vm1").orElseThrow()));
