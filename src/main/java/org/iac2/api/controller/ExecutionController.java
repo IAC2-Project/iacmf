@@ -13,16 +13,12 @@ import org.iac2.repository.compliancejob.ComplianceJobRepository;
 import org.iac2.repository.compliancejob.ExecutionRepository;
 import org.iac2.service.execution.ExecutionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController()
 @RequestMapping("executions")
 @Tag(name = "execution")
+@CrossOrigin( origins = "*" , allowedHeaders = "*" , methods = {RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.POST, RequestMethod.PATCH, RequestMethod.OPTIONS})
 public class ExecutionController {
     private final ExecutionService service;
     private final ComplianceJobRepository complianceJobRepository;
