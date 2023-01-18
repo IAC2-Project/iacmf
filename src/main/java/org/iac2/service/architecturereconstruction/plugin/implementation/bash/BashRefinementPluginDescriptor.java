@@ -77,7 +77,7 @@ public class BashRefinementPluginDescriptor implements ModelRefinementPluginDesc
                 new PluginConfigurationEntryDescriptor(
                         CONFIGURATION_ENTRY_DEFAULT_PRIVATE_KEY,
                         PluginConfigurationEntryType.FILE_PATH,
-                        true,
+                        false,
                         "The path (on the iacmf server) to the private key that allows to connect to the ubuntu (virtual-)machine. " +
                                 "This entry will be used iff the instance model node that has the issue does not define a property `private_key_path`. " +
                                 "At least one of these two values must be set."
@@ -86,7 +86,7 @@ public class BashRefinementPluginDescriptor implements ModelRefinementPluginDesc
                 new PluginConfigurationEntryDescriptor(
                         CONFIGURATION_ENTRY_PRODUCTION_SYSTEM_ARGUMENTS,
                         PluginConfigurationEntryType.STRING,
-                        true,
+                        false,
                         "A comma-separated list of production system parameter names. If this value is set, the plugin will retrieve the" +
                                 " referenced attributes and pass their values to the bash script as command-line arguments in the same order " +
                                 "specified in this list."

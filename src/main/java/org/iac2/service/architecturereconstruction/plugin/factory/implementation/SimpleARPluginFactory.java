@@ -17,6 +17,7 @@ import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreati
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPlugin;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefinementPluginDescriptor;
 import org.iac2.service.architecturereconstruction.plugin.factory.ArchitectureReconstructionPluginFactory;
+import org.iac2.service.architecturereconstruction.plugin.implementation.bash.BashRefinementPluginDescriptor;
 import org.iac2.service.architecturereconstruction.plugin.implementation.docker.DockerContainerRefinementPluginDescriptor;
 import org.iac2.service.architecturereconstruction.plugin.implementation.manual.ManualModelCreationPluginDescriptor;
 import org.iac2.service.architecturereconstruction.plugin.implementation.mysql.MySqlDbModelRefinementPluginDescriptor;
@@ -53,11 +54,13 @@ public class SimpleARPluginFactory implements ArchitectureReconstructionPluginFa
         OpenToscaContainerModelCreationPluginDescriptor openTosca = new OpenToscaContainerModelCreationPluginDescriptor();
         DockerContainerRefinementPluginDescriptor docker = new DockerContainerRefinementPluginDescriptor();
         MySqlDbModelRefinementPluginDescriptor mysql = new MySqlDbModelRefinementPluginDescriptor();
+        BashRefinementPluginDescriptor bash = new BashRefinementPluginDescriptor();
         // here instances of plugins are created.
         this.modelCreationPluginMap.put(manual.getIdentifier(), manual);
         this.modelCreationPluginMap.put(openTosca.getIdentifier(), openTosca);
         this.modelRefinementPluginMap.put(docker.getIdentifier(), docker);
         this.modelRefinementPluginMap.put(mysql.getIdentifier(), mysql);
+        this.modelRefinementPluginMap.put(bash.getIdentifier(), bash);
     }
 
     @Override
