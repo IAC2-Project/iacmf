@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
@@ -23,10 +24,12 @@ public class PluginUsageInstanceEntity extends PluginUsage {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "plugin_usage_id")
     private PluginUsageEntity pluginUsage;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "execution_id")
     private ExecutionEntity execution;

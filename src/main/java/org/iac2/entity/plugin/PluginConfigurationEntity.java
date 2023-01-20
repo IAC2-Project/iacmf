@@ -8,6 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,10 +27,12 @@ public class PluginConfigurationEntity {
     @NotNull
     private String value;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "plugin_usage_id")
     private PluginUsageEntity pluginUsage;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "plugin_usage_instance_id")
     private PluginUsageInstanceEntity pluginUsageInstance;

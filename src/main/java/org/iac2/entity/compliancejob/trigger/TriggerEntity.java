@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,6 +42,7 @@ public class TriggerEntity {
     @Setter(AccessLevel.NONE)
     private String cronExpression;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "triggers")
     private List<ComplianceJobEntity> complianceJobs;
 

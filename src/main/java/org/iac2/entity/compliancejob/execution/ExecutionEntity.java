@@ -18,6 +18,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
@@ -57,6 +58,7 @@ public class ExecutionEntity {
 
     private String description;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "compliance_job_id", nullable = false)
     private ComplianceJobEntity complianceJob;

@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.LazyCollection;
@@ -30,11 +31,12 @@ public class ComplianceIssueEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "execution_id", nullable = false)
     private ExecutionEntity execution;
 
-    // the following relation is unidirectional
+    // unidirectional
     @ManyToOne
     @JoinColumn(name = "compliance_rule_configuration_id", nullable = false)
     private ComplianceRuleConfigurationEntity complianceRuleConfiguration;

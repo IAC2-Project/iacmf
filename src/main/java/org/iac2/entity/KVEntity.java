@@ -8,6 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
@@ -27,10 +28,12 @@ public class KVEntity {
 
     private String value;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "production_system_id")
     private ProductionSystemEntity productionSystem;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "compliance_issue_id")
     private ComplianceIssueEntity complianceIssue;

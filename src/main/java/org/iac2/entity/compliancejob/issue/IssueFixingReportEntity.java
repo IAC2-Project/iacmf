@@ -8,6 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,6 +26,7 @@ public class IssueFixingReportEntity {
 
     private String description;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "compliance_issue_id", nullable = false)
     private ComplianceIssueEntity complianceIssue;

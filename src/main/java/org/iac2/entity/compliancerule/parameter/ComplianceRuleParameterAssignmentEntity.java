@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.common.model.compliancerule.ParameterType;
@@ -28,6 +29,7 @@ public class ComplianceRuleParameterAssignmentEntity {
 
     protected String value;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(nullable = false)
     protected ComplianceRuleParameterEntity parameter;

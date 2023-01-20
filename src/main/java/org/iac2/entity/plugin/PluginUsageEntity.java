@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +31,7 @@ public class PluginUsageEntity extends PluginUsage {
     private Long id;
 
     // refinement plugin
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "compliance_job_id_refinement")
     private ComplianceJobEntity complianceJobRefinement;
@@ -38,14 +40,17 @@ public class PluginUsageEntity extends PluginUsage {
     private Integer refinementPluginIndexInComplianceJob;
 
     // checking plugin
+    @JsonIgnore
     @OneToOne(mappedBy = "checkingPluginUsage")
     private ComplianceJobEntity complianceJobChecking;
 
     // fixing plugin
+    @JsonIgnore
     @OneToOne(mappedBy = "pluginUsage")
     private IssueFixingConfigurationEntity issueFixingConfiguration;
 
     // model creation plugin
+    @JsonIgnore
     @OneToOne(mappedBy = "modelCreationPluginUsage")
     private ProductionSystemEntity productionSystem;
 

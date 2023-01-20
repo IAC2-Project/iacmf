@@ -60,6 +60,7 @@ public class ComplianceJobEntity {
     @JoinColumn(name = "checking_plugin_usage_id", nullable = false)
     private PluginUsageEntity checkingPluginUsage;
 
+    // unidirectional
     @ManyToOne
     @JoinColumn(name = "production_system_id", nullable = false)
     private ProductionSystemEntity productionSystem;
