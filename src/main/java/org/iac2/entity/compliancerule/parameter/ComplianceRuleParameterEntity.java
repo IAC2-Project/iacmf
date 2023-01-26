@@ -28,7 +28,7 @@ public class ComplianceRuleParameterEntity {
     @NotNull
     private String name;
 
-    @JsonIgnore
+    //@JsonIgnore
     @ManyToOne
     @JoinColumn(name = "compliance_rule_id", nullable = false)
     private ComplianceRuleEntity complianceRule;
