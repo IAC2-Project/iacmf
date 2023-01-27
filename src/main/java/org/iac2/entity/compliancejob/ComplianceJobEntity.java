@@ -13,6 +13,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
@@ -54,6 +55,7 @@ public class ComplianceJobEntity {
     private List<ExecutionEntity> executions;
 
     @OneToMany(mappedBy = "complianceJobRefinement")
+    @OrderBy("refinementPluginIndexInComplianceJob")
     private List<PluginUsageEntity> modelRefinementStrategy;
 
     @OneToOne

@@ -83,6 +83,7 @@ public class Utils {
     }
 
     public static DeploymentModel fetchEdmmDeploymentModel(String fullUrl) throws URISyntaxException, IOException, InterruptedException {
+        LOGGER.info("fetching EDMM model from: {}", fullUrl);
         HttpRequest request = HttpRequest.newBuilder(new URI(fullUrl))
                 .GET()
                 .build();
