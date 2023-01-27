@@ -1,8 +1,5 @@
 package org.iac2.service.execution;
 
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
 import org.iac2.common.model.compliancejob.execution.ExecutionStep;
+import org.iac2.common.utility.Edmm;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
@@ -79,12 +77,9 @@ public class ExecutionService {
         try {
             ProductionSystemEntity productionSystem = execution.getComplianceJob().getProductionSystem();
             InstanceModel result = this.architectureReconstructionService.crteateInstanceModel(productionSystem, execution);
-            StringWriter writer = new StringWriter();
-            result.getDeploymentModel().getGraph().generateYamlOutput(writer);
-            Base64.Encoder encoder = Base64.getEncoder();
-            String base64 = encoder.encodeToString(writer.toString().getBytes(StandardCharsets.UTF_8));
-            execution.setInstanceModel(base64);
             this.architectureReconstructionService.refineInstanceModel(execution, result);
+            String base64 = Edmm.getAsBase64(result.getDeploymentModel().getGraph());
+            execution.setInstanceModel(base64);
             execution.setStatus(ExecutionStatus.IDLE);
             executionRepository.save(execution);
             LOGGER.info("Successfully finished the reconstruction of the architecture (execution id: {}, job id: {})...",

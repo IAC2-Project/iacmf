@@ -72,7 +72,7 @@ public class BashRefinementPlugin implements ModelRefinementPlugin {
         switch (inputName) {
             case BashRefinementPluginDescriptor.CONFIGURATION_ENTRY_SCRIPT -> this.script = inputValue;
             case BashRefinementPluginDescriptor.CONFIGURATION_ENTRY_PRODUCTION_SYSTEM_ARGUMENTS -> {
-                if (inputValue == null) {
+                if (inputValue == null || inputValue.isBlank()) {
                     this.productionSystemArguments = null;
                 } else {
                     this.productionSystemArguments = Arrays.stream(inputValue.split(",")).map(String::trim).toList();
@@ -85,7 +85,7 @@ public class BashRefinementPlugin implements ModelRefinementPlugin {
             case BashRefinementPluginDescriptor.CONFIGURATION_ENTRY_OUTPUT_PROPERTY_NAME ->
                     this.outputPropertyName = inputValue;
             case BashRefinementPluginDescriptor.CONFIGURATION_ENTRY_OUTPUT_PROPERTY_TYPE -> {
-                if (inputValue == null) {
+                if (inputValue == null || inputValue.isBlank()) {
                     this.outputPropertyName = null;
                 } else {
                     ParameterType temp = EnumUtils.getEnum(ParameterType.class, inputValue);

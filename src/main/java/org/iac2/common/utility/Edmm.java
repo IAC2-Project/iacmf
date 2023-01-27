@@ -1,8 +1,11 @@
 package org.iac2.common.utility;
 
+import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -380,5 +383,12 @@ public class Edmm {
         }
 
         return Arrays.stream(property.getValue().split(LIST_DELIMITER)).toList();
+    }
+
+    public static String getAsBase64(EntityGraph graph) {
+        StringWriter writer = new StringWriter();
+        graph.generateYamlOutput(writer);
+        Base64.Encoder encoder = Base64.getEncoder();
+        return encoder.encodeToString(writer.toString().getBytes(StandardCharsets.UTF_8));
     }
 }
