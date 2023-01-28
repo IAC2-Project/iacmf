@@ -2,6 +2,8 @@ package org.iac2.service.architecturereconstruction.plugin.implementation.manual
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.iac2.common.PluginDescriptor;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
@@ -34,7 +36,7 @@ public class ManualModelCreationPlugin implements ModelCreationPlugin {
     @Override
     public void setConfigurationEntry(String inputName, String inputValue) {
         if (inputName.equals(ManualModelCreationPluginDescriptor.CONFIG_ENTRY_MODEL_PATH)) {
-            this.modelPath = inputValue;
+            this.modelPath = preprocessModelPath(inputValue);
         } else {
             LOGGER.warn("Trying to set a user input not expected by the plugin (plugin-id: {})", getIdentifier());
         }
@@ -65,5 +67,18 @@ public class ManualModelCreationPlugin implements ModelCreationPlugin {
         } catch (URISyntaxException | IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    String preprocessModelPath(String modelPath) {
+        final String regex = "^(http://.+)/#/(servicetemplates/.+)/readme$";
+
+        final Pattern pattern = Pattern.compile(regex);
+        final Matcher matcher = pattern.matcher(modelPath);
+
+        if (matcher.matches()) {
+            modelPath = "%s/winery/%s/edmm/export?edmmUseAbsolutePaths=true".formatted(matcher.group(1), matcher.group(2));
+        }
+
+        return modelPath;
     }
 }
