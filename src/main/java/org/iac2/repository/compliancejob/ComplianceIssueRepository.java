@@ -8,9 +8,12 @@ import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @RepositoryRestResource(path = "compliance-issues")
-@Tag(name="compliance-issue")
+@Tag(name = "compliance-issue")
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.POST, RequestMethod.PATCH, RequestMethod.OPTIONS})
 public interface ComplianceIssueRepository extends CrudRepository<ComplianceIssueEntity, Long> {
     List<ComplianceIssueEntity> findByExecution(ExecutionEntity execution);
 

@@ -1,6 +1,7 @@
 package org.iac2.entity.compliancerule.parameter;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.persistence.Entity;
@@ -11,14 +12,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.iac2.common.model.compliancerule.ParameterType;
 import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.util.StringListConverter;
 
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @Entity
 public class ComplianceRuleParameterAssignmentEntity {
@@ -29,7 +31,7 @@ public class ComplianceRuleParameterAssignmentEntity {
 
     protected String value;
 
-    @JsonIgnore
+    // unidirectional
     @ManyToOne
     @JoinColumn(nullable = false)
     protected ComplianceRuleParameterEntity parameter;
@@ -103,5 +105,18 @@ public class ComplianceRuleParameterAssignmentEntity {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ComplianceRuleParameterAssignmentEntity that = (ComplianceRuleParameterAssignmentEntity) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
