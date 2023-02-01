@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.iac2.common.model.InstanceModel;
+import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
@@ -46,9 +47,14 @@ public class ComplianceRuleCheckingService {
     public Map<ComplianceRuleConfigurationEntity, Collection<ComplianceIssueEntity>> findViolationsOfAllComplianceRules(
             ExecutionEntity execution, InstanceModel instanceModel) {
         Map<ComplianceRuleConfigurationEntity, Collection<ComplianceIssueEntity>> result = new HashMap<>();
+        Collection<ComplianceIssueEntity> currentIssues;
 
         for (ComplianceRuleConfigurationEntity configurationEntity : execution.getComplianceJob().getComplianceRuleConfigurations()) {
-            result.put(configurationEntity, findViolationsOfComplianceRule(execution, configurationEntity, instanceModel));
+            currentIssues = findViolationsOfComplianceRule(execution, configurationEntity, instanceModel);
+
+            if (currentIssues != null && !currentIssues.isEmpty()) {
+                result.put(configurationEntity, currentIssues);
+            }
         }
 
         return result;
@@ -68,13 +74,18 @@ public class ComplianceRuleCheckingService {
         ComplianceRule myCR = EntityToPojo.transformComplianceRule(complianceRuleConfiguration);
         PluginUsageEntity usageEntity = execution.getComplianceJob().getCheckingPluginUsage();
         ComplianceRuleCheckingPlugin plugin = (ComplianceRuleCheckingPlugin) helperService.instantiatePlugin(usageEntity, execution, pluginManager);
+        Collection<ComplianceIssue> issues = plugin.findIssues(instanceModel, myCR);
+        Collection<ComplianceIssueEntity> result = issues.stream()
+                .map(issue -> {
+                    ComplianceIssueEntity entity = PojoToEntity.transformComplianceIssue(execution, issue);
+                    ComplianceIssueEntity loaded = complianceIssueRepository.save(entity);
+                    kVRepository.saveAll(entity.getProperties());
 
-        return plugin.findIssues(instanceModel, myCR)
-                .stream()
-                .map(i -> PojoToEntity.transformComplianceIssue(execution, i))
-                .peek(i -> kVRepository.saveAll(i.getProperties()))
-                .map(complianceIssueRepository::save)
+                    return loaded;
+                })
                 .toList();
+
+        return result;
     }
 
     public ComplianceRuleCheckingPluginFactory getPluginManager() {

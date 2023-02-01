@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
@@ -62,7 +64,7 @@ public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlu
             URISyntaxException,
             IOException,
             InterruptedException {
-        final String ruleLocation = complianceRule.getLocation();
+        final String ruleLocation = preprocessModelPath(complianceRule.getLocation());
         Graph<RootComponent, RootRelation> checker = getRulePart(ruleLocation.concat(requiredStructureSegment));
         Graph<RootComponent, RootRelation> selector = getRulePart(ruleLocation.concat(identifierSegment));
 
@@ -77,7 +79,7 @@ public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlu
             throw new ComplianceRuleTypeNotSupportedException(rule.getType());
         }
 
-        final String ruleLocation = rule.getLocation();
+        final String ruleLocation = preprocessModelPath(rule.getLocation());
 
         try {
             Graph<RootComponent, RootRelation> checker = getRulePart(ruleLocation.concat(requiredStructureSegment));
@@ -114,5 +116,18 @@ public class SubgraphMatchingCheckingPlugin implements ComplianceRuleCheckingPlu
 
     public Graph<RootComponent, RootRelation> getRulePart(String fullUrl) throws URISyntaxException, IOException, InterruptedException {
         return EdmmGraphCreator.of(Utils.fetchEdmmDeploymentModel(fullUrl));
+    }
+
+    String preprocessModelPath(String modelPath) {
+        final String regex = "^(http://.+)/#/(compliancerules/.+)/readme$";
+
+        final Pattern pattern = Pattern.compile(regex);
+        final Matcher matcher = pattern.matcher(modelPath);
+
+        if (matcher.matches()) {
+            modelPath = "%s/winery/%s".formatted(matcher.group(1), matcher.group(2));
+        }
+
+        return modelPath;
     }
 }

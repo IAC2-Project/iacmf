@@ -37,6 +37,6 @@ public class PojoToEntity {
     }
 
     public static void transformIssueProperties(ComplianceIssueEntity issueEntity, Map<String, String> properties) {
-        properties.forEach((k, v) -> issueEntity.getProperties().add(new KVEntity(k, v)));
+        properties.forEach((k, v) -> issueEntity.addProperty(new KVEntity(k, v)));
     }
 }

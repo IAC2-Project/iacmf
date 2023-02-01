@@ -56,6 +56,7 @@ public class ExecutionEntity {
 
     private Boolean violationsDetected;
 
+    @Column(length = 1000)
     private String description;
 
     @JsonIgnore

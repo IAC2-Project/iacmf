@@ -48,12 +48,7 @@ public class ComponentComparatorForMatchingWithInstanceModel implements Semantic
         String expression;
         String name;
         boolean isFound;
-        Collection<Property> instanceModelComponentComputedProps = instanceModelComponent
-                .getProperties()
-                .values()
-                .stream()
-                .filter(Property::isComputed)
-                .toList();
+        Collection<Property> instanceModelComponentProps = instanceModelComponent.getProperties().values();
 
         // iterate over all properties of the compliance rule
         for (Property property : ruleComponent.getProperties().values()) {
@@ -65,7 +60,7 @@ public class ComponentComparatorForMatchingWithInstanceModel implements Semantic
             if (expression != null && !expression.isEmpty() && !PROPERTIES_TO_IGNORE.contains(name)) {
                 isFound = false;
                 // iterate over all properties that are assigned values in the instance model
-                for (Property instanceProperty : instanceModelComponentComputedProps) {
+                for (Property instanceProperty : instanceModelComponentProps) {
                     // find a property with a suitable name!
                     if (areEqualPropertyNames(name, instanceProperty.getName())) {
                         isFound = true;

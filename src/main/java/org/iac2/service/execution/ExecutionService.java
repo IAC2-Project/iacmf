@@ -158,6 +158,7 @@ public class ExecutionService {
         execution.setStatus(isFailed ? ExecutionStatus.EXCEPTION : ExecutionStatus.SUCCESS);
         execution.setEndTime(new Date());
         execution.setCurrentStep(ExecutionStep.END);
+        description = description.substring(0, Math.min(description.length(), 1000));
         execution.setDescription(description);
         executionRepository.save(execution);
 
