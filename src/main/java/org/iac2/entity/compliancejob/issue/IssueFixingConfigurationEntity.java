@@ -9,7 +9,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
@@ -34,7 +33,7 @@ public class IssueFixingConfigurationEntity {
     @JoinColumn(name = "plugin_usage_id", nullable = false)
     private PluginUsageEntity pluginUsage;
 
-    @JsonIgnore
+    // unidirectional
     @ManyToOne
     @JoinColumn(name = "compliance_job_id", nullable = false)
     private ComplianceJobEntity complianceJob;
@@ -42,7 +41,6 @@ public class IssueFixingConfigurationEntity {
     public IssueFixingConfigurationEntity(String issueType, ComplianceJobEntity complianceJob, PluginUsageEntity pluginUsage) {
         this.issueType = issueType;
         this.complianceJob = complianceJob;
-        this.complianceJob.getIssueFixingConfigurations().add(this);
         this.pluginUsage = pluginUsage;
         this.pluginUsage.setIssueFixingConfiguration(this);
     }

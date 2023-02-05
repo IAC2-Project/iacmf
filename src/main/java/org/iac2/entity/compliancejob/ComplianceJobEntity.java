@@ -19,7 +19,6 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
-import org.iac2.entity.compliancejob.issue.IssueFixingConfigurationEntity;
 import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
@@ -37,9 +36,6 @@ public class ComplianceJobEntity {
     private String name;
 
     private String description;
-
-    @OneToMany(mappedBy = "complianceJob")
-    private List<IssueFixingConfigurationEntity> issueFixingConfigurations;
 
     @ManyToMany
     @JoinTable(
@@ -78,7 +74,6 @@ public class ComplianceJobEntity {
         this.description = description;
         this.executions = new ArrayList<>();
         this.complianceRuleConfigurations = new ArrayList<>();
-        this.issueFixingConfigurations = new ArrayList<>();
         this.modelRefinementStrategy = new ArrayList<>();
         this.triggers = new ArrayList<>();
     }

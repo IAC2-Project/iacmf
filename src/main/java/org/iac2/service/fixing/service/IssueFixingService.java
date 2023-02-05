@@ -8,10 +8,12 @@ import org.iac2.common.exception.IssueTypeNotMappedException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
+import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
 import org.iac2.entity.plugin.PluginUsageEntity;
+import org.iac2.repository.compliancejob.IssueFixingConfigurationRepository;
 import org.iac2.repository.compliancejob.IssueFixingReportRepository;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
 import org.iac2.service.fixing.common.model.IssueFixingReport;
@@ -26,14 +28,19 @@ public class IssueFixingService {
     private final IssueFixingPluginFactory pluginManager;
     private final IssueFixingReportRepository issueFixingReportRepository;
 
+    private final IssueFixingConfigurationRepository issueFixingConfigurationRepository;
+
     private final PluginConfigurationHelperService helperService;
 
     public IssueFixingService(IssueFixingPluginFactory pluginManager,
                               IssueFixingReportRepository issueFixingReportRepository,
-                              PluginConfigurationHelperService helperService) {
+                              PluginConfigurationHelperService helperService,
+                              IssueFixingConfigurationRepository issueFixingConfigurationRepository
+    ) {
         this.pluginManager = pluginManager;
         this.issueFixingReportRepository = issueFixingReportRepository;
         this.helperService = helperService;
+        this.issueFixingConfigurationRepository = issueFixingConfigurationRepository;
     }
 
     private IssueFixingReportEntity fixSingleIssue(ExecutionEntity execution, InstanceModel instanceModel, IssueFixingPlugin plugin, ComplianceIssueEntity issueE) {
@@ -93,8 +100,8 @@ public class IssueFixingService {
 
     private IssueFixingPlugin instantiatePlugin(ComplianceIssueEntity entity) throws IssueTypeNotMappedException {
         final String issueType = entity.getType();
-        PluginUsageEntity usageEntity = entity.getExecution().getComplianceJob()
-                .getIssueFixingConfigurations()
+        ComplianceJobEntity complianceJob = entity.getExecution().getComplianceJob();
+        PluginUsageEntity usageEntity = this.issueFixingConfigurationRepository.findByComplianceJob(complianceJob)
                 .stream()
                 .filter(c -> c.getIssueType().equals(issueType))
                 .findFirst()
