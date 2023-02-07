@@ -41,6 +41,8 @@ public class ComplianceIssueEntity {
     @JoinColumn(name = "compliance_rule_configuration_id", nullable = false)
     private ComplianceRuleConfigurationEntity complianceRuleConfiguration;
 
+    // multiple fixing reports per issue only make sense if the client can attempt to
+    // fix an issue multiple times (potentially using multiple plugins
     @OneToMany(mappedBy = "complianceIssue")
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<IssueFixingReportEntity> fixingReports;

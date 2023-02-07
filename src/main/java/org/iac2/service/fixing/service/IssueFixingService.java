@@ -44,13 +44,22 @@ public class IssueFixingService {
     }
 
     private IssueFixingReportEntity fixSingleIssue(ExecutionEntity execution, InstanceModel instanceModel, IssueFixingPlugin plugin, ComplianceIssueEntity issueE) {
-        ComplianceIssue issue = EntityToPojo.transformIssue(issueE);
-        ProductionSystem productionSystem =
-                EntityToPojo.transformProductionSystemEntity(execution.getComplianceJob().getProductionSystem());
-        IssueFixingReport report = plugin.fixIssue(issue, instanceModel, productionSystem);
-        IssueFixingReportEntity reportEntity = PojoToEntity.transformFixingReport(report, issueE);
+        try {
+            ComplianceIssue issue = EntityToPojo.transformIssue(issueE);
+            ProductionSystem productionSystem =
+                    EntityToPojo.transformProductionSystemEntity(execution.getComplianceJob().getProductionSystem());
+            IssueFixingReport report = plugin.fixIssue(issue, instanceModel, productionSystem);
+            IssueFixingReportEntity reportEntity = PojoToEntity.transformFixingReport(report, issueE);
 
-        return issueFixingReportRepository.save(reportEntity);
+            return issueFixingReportRepository.save(reportEntity);
+        } catch (Exception e) {
+            IssueFixingReportEntity report = new IssueFixingReportEntity();
+            report.setComplianceIssue(issueE);
+            report.setDescription("Fixing the issue failed. Reason: %s".formatted(e.getMessage()));
+            report.setIsSuccessful(false);
+
+            return report;
+        }
     }
 
     /**
