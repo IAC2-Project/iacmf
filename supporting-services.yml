@@ -15,27 +15,32 @@ services:
   winery-cr-modeling:
     image: opentosca/winery:iac-compliance
     environment:
-      WINERY_HOSTNAME: 172.17.0.1
-      TOPOLOGYMODELER_HOSTNAME: 172.17.0.1
+      WINERY_HOSTNAME: ${PUBLIC_HOSTNAME}
+      TOPOLOGYMODELER_HOSTNAME: ${PUBLIC_HOSTNAME}
       WINERY_FEATURE_EDMM_MODELING: "true"
       WINERY_FEATURE_TEST_COMPLIANCE: "true"
       WINERY_FEATURE_UPDATE_TEMPLATES: "true"
-      # WINERY_REPOSITORY_URL: "https://github.com/IAC2-Project/compliance-rule-modeling-repository"
+      WINERY_REPOSITORY_URL: "https://github.com/IAC2-Project/compliance-rule-modeling-repository"
     ports:
       - '8080:8080'
     volumes:
-      - C:\Users\falazigb\winery-repositories\compliance-rule-modeling-repository:/var/repository
+      - cr_modeling:/var/repository
   winery-im-modeling:
     image: opentosca/winery:iac-compliance
     environment:
-      WINERY_HOSTNAME: 172.17.0.1
-      TOPOLOGYMODELER_HOSTNAME: 172.17.0.1
+      WINERY_HOSTNAME: ${PUBLIC_HOSTNAME}
+      TOPOLOGYMODELER_HOSTNAME: ${PUBLIC_HOSTNAME}
       WINERY_FEATURE_EDMM_MODELING: "true"
       WINERY_FEATURE_UPDATE_TEMPLATES: "true"
-      # WINERY_REPOSITORY_URL: "https://github.com/IAC2-Project/instance-model-modeling-repository"
+      WINERY_REPOSITORY_URL: "https://github.com/IAC2-Project/instance-model-modeling-repository"
     ports:
       - '8081:8080'
     volumes:
-      - C:\Users\falazigb\winery-repositories\instance-model-modeling-repository:/var/repository
+      - im_modeling:/var/repository
 volumes:
-  mysql_db_data_container:
+  mysql_db_data_container: {}
+  cr_modeling: {}
+  im_modeling: {}
+
+
+
