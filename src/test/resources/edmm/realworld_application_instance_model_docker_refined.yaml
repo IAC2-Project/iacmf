@@ -187,8 +187,6 @@ component_types:
         type: string
       DBUser:
         type: string
-  depends_on:
-    extends: null
   nginx:
     extends: web_server
   web_server:
@@ -275,10 +273,6 @@ component_types:
         type: string
       component_version:
         type: string
-  hosted_on:
-    extends: depends_on
-  connects_to:
-    extends: depends_on
   realworld_application_angular:
     extends: web_application
     properties:
@@ -288,3 +282,10 @@ component_types:
         type: string
   base:
     extends: null
+relation_types:
+  depends_on:
+    extends: null
+  hosted_on:
+    extends: depends_on
+  connects_to:
+    extends: depends_on

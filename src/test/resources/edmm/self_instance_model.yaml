@@ -83,8 +83,6 @@ component_types:
         type: string
       DBUser:
         type: string
-  depends_on:
-    extends: null
   docker_engine:
     extends: base
     properties:
@@ -146,9 +144,12 @@ component_types:
         type: string
   software_component:
     extends: base
+  base:
+    extends: null
+relation_types:
+  depends_on:
+    extends: null
   hosted_on:
     extends: depends_on
   connects_to:
     extends: depends_on
-  base:
-    extends: null

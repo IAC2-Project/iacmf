@@ -45,10 +45,10 @@ class EdmmTest {
     }
 
     @Test
-    void testAddType() throws IOException, IllegalAccessException {
+    void testAddComponentType() throws IOException, IllegalAccessException {
         ClassPathResource resource = new ClassPathResource("edmm/four-components-hosted-on.yml");
         DeploymentModel model = DeploymentModel.of(resource.getFile());
-        Edmm.addType(model.getGraph(), AwsBeanstalk.class);
+        Edmm.addType(model.getGraph(), AwsBeanstalk.class, true);
         Assertions.assertTrue(
                 model.getGraph().getEntity(EntityGraph.COMPONENT_TYPES.extend(EdmmTypeResolver.resolve(AwsBeanstalk.class))).isPresent());
         Assertions.assertTrue(
@@ -57,6 +57,16 @@ class EdmmTest {
                 model.getGraph().getEntity(EntityGraph.COMPONENT_TYPES.extend(EdmmTypeResolver.resolve(Platform.class))).isPresent());
         Assertions.assertTrue(
                 model.getGraph().getEntity(EntityGraph.COMPONENT_TYPES.extend(EdmmTypeResolver.resolve(RootComponent.class))).isPresent());
+    }
+
+    @Test
+    void testAddRelationType() throws IOException, IllegalAccessException {
+        EntityGraph graph = new EntityGraph();
+        Edmm.addType(graph, HostedOn.class, false);
+        Assertions.assertTrue(
+                graph.getEntity(EntityGraph.RELATION_TYPES.extend(EdmmTypeResolver.resolve(HostedOn.class))).isPresent());
+        Assertions.assertTrue(
+                graph.getEntity(EntityGraph.RELATION_TYPES.extend(EdmmTypeResolver.resolve(DependsOn.class))).isPresent());
     }
 
     @Test
