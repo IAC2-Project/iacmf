@@ -13,7 +13,7 @@ services:
     volumes:
       - mysql_db_data_container:/var/lib/mysql
   winery-cr-modeling:
-    image: opentosca/winery:iac-compliance
+    image: opentosca/winery
     environment:
       WINERY_HOSTNAME: ${PUBLIC_HOSTNAME}
       TOPOLOGYMODELER_HOSTNAME: ${PUBLIC_HOSTNAME}
@@ -26,7 +26,7 @@ services:
     volumes:
       - cr_modeling:/var/repository
   winery-im-modeling:
-    image: opentosca/winery:iac-compliance
+    image: opentosca/winery
     environment:
       WINERY_HOSTNAME: ${PUBLIC_HOSTNAME}
       TOPOLOGYMODELER_HOSTNAME: ${PUBLIC_HOSTNAME}
