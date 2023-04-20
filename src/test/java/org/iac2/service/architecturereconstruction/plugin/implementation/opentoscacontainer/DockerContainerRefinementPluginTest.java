@@ -1,23 +1,5 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import javax.xml.namespace.QName;
-
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -28,8 +10,11 @@ import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.HostedOn;
 import io.github.edmm.model.relation.RootRelation;
+import io.kubernetes.client.ApiException;
 import org.assertj.core.util.Sets;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.Edmm;
@@ -55,6 +40,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit.jupiter.DisabledIf;
+
+import javax.xml.namespace.QName;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class DockerContainerRefinementPluginTest {
 
@@ -107,7 +102,7 @@ public class DockerContainerRefinementPluginTest {
 
     @Test
     @DisabledIf("#{T(org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.DockerContainerRefinementPluginTest).onlyLocal}")
-    public void testDockerReconstruction() {
+    public void testDockerReconstruction() throws FileNotFoundException, ApiException {
         ProductionSystem productionSystem = OpenTOSCATestUtils.createProductionSystem(hostName, port, appName, instanceId);
         ModelCreationPlugin plugin = OpenTOSCATestUtils.getOpenTOSCAModelCreationPlugin();
         InstanceModel instanceModel = plugin.reconstructInstanceModel(productionSystem);

@@ -55,7 +55,7 @@ public abstract class RuleValidator {
     }
 
     private static void validatePropertiesOfRuleComponent(RootComponent component, ComplianceRule rule)
-            throws ExpressionException, RuntimeException {
+            throws RuntimeException {
         // if something goes wrong here, an ExpressionException is thrown.
         try {
             Collection<Property> propertyCollection = component

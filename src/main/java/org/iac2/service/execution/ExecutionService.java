@@ -1,12 +1,6 @@
 package org.iac2.service.execution;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
-
+import io.kubernetes.client.ApiException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
 import org.iac2.common.model.compliancejob.execution.ExecutionStep;
@@ -26,6 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import javax.validation.constraints.NotNull;
+import java.io.FileNotFoundException;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class ExecutionService {
@@ -88,6 +89,10 @@ public class ExecutionService {
             return result;
         } catch (RuntimeException e) {
             throw this.handleException(e, execution);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
         }
     }
 

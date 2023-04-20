@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public class BashCommandExecutionException extends ArchitectureReconstructionException {
-    private String command;
-    private String componentId;
-    private String host;
-    private String userName;
+    private final String command;
+    private final String componentId;
+    private final String host;
+    private final String userName;
 
     public BashCommandExecutionException(String command, String componentId, String host, String userName) {
         super("An error occurred while trying to execute the command (%s) over ssh (%s@%s)".formatted(command, userName, host));

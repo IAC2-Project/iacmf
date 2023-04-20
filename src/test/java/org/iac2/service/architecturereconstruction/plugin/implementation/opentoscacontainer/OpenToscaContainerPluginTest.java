@@ -3,6 +3,7 @@ package org.iac2.service.architecturereconstruction.plugin.implementation.opento
 import com.google.common.collect.Maps;
 import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
+import io.kubernetes.client.ApiException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.winery.accountability.exceptions.AccountabilityException;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -74,7 +76,7 @@ public class OpenToscaContainerPluginTest {
     }
 
     @Test
-    public void testReconstruction() {
+    public void testReconstruction() throws FileNotFoundException, ApiException {
         ModelCreationPlugin plugin = OpenTOSCATestUtils.getOpenTOSCAModelCreationPlugin();
         assertNotNull(plugin);
         assertEquals("opentosca-container-model-creation-plugin", plugin.getIdentifier());

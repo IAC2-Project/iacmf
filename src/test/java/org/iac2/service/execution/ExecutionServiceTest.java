@@ -1,14 +1,7 @@
 package org.iac2.service.execution;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.transaction.Transactional;
-
 import io.github.edmm.model.DeploymentModel;
+import io.kubernetes.client.ApiException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
 import org.iac2.common.model.compliancejob.execution.ExecutionStep;
@@ -22,13 +15,7 @@ import org.iac2.entity.compliancejob.trigger.TriggerEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
-import org.iac2.repository.compliancejob.ComplianceIssueRepository;
-import org.iac2.repository.compliancejob.ComplianceJobRepository;
-import org.iac2.repository.compliancejob.ComplianceRuleConfigurationRepository;
-import org.iac2.repository.compliancejob.ExecutionRepository;
-import org.iac2.repository.compliancejob.IssueFixingConfigurationRepository;
-import org.iac2.repository.compliancejob.IssueFixingReportRepository;
-import org.iac2.repository.compliancejob.TriggerRepository;
+import org.iac2.repository.compliancejob.*;
 import org.iac2.repository.compliancerule.ComplianceRuleRepository;
 import org.iac2.repository.plugin.PluginUsageRepository;
 import org.iac2.repository.productionsystem.ProductionSystemRepository;
@@ -46,6 +33,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -87,7 +81,7 @@ class ExecutionServiceTest {
     private IssueFixingConfigurationRepository issueFixingConfigurationRepository;
 
     @Test
-    void testReconstruction() throws IOException {
+    void testReconstruction() throws IOException, ApiException {
         ClassPathResource iRes = new ClassPathResource("edmm/realworld_application_instance_model_docker_refined.yaml");
         InstanceModel instanceModel = new InstanceModel(DeploymentModel.of(iRes.getFile()));
         Mockito.when(arService.crteateInstanceModel(any(), any())).thenReturn(instanceModel);

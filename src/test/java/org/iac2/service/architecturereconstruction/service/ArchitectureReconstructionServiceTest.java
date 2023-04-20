@@ -1,9 +1,6 @@
 package org.iac2.service.architecturereconstruction.service;
 
-import java.util.List;
-
-import javax.transaction.Transactional;
-
+import io.kubernetes.client.ApiException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
@@ -26,6 +23,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import javax.transaction.Transactional;
+import java.io.FileNotFoundException;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
 
@@ -52,7 +53,7 @@ class ArchitectureReconstructionServiceTest {
     private ProductionSystemRepository productionSystemRepository;
 
     @Test
-    void testARService() {
+    void testARService() throws FileNotFoundException, ApiException {
         Mockito.when(pluginManager.createPlugin(anyString()))
                 .thenReturn(new MockModelCreationPlugin(3));
         PluginUsageEntity usageEntity = new PluginUsageEntity("testPlugin");

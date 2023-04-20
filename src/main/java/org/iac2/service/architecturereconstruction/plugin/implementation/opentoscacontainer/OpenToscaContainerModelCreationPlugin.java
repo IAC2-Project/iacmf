@@ -1,13 +1,5 @@
 package org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import javax.xml.namespace.QName;
-
 import io.github.edmm.core.parser.EntityGraph;
 import io.github.edmm.core.parser.EntityId;
 import io.github.edmm.model.DeploymentModel;
@@ -26,14 +18,7 @@ import org.iac2.common.utility.Edmm;
 import org.iac2.service.architecturereconstruction.common.exception.AppInstanceNodeFoundException;
 import org.iac2.service.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Java11;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDb;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Nginx;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.RealWorldAngularApp;
-import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.RealWorldApplicationBackendJava11Spring;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.*;
 import org.opentosca.container.client.ContainerClient;
 import org.opentosca.container.client.ContainerClientBuilder;
 import org.opentosca.container.client.model.Application;
@@ -42,6 +27,13 @@ import org.opentosca.container.client.model.NodeInstance;
 import org.opentosca.container.client.model.RelationInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.xml.namespace.QName;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugin {
 
@@ -124,18 +116,17 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
         String instanceId = props.get("opentoscacontainer_instanceId");
 
         if (Objects.isNull(hostName) || Objects.isNull(port) || Objects.isNull(appId) || Objects.isNull(instanceId)) {
-            StringBuilder strb = new StringBuilder();
-            strb.append("Missing Properties");
-            strb.append(System.lineSeparator());
-            strb.append("hostName=").append(hostName);
-            strb.append(System.lineSeparator());
-            strb.append("port=").append(port);
-            strb.append(System.lineSeparator());
-            strb.append("appId=").append(appId);
-            strb.append(System.lineSeparator());
-            strb.append("instanceId=").append(instanceId);
+            String strb = "Missing Properties" +
+                    System.lineSeparator() +
+                    "hostName=" + hostName +
+                    System.lineSeparator() +
+                    "port=" + port +
+                    System.lineSeparator() +
+                    "appId=" + appId +
+                    System.lineSeparator() +
+                    "instanceId=" + instanceId;
 
-            throw new IllegalArgumentException(strb.toString());
+            throw new IllegalArgumentException(strb);
         }
 
         ContainerClient client = ContainerClientBuilder.builder().withHostname(hostName).withPort(Integer.valueOf(port)).withTimeout(OPENTOSCA_CLIENT_TIMEOUT, TimeUnit.MILLISECONDS).build();

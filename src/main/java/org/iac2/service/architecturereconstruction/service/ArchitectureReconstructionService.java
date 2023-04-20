@@ -1,9 +1,6 @@
 package org.iac2.service.architecturereconstruction.service;
 
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
+import io.kubernetes.client.ApiException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
@@ -14,6 +11,10 @@ import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefine
 import org.iac2.service.architecturereconstruction.plugin.factory.ArchitectureReconstructionPluginFactory;
 import org.iac2.service.utility.PluginConfigurationHelperService;
 import org.springframework.stereotype.Service;
+
+import javax.validation.constraints.NotNull;
+import java.io.FileNotFoundException;
+import java.util.List;
 
 import static org.iac2.service.utility.EntityToPojo.transformProductionSystemEntity;
 
@@ -29,7 +30,7 @@ public class ArchitectureReconstructionService {
         this.helperService = helperService;
     }
 
-    public InstanceModel crteateInstanceModel(@NotNull ProductionSystemEntity productionSystemEntity, ExecutionEntity execution) {
+    public InstanceModel crteateInstanceModel(@NotNull ProductionSystemEntity productionSystemEntity, ExecutionEntity execution) throws FileNotFoundException, ApiException {
         ProductionSystem productionSystem = transformProductionSystemEntity(productionSystemEntity);
         PluginUsageEntity pluginUsage = productionSystemEntity.getModelCreationPluginUsage();
         ModelCreationPlugin plugin = (ModelCreationPlugin) helperService.instantiatePlugin(pluginUsage, execution, pluginManager);

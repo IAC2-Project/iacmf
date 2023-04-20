@@ -1,23 +1,14 @@
 package org.iac2.service.fixing.plugin.implementaiton.docker;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
-import javax.xml.namespace.QName;
-
-import org.eclipse.winery.accountability.exceptions.AccountabilityException;
-import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
-
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.PullImageResultCallback;
 import io.github.edmm.model.component.RootComponent;
+import io.kubernetes.client.ApiException;
 import org.assertj.core.util.Sets;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.winery.accountability.exceptions.AccountabilityException;
+import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
 import org.iac2.common.exception.PluginNotFoundException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
@@ -47,11 +38,16 @@ import org.opentosca.container.client.ContainerClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import javax.xml.namespace.QName;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class DockerIssueFixingPluginTest {
 
@@ -67,8 +63,8 @@ class DockerIssueFixingPluginTest {
     private static String appName = "RealWorld-Application_Angular-Spring-MySQL-w1";
     private static String instanceId = "";
     // set this to true if you want faster execution of this test when you probably need to run it more often
-    private static boolean debugging = true;
-    private static boolean onlyLocal = false;
+    private static final boolean debugging = true;
+    private static final boolean onlyLocal = false;
 
     @BeforeAll
     public static void setupContainer() throws GitAPIException, AccountabilityException, RepositoryCorruptException, IOException, ExecutionException, InterruptedException {
@@ -89,7 +85,7 @@ class DockerIssueFixingPluginTest {
         }
     }
 
-    private static InstanceModel setupInstance(ProductionSystem productionSystem) {
+    private static InstanceModel setupInstance(ProductionSystem productionSystem) throws FileNotFoundException, ApiException {
         ModelCreationPlugin plugin = OpenTOSCATestUtils.getOpenTOSCAModelCreationPlugin();
         InstanceModel instanceModel = plugin.reconstructInstanceModel(productionSystem);
         return instanceModel;
@@ -131,7 +127,7 @@ class DockerIssueFixingPluginTest {
         return dockerEngineComponents;
     }
 
-    private static TestParams setupIssues() {
+    private static TestParams setupIssues() throws FileNotFoundException, ApiException {
         ProductionSystem productionSystem = OpenTOSCATestUtils.createProductionSystem(hostName, port, appName, instanceId);
         InstanceModel instanceModel = setupInstance(productionSystem);
         Collection<DockerEngine> dockerEngines = addFaultToInstance(instanceModel);
@@ -172,7 +168,7 @@ class DockerIssueFixingPluginTest {
     }
 
     @Test
-    void testFixingDockerContainers() {
+    void testFixingDockerContainers() throws FileNotFoundException, ApiException {
         TestParams params = setupIssues();
 
         SimpleIssueFixingPluginFactory instance = SimpleIssueFixingPluginFactory.getInstance();

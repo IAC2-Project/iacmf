@@ -1,24 +1,6 @@
 package org.iac2.common.utility;
 
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import io.github.edmm.core.parser.Entity;
-import io.github.edmm.core.parser.EntityGraph;
-import io.github.edmm.core.parser.EntityId;
-import io.github.edmm.core.parser.MappingEntity;
-import io.github.edmm.core.parser.ScalarEntity;
-import io.github.edmm.core.parser.SequenceEntity;
+import io.github.edmm.core.parser.*;
 import io.github.edmm.core.parser.support.DefaultKeys;
 import io.github.edmm.model.DeploymentModel;
 import io.github.edmm.model.Property;
@@ -29,6 +11,12 @@ import io.github.edmm.model.relation.RootRelation;
 import io.github.edmm.model.support.Attribute;
 import io.github.edmm.model.support.BaseElement;
 import io.github.edmm.model.support.ModelEntity;
+
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class Edmm {
 
@@ -293,8 +281,10 @@ public class Edmm {
     private static void addPropertyAssignments(Entity propertiesEntity, Map<String, Object> attributeAssignments) {
 
         attributeAssignments.forEach((key, value) -> {
-            String type = EdmmTypeResolver.resolveBasicType(value.getClass());
-            addProperty(propertiesEntity, type, key, true, convertAttributeValue(type, value));
+            if(value != null) {
+                String type = EdmmTypeResolver.resolveBasicType(value.getClass());
+                addProperty(propertiesEntity, type, key, true, convertAttributeValue(type, value));
+            }
         });
     }
 

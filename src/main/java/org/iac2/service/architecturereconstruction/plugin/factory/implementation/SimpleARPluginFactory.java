@@ -1,12 +1,5 @@
 package org.iac2.service.architecturereconstruction.plugin.factory.implementation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.iac2.common.Plugin;
 import org.iac2.common.PluginDescriptor;
 import org.iac2.common.exception.PluginNotFoundException;
@@ -19,11 +12,15 @@ import org.iac2.service.architecturereconstruction.common.interfaces.ModelRefine
 import org.iac2.service.architecturereconstruction.plugin.factory.ArchitectureReconstructionPluginFactory;
 import org.iac2.service.architecturereconstruction.plugin.implementation.bash.BashRefinementPluginDescriptor;
 import org.iac2.service.architecturereconstruction.plugin.implementation.docker.DockerContainerRefinementPluginDescriptor;
+import org.iac2.service.architecturereconstruction.plugin.implementation.kubernetes.KubernetesModelCreationPluginDescriptor;
 import org.iac2.service.architecturereconstruction.plugin.implementation.manual.ManualModelCreationPluginDescriptor;
 import org.iac2.service.architecturereconstruction.plugin.implementation.mysql.MySqlDbModelRefinementPluginDescriptor;
 import org.iac2.service.architecturereconstruction.plugin.implementation.opentoscacontainer.OpenToscaContainerModelCreationPluginDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Plugin manager with hard-coded plugin classes.
@@ -52,12 +49,14 @@ public class SimpleARPluginFactory implements ArchitectureReconstructionPluginFa
     private void initializePlugins() {
         ManualModelCreationPluginDescriptor manual = new ManualModelCreationPluginDescriptor();
         OpenToscaContainerModelCreationPluginDescriptor openTosca = new OpenToscaContainerModelCreationPluginDescriptor();
+        KubernetesModelCreationPluginDescriptor kubernetes = new KubernetesModelCreationPluginDescriptor();
         DockerContainerRefinementPluginDescriptor docker = new DockerContainerRefinementPluginDescriptor();
         MySqlDbModelRefinementPluginDescriptor mysql = new MySqlDbModelRefinementPluginDescriptor();
         BashRefinementPluginDescriptor bash = new BashRefinementPluginDescriptor();
         // here instances of plugins are created.
         this.modelCreationPluginMap.put(manual.getIdentifier(), manual);
         this.modelCreationPluginMap.put(openTosca.getIdentifier(), openTosca);
+        this.modelCreationPluginMap.put(kubernetes.getIdentifier(), kubernetes);
         this.modelRefinementPluginMap.put(docker.getIdentifier(), docker);
         this.modelRefinementPluginMap.put(mysql.getIdentifier(), mysql);
         this.modelRefinementPluginMap.put(bash.getIdentifier(), bash);
