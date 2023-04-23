@@ -1,0 +1,11 @@
+---
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  annotations: {}
+  labels: {}
+  name: "db-config"
+binaryData: {}
+data:
+  PUBLIC_ADDRESS: "db-service"
+
