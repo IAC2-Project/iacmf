@@ -1,0 +1,25 @@
+{
+  "id" : "dbed0489-d53a-4511-942d-86a281a0f793",
+  "input" : null,
+  "deploymentTechnology" : {
+    "id" : "kubernetes",
+    "name" : "Kubernetes",
+    "deploymentSupported" : true,
+    "transformationParameters" : null,
+    "executionParameters" : [ {
+      "name" : "target-namespace",
+      "type" : "name",
+      "defaultValue" : "default",
+      "description" : "Kubernetes namespace for the deployment"
+    } ]
+  },
+  "sourceDirectory" : "/var/repository",
+  "targetDirectory" : "/usr/local/tomcat/temp/kubernetes-13552666998706398730",
+  "timestamp" : 1676817927943,
+  "state" : "TRANSFORMING",
+  "group" : null,
+  "userInputs" : null,
+  "values" : {
+    "stacks" : [ "db", "petclinic" ]
+  }
+}

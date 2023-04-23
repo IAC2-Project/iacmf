@@ -1,0 +1,15 @@
+---
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  annotations: {}
+  labels: {}
+  name: "petclinic-config"
+binaryData: {}
+data:
+  DB_SCHEMA_NAME: "petclinic"
+  DB_USER: "pc"
+  PUBLIC_ADDRESS: "petclinic-service"
+  DB_HOSTNAME: "db-service"
+  DB_PASSWORD: "petclinic"
+
