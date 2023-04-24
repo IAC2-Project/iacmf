@@ -24,13 +24,15 @@ public class Edmm {
     private static final String LIST_TYPE = "list";
     private static final String BOOLEAN_TYPE = "boolean";
 
-    public static Entity addType(EntityGraph graph, Class<? extends ModelEntity> componentType) throws IllegalAccessException {
-        if (graph.getEntity(EntityGraph.COMPONENT_TYPES).isEmpty()) {
-            graph.addEntity(new MappingEntity(EntityGraph.COMPONENT_TYPES, graph));
+    public static Entity addType(EntityGraph graph, Class<? extends ModelEntity> elementType, boolean isComponentType) throws IllegalAccessException {
+        EntityId parentId = isComponentType ? EntityGraph.COMPONENT_TYPES : EntityGraph.RELATION_TYPES;
+
+        if (graph.getEntity(parentId).isEmpty()) {
+            graph.addEntity(new MappingEntity(parentId, graph));
         }
 
-        Set<Entity> existingTypes = graph.getChildren(EntityGraph.COMPONENT_TYPES);
-        final EntityId typeId = EntityGraph.COMPONENT_TYPES.extend(EdmmTypeResolver.resolve(componentType));
+        Set<Entity> existingTypes = graph.getChildren(parentId);
+        final EntityId typeId = parentId.extend(EdmmTypeResolver.resolve(elementType));
         final MappingEntity typeEntity = new MappingEntity(typeId, graph);
 
         // we couldn't find the type in the deployment model
@@ -39,17 +41,17 @@ public class Edmm {
 
             // only the attributes in child types of RootComponent and DependsOn are properties
             // also: if we are at the root component/relation type level, we have null as a parent type
-            if (!componentType.equals(RootComponent.class) && !componentType.equals(DependsOn.class)) {
+            if (!elementType.equals(RootComponent.class) && !elementType.equals(DependsOn.class)) {
                 // we are sure this is going to work, because we handle the case in which the current componentType is the
                 // root type separately.
-                Class<? extends ModelEntity> parentType = (Class<? extends ModelEntity>) componentType.getSuperclass();
-                addType(graph, parentType);
-                final EntityId parentTypeId = EntityGraph.COMPONENT_TYPES.extend(EdmmTypeResolver.resolve(parentType));
+                Class<? extends ModelEntity> parentType = (Class<? extends ModelEntity>) elementType.getSuperclass();
+                addType(graph, parentType, isComponentType);
+                final EntityId parentTypeId = parentId.extend(EdmmTypeResolver.resolve(parentType));
                 final Entity parentEntity = graph.getEntity(parentTypeId).orElseThrow();
                 graph.addEntity(new ScalarEntity(EdmmTypeResolver.resolve(parentType), typeId.extend(DefaultKeys.EXTENDS), graph));
                 graph.addEdge(typeEntity, parentEntity, DefaultKeys.EXTENDS_TYPE);
                 Collection<Field> typeAttributesAsFields = Stream
-                        .of(componentType.getDeclaredFields())
+                        .of(elementType.getDeclaredFields())
                         .filter(f -> f.getType() == Attribute.class)
                         .toList();
 
@@ -76,7 +78,7 @@ public class Edmm {
                                    EntityId startComponentEntityId,
                                    EntityId targetComponentEntityId,
                                    Class<? extends RootRelation> relationType) throws IllegalAccessException {
-        addType(graph, relationType);
+        addType(graph, relationType, false);
         EntityId relationsEntityId = startComponentEntityId.extend(DefaultKeys.RELATIONS);
         Set<Entity> currentRelations = graph.getChildren(relationsEntityId);
 
@@ -103,7 +105,7 @@ public class Edmm {
                                         String componentId,
                                         Map<String, Object> attributeAssignments,
                                         Class<? extends RootComponent> componentType) throws IllegalAccessException {
-        final Entity typeEntity = addType(graph, componentType);
+        final Entity typeEntity = addType(graph, componentType, true);
         EntityId componentEntityId = EntityGraph.COMPONENTS.extend(componentId);
 
         if (graph.getEntity(EntityGraph.COMPONENTS).isEmpty()) {
