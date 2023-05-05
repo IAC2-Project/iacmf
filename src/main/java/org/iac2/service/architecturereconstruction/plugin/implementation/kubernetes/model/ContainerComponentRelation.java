@@ -1,4 +1,4 @@
-package org.iac2.service.architecturereconstruction.common.model.Kubernetes;
+package org.iac2.service.architecturereconstruction.plugin.implementation.kubernetes.model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,12 +9,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ContainerComponentRelations {
+public class ContainerComponentRelation {
     private String sourceId;
     private String targetId;
-    private String containerName;
-    private String relationType;
-    private String containerType;
+    private RelationType relationType;
 
     /**
      * Constructs a new ContainerComponentRelations object with the specified source ID, target ID, and relation type.
@@ -22,7 +20,7 @@ public class ContainerComponentRelations {
      * @param targetId The ID of the target container component in the relation.
      * @param relationType The type of relation.
      */
-    public ContainerComponentRelations(String sourceId, String targetId, String relationType) {
+    public ContainerComponentRelation(String sourceId, String targetId, RelationType relationType) {
         this.sourceId = sourceId;
         this.targetId = targetId;
         this.relationType = relationType;

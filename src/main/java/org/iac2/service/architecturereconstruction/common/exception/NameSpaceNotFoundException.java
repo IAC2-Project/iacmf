@@ -1,6 +1,6 @@
 package org.iac2.service.architecturereconstruction.common.exception;
 
-public class NameSpaceNotFoundException extends RuntimeException {
+public class NameSpaceNotFoundException extends ArchitectureReconstructionException {
 
     public NameSpaceNotFoundException() {
     }

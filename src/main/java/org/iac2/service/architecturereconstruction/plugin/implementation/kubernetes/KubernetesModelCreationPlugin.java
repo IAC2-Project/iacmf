@@ -24,19 +24,21 @@ import io.kubernetes.client.util.KubeConfig;
 import org.assertj.core.util.Sets;
 import org.iac2.common.PluginDescriptor;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
+import org.iac2.common.exception.MissingProductionSystemPropertyException;
 import org.iac2.common.model.InstanceModel;
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.utility.Edmm;
+import org.iac2.service.architecturereconstruction.common.exception.AppNotFoundException;
 import org.iac2.service.architecturereconstruction.common.exception.NameSpaceNotFoundException;
 import org.iac2.service.architecturereconstruction.common.interfaces.ModelCreationPlugin;
-import org.iac2.service.architecturereconstruction.common.model.Kubernetes.ContainerComponentRelations;
-import org.iac2.service.architecturereconstruction.common.model.Kubernetes.ContainerInstance;
+import org.iac2.service.architecturereconstruction.plugin.implementation.kubernetes.model.ContainerComponentRelation;
+import org.iac2.service.architecturereconstruction.plugin.implementation.kubernetes.model.ContainerInstance;
+import org.iac2.service.architecturereconstruction.plugin.implementation.kubernetes.model.RelationType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -106,26 +108,19 @@ public class KubernetesModelCreationPlugin implements ModelCreationPlugin {
     @Override
     public InstanceModel reconstructInstanceModel(ProductionSystem productionSystem)
             throws IaCTechnologyNotSupportedException {
-
         Map<String, String> props = productionSystem.getProperties();
-
         String kubeConfigPath = props.get("kubeConfigPath");
         String namespace = props.get("namespace");
 
-        ApiClient client = null;
-
-        if (Objects.isNull(kubeConfigPath) || Objects.isNull(namespace)) {
-            String strb = "Missing Properties" +
-                    System.lineSeparator() +
-                    "kubeConfigPath=" + kubeConfigPath +
-                    System.lineSeparator() +
-                    "namespace=" + namespace;
-
-            throw new IllegalArgumentException(strb);
+        if (Objects.isNull(kubeConfigPath)) {
+            throw new MissingProductionSystemPropertyException(productionSystem, "kubeConfigPath");
+        } else if (Objects.isNull(namespace)) {
+            throw new MissingProductionSystemPropertyException(productionSystem, "namespace");
         }
 
+
         try {
-            client = ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
+            ApiClient client = ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
 
             // set the global default api-client to the in-cluster one from above
             Configuration.setDefaultApiClient(client);
@@ -143,11 +138,9 @@ public class KubernetesModelCreationPlugin implements ModelCreationPlugin {
                     this.createKubernetesInstanceRelations(pods, namespace));
             return new InstanceModel(deploymentModel);
 
-        } catch (IllegalAccessException | ApiException | FileNotFoundException e) {
-            throw new IaCTechnologyNotSupportedException(
+        } catch (IllegalAccessException | ApiException | IOException e) {
+            throw new AppNotFoundException(
                     "Couldn't generate entity graph from referenced application instance", e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
 
     }
@@ -167,7 +160,7 @@ public class KubernetesModelCreationPlugin implements ModelCreationPlugin {
 
         List<ContainerInstance> containers = new ArrayList<>();
         List<String> instanceTypes = new ArrayList<>();
-        List<ContainerComponentRelations> containerRelations = new ArrayList<>();
+        List<ContainerComponentRelation> containerRelations = new ArrayList<>();
 
         // this ensures we add "stray" node instances that are not part of any relation.
         for (V1Pod pod : podList) {
@@ -222,7 +215,7 @@ public class KubernetesModelCreationPlugin implements ModelCreationPlugin {
                                 containers.add(
                                         new ContainerInstance(serverComponentId, TOM_CAT, TOM_CAT, namespace, null));
                                 containerRelations
-                                        .add(new ContainerComponentRelations(imageId, serverComponentId, HOSTED_ON));
+                                        .add(new ContainerComponentRelation(imageId, serverComponentId, RelationType.HOSTED_ON));
 
                             }
                         }
@@ -244,9 +237,9 @@ public class KubernetesModelCreationPlugin implements ModelCreationPlugin {
 
                     if (serverComponentId != null) {
                         containerRelations
-                                .add(new ContainerComponentRelations(serverComponentId, machineId, HOSTED_ON));
+                                .add(new ContainerComponentRelation(serverComponentId, machineId, RelationType.HOSTED_ON));
                     } else {
-                        containerRelations.add(new ContainerComponentRelations(imageId, machineId, HOSTED_ON));
+                        containerRelations.add(new ContainerComponentRelation(imageId, machineId, RelationType.HOSTED_ON));
                     }
                 }
             }
@@ -288,8 +281,8 @@ public class KubernetesModelCreationPlugin implements ModelCreationPlugin {
      * @param instanceTypes
      * @return List<ContainerComponentRelations>
      */
-    private List<ContainerComponentRelations> checkConnectsToRelation(
-            List<ContainerComponentRelations> containerRelations, List<ContainerInstance> containers,
+    private List<ContainerComponentRelation> checkConnectsToRelation(
+            List<ContainerComponentRelation> containerRelations, List<ContainerInstance> containers,
             List<String> instanceTypes) {
 
         if (instanceTypes.contains(WEBAPP)) {
@@ -304,8 +297,8 @@ public class KubernetesModelCreationPlugin implements ModelCreationPlugin {
                             .filter(e -> e.getContainerType().equals(MYSQL) || e.getContainerType().equals(DB))
                             .findFirst().orElse(null);
                     if (targetComp != null) {
-                        containerRelations.add(new ContainerComponentRelations(sourceComp.getContainerId(),
-                                targetComp.getContainerId(), CONNECTS_TO));
+                        containerRelations.add(new ContainerComponentRelation(sourceComp.getContainerId(),
+                                targetComp.getContainerId(), RelationType.CONNECTS_TO));
                         break;
                     }
                 }
@@ -322,7 +315,7 @@ public class KubernetesModelCreationPlugin implements ModelCreationPlugin {
      * @throws IllegalAccessException
      */
     private EntityGraph createEntityGraph(List<ContainerInstance> containers,
-            List<ContainerComponentRelations> containerRelations) throws IllegalAccessException {
+            List<ContainerComponentRelation> containerRelations) throws IllegalAccessException {
         EntityGraph entityGraph = new EntityGraph();
         Collection<EntityId> compIds = Sets.newHashSet();
 
@@ -335,7 +328,7 @@ public class KubernetesModelCreationPlugin implements ModelCreationPlugin {
                     containerInstance.getContainerType());
         }
 
-        for (ContainerComponentRelations containerComponentRelation : containerRelations) {
+        for (ContainerComponentRelation containerComponentRelation : containerRelations) {
             EntityId sourceEntityId = getEntityId(compIds, containerComponentRelation.getSourceId());
             EntityId targetEntityId = getEntityId(compIds, containerComponentRelation.getTargetId());
 
@@ -380,12 +373,11 @@ public class KubernetesModelCreationPlugin implements ModelCreationPlugin {
         };
     }
 
-    private static Class<? extends RootRelation> getRelationClass(ContainerComponentRelations relationInstance) {
+    private static Class<? extends RootRelation> getRelationClass(ContainerComponentRelation relationInstance) {
 
         return switch (relationInstance.getRelationType()) {
             case HOSTED_ON -> HostedOn.class;
             case CONNECTS_TO -> ConnectsTo.class;
-            default -> DependsOn.class;
         };
     }
 }

@@ -1,4 +1,4 @@
-package org.iac2.service.architecturereconstruction.common.model.Kubernetes;
+package org.iac2.service.architecturereconstruction.plugin.implementation.kubernetes.model;
 
 import io.kubernetes.client.models.V1EnvVar;
 import lombok.Getter;
@@ -18,7 +18,6 @@ public class ContainerInstance {
     private String containerName;
     private String containerType;
     private String containerNamespace;
-
     private List<V1EnvVar> containerEnvVar;
 
     public ContainerInstance(String containerId, String containerName, String containerType, String containerNamespace,List<V1EnvVar> containerEnvVar) {
