@@ -295,8 +295,10 @@ public class Edmm {
     private static void addPropertyAssignments(Entity propertiesEntity, Map<String, Object> attributeAssignments) {
 
         attributeAssignments.forEach((key, value) -> {
-            String type = EdmmTypeResolver.resolveBasicType(value.getClass());
-            addProperty(propertiesEntity, type, key, true, convertAttributeValue(type, value));
+            if(value != null) {
+                String type = EdmmTypeResolver.resolveBasicType(value.getClass());
+                addProperty(propertiesEntity, type, key, true, convertAttributeValue(type, value));
+            }
         });
     }
 
