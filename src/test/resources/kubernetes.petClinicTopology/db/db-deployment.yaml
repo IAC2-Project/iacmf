@@ -1,0 +1,40 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  annotations: {}
+  labels:
+    app: "db"
+  name: "db"
+  namespace: "pet-clinic"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "db"
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        app: "db"
+      name: "db"
+    spec:
+      containers:
+      - env:
+        - name: "SCHEMA_NAME"
+          value: "petclinic"
+        - name: "OS_FAMILY"
+          value: "linux"
+        - name: "MACHINE_IMAGE"
+          value: "ubuntu"
+        - name: "PASSWORD"
+          value: "petclinic"
+        - name: "USER"
+          value: "pc"
+        - name: "INSTANCE_TYPE"
+          value: "large"
+        image: "db:latest"
+        imagePullPolicy: "Never"
+        name: "db"
+      nodeSelector: {}
+

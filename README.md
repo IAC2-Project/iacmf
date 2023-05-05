@@ -22,6 +22,18 @@ technology for deployment management is used in the first place.
 
 **Plugin Identifier**: `manual-model-creation-plugin`
 
+### Kubernetes Model Creation Plugin
+
+**Summary**: This plugin creates an instance model for a cloud application deployed and managed by the Kubernetes
+Container Orchestration technology (https://kubernetes.io/).
+
+A sample topology (petClinicTopology) for a kubernetes application is given in the resources directory under tests.
+
+Plugin location : iacmf/src/main/java/org/iac2/service/architecturereconstruction/plugin/implementation/kubernetes/
+
+**Plugin Identifier**: `kubernetes-model-creation-plugin`
+
+
 ## Instance Model Refinement Plugins
 
 ### Docker Container Model Refinement Plugin
