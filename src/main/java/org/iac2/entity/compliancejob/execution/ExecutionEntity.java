@@ -51,7 +51,7 @@ public class ExecutionEntity {
     @NotNull
     private ExecutionStatus status;
 
-    @Column(length = 10000)
+    @Column(length = 100000)
     private String instanceModel;
 
     private Boolean violationsDetected;
