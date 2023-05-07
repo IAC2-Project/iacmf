@@ -34,7 +34,7 @@ import org.iac2.service.architecturereconstruction.plugin.implementation.opentos
 import org.iac2.service.checking.plugin.implementation.subgraphmatching.SubgraphMatchingCheckingPlugin;
 import org.iac2.service.checking.plugin.implementation.subgraphmatching.SubgraphMatchingCheckingPluginDescriptor;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
-import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.common.model.compliancejob.issue.IssueFixingReport;
 import org.iac2.service.fixing.plugin.factory.implementation.SimpleIssueFixingPluginFactory;
 import org.iac2.util.OpenTOSCATestUtils;
 import org.iac2.util.TestUtils;

@@ -24,7 +24,7 @@ import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlD
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
 import org.iac2.service.fixing.common.exception.ComplianceRuleMissingRequiredParameterException;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
-import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.common.model.compliancejob.issue.IssueFixingReport;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

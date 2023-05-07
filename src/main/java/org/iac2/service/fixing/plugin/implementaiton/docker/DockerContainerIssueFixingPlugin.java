@@ -23,7 +23,7 @@ import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.Docker
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.iac2.service.architecturereconstruction.common.model.StructuralState;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
-import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.common.model.compliancejob.issue.IssueFixingReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -16,7 +16,7 @@ import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.repository.compliancejob.IssueFixingConfigurationRepository;
 import org.iac2.repository.compliancejob.IssueFixingReportRepository;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
-import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.common.model.compliancejob.issue.IssueFixingReport;
 import org.iac2.service.fixing.plugin.factory.IssueFixingPluginFactory;
 import org.iac2.service.utility.EntityToPojo;
 import org.iac2.service.utility.PluginConfigurationHelperService;

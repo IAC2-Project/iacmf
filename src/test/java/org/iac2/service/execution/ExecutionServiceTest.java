@@ -250,6 +250,8 @@ class ExecutionServiceTest {
         ComplianceRuleEntity rule = new ComplianceRuleEntity("cr1", "test", "test", "test");
         PluginUsageEntity checking = new PluginUsageEntity("checker1");
         pluginUsageRepository.save(checking);
+        PluginUsageEntity reporting = new PluginUsageEntity("reporting");
+        pluginUsageRepository.save(reporting);
         PluginUsageEntity modelCreation = new PluginUsageEntity("creator1");
         pluginUsageRepository.save(modelCreation);
         ProductionSystemEntity productionSystem = new ProductionSystemEntity("abc", "test", "opentoscacontainer", modelCreation);
@@ -257,7 +259,7 @@ class ExecutionServiceTest {
         productionSystemRepository.save(productionSystem);
         complianceRuleRepository.save(rule);
         triggerRepository.save(trigger);
-        ComplianceJobEntity job = new ComplianceJobEntity("job1", "test", productionSystem, checking);
+        ComplianceJobEntity job = new ComplianceJobEntity("job1", "test", productionSystem, checking, reporting);
         job.addTrigger(trigger);
         complianceJobRepository.save(job);
         PluginUsageEntity fixer = new PluginUsageEntity("fixer1");

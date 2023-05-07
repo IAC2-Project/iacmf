@@ -1,4 +1,4 @@
-package org.iac2.service.fixing.common.model;
+package org.iac2.common.model.compliancejob.issue;
 
 import lombok.Getter;
 

@@ -18,7 +18,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.common.model.compliancejob.execution.ExecutionStatus;
@@ -59,14 +59,16 @@ public class ExecutionEntity {
     @Column(length = 1000)
     private String description;
 
-    @JsonIgnore
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @ManyToOne
     @JoinColumn(name = "compliance_job_id", nullable = false)
     private ComplianceJobEntity complianceJob;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToMany(mappedBy = "execution")
     private List<PluginUsageInstanceEntity> pluginUsageInstances;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToMany(mappedBy = "execution")
     private List<ComplianceIssueEntity> complianceIssueEntities;
 

@@ -57,8 +57,10 @@ class ArchitectureReconstructionServiceTest {
                 .thenReturn(new MockModelCreationPlugin(3));
         PluginUsageEntity usageEntity = new PluginUsageEntity("testPlugin");
         PluginUsageEntity checking = new PluginUsageEntity("checkingPlugin");
+        PluginUsageEntity reporting = new PluginUsageEntity("reportingPlugin");
         pluginUsageRepository.save(checking);
         pluginUsageRepository.save(usageEntity);
+        pluginUsageRepository.save(reporting);
         ProductionSystemEntity system = new ProductionSystemEntity(
                 "abc",
                 "this is a production system",
@@ -68,7 +70,7 @@ class ArchitectureReconstructionServiceTest {
         productionSystemRepository.save(system);
         List<KVEntity> properties = List.of(new KVEntity("nodes", "3"));
         kVRepository.saveAll(properties);
-        ComplianceJobEntity complianceJob = new ComplianceJobEntity("job1", "job1", system, checking);
+        ComplianceJobEntity complianceJob = new ComplianceJobEntity("job1", "job1", system, checking, reporting);
         complianceJobRepository.save(complianceJob);
         ExecutionEntity execution = new ExecutionEntity(complianceJob);
         executionRepository.save(execution);

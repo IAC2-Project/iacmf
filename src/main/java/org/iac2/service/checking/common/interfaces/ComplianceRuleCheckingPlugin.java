@@ -11,6 +11,7 @@ import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.service.checking.common.exception.ComplianceRuleMalformattedException;
 import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupportedException;
+import org.iac2.service.checking.common.model.RuleValidationResult;
 
 public interface ComplianceRuleCheckingPlugin extends Plugin {
     /***

@@ -8,7 +8,7 @@ import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
-import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.common.model.compliancejob.issue.IssueFixingReport;
 
 public class PojoToEntity {
 

@@ -79,8 +79,10 @@ class ComplianceRuleCheckingServiceTest {
         productionSystemRepository.save(productionSystem);
         PluginUsageEntity checkingUsage = new PluginUsageEntity("checking");
         pluginUsageRepository.save(checkingUsage);
+        PluginUsageEntity reporting = new PluginUsageEntity("reporting");
+        pluginUsageRepository.save(reporting);
         ComplianceJobEntity complianceJob = new ComplianceJobEntity("job1",
-                "a fine job", productionSystem, checkingUsage);
+                "a fine job", productionSystem, checkingUsage, reporting);
         complianceJobRepository.save(complianceJob);
         ComplianceRuleConfigurationEntity crConfig = new ComplianceRuleConfigurationEntity(cr, complianceJob, "issueType1");
         complianceRuleConfigurationRepository.save(crConfig);

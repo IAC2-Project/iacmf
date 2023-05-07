@@ -6,11 +6,13 @@ import java.util.Map;
 
 import org.iac2.common.model.ProductionSystem;
 import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
+import org.iac2.common.model.compliancejob.issue.IssueFixingReport;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.entity.KVEntity;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.ComplianceRuleConfigurationEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
+import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
 import org.iac2.entity.compliancerule.ComplianceRuleEntity;
 import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterAssignmentEntity;
 import org.iac2.entity.productionsystem.ProductionSystemEntity;
@@ -18,8 +20,6 @@ import org.iac2.entity.productionsystem.ProductionSystemEntity;
 public class EntityToPojo {
 
     public static ComplianceIssue transformIssue(ComplianceIssueEntity complianceIssue) {
-
-        ComplianceJobEntity job = complianceIssue.getExecution().getComplianceJob();
         ComplianceRule rule = transformComplianceRule(complianceIssue.getComplianceRuleConfiguration());
 
         return new ComplianceIssue(
@@ -53,6 +53,11 @@ public class EntityToPojo {
 
         return myCR;
     }
+
+    public static IssueFixingReport transformIssueFixingReport(IssueFixingReportEntity entity) {
+        return new IssueFixingReport(entity.getIsSuccessful(), entity.getDescription());
+    }
+
 
     public static ProductionSystem transformProductionSystemEntity(ProductionSystemEntity productionSystemEntity) {
         Map<String, String> properties = new HashMap<>();

@@ -25,7 +25,7 @@ import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDb;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
 import org.iac2.service.fixing.common.exception.ComplianceRuleMissingRequiredParameterException;
-import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.common.model.compliancejob.issue.IssueFixingReport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

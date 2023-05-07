@@ -21,7 +21,7 @@ import org.iac2.common.utility.Utils;
 import org.iac2.common.utility.VirtualMachine;
 import org.iac2.service.fixing.common.exception.ComplianceRuleMissingRequiredParameterException;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
-import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.common.model.compliancejob.issue.IssueFixingReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

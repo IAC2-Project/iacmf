@@ -26,7 +26,7 @@ import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerEngine;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
-import org.iac2.service.checking.common.interfaces.RuleValidationResult;
+import org.iac2.service.checking.common.model.RuleValidationResult;
 import org.jgrapht.Graph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
