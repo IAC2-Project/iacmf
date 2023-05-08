@@ -13,4 +13,6 @@ public class Execution {
     private Date endTime;
     private ExecutionStep step;
     private ExecutionStatus status;
+    private boolean violationsDetected;
+    private String description;
 }

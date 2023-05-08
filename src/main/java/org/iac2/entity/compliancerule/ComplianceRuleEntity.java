@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancerule.parameter.ComplianceRuleParameterEntity;
@@ -37,6 +39,7 @@ public class ComplianceRuleEntity {
     @NotNull
     private Boolean isDeleted;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToMany(mappedBy = "complianceRule")
     private List<ComplianceRuleParameterEntity> parameters;
 

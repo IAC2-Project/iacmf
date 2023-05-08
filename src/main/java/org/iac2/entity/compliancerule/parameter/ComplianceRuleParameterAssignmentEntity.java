@@ -12,6 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,6 +38,7 @@ public class ComplianceRuleParameterAssignmentEntity {
     @JoinColumn(nullable = false)
     protected ComplianceRuleParameterEntity parameter;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @ManyToOne
     @JoinColumn(nullable = false)
     protected ComplianceRuleConfigurationEntity complianceRuleConfiguration;

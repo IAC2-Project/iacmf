@@ -33,6 +33,7 @@ public class ComplianceRuleConfigurationEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToMany(mappedBy = "complianceRuleConfiguration")
     private List<ComplianceRuleParameterAssignmentEntity> complianceRuleParameterAssignments;
 

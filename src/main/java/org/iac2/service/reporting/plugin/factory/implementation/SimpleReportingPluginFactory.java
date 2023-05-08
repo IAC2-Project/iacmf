@@ -9,6 +9,7 @@ import org.iac2.service.fixing.plugin.factory.implementation.SimpleIssueFixingPl
 import org.iac2.service.reporting.common.interfaces.ReportingPlugin;
 import org.iac2.service.reporting.common.interfaces.ReportingPluginDescriptor;
 import org.iac2.service.reporting.plugin.factory.ReportingPluginFactory;
+import org.iac2.service.reporting.plugin.implementation.email.EmailReportingPluginDescriptor;
 import org.iac2.service.reporting.plugin.implementation.noops.NoOperationPluginDescriptor;
 
 import java.util.Collection;
@@ -23,7 +24,9 @@ public class SimpleReportingPluginFactory implements ReportingPluginFactory {
     private SimpleReportingPluginFactory(){
         this.allPlugins = new HashMap<>();
         NoOperationPluginDescriptor noops = new NoOperationPluginDescriptor();
+        EmailReportingPluginDescriptor email = new EmailReportingPluginDescriptor();
         this.allPlugins.put(noops.getIdentifier(), noops);
+        this.allPlugins.put(email.getIdentifier(), email);
     }
 
     public static SimpleReportingPluginFactory getInstance() {

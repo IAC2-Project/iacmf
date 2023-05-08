@@ -10,7 +10,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.common.model.compliancerule.ParameterType;
@@ -28,7 +30,7 @@ public class ComplianceRuleParameterEntity {
     @NotNull
     private String name;
 
-    //@JsonIgnore
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @ManyToOne
     @JoinColumn(name = "compliance_rule_id", nullable = false)
     private ComplianceRuleEntity complianceRule;
