@@ -176,6 +176,8 @@ public class ExecutionService {
     private void endExecution(ExecutionEntity execution, boolean isFailed, String description, Map<ComplianceIssueEntity, IssueFixingReportEntity> issues) {
         execution.setStatus(isFailed ? ExecutionStatus.EXCEPTION : ExecutionStatus.SUCCESS);
         execution.setEndTime(new Date());
+        description = description.substring(0, Math.min(description.length(), 1000));
+        execution.setDescription(description);
         try {
             this.reportExecution(execution, issues);
         } catch (Exception ignored) {
