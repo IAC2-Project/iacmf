@@ -56,15 +56,12 @@ public class ExecutionService {
     public void runComplianceJobExecution(@NotNull ExecutionEntity execution, boolean isBatchFixing) {
         InstanceModel instanceModel = this.reconstructArchitecture(execution);
         Map<ComplianceRuleConfigurationEntity, Collection<ComplianceIssueEntity>> issues = this.checkCompliance(execution, instanceModel);
-        Map<ComplianceIssueEntity, IssueFixingReportEntity> reports;
 
         if (!issues.isEmpty()) {
-            reports = this.fixIssues(execution, instanceModel, isBatchFixing);
-        } else {
-            reports = new HashMap<>();
+            Map<ComplianceIssueEntity, IssueFixingReportEntity> reports = this.fixIssues(execution, instanceModel, isBatchFixing);
         }
 
-        this.reportExecution(execution, reports);
+        // this.reportExecution(execution, reports);
         // todo extend with validation
     }
 
