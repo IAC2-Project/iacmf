@@ -72,6 +72,8 @@ services:
       ENGINE_PLAN_BPMN_HOSTNAME: ${PUBLIC_HOSTNAME}
       ENGINE_PLAN_BPMN_PORT: 8092
       CONTAINER_DEPLOYMENT_TESTS: 'false'
+    volumes:
+      - container_vol:/tmp/opentosca
   ui:
     image: opentosca/ui:latest
     environment:
@@ -85,6 +87,7 @@ volumes:
   mysql_db_data_container: {}
   cr_modeling: {}
   im_modeling: {}
+  container_vol: {}
 
 
 
