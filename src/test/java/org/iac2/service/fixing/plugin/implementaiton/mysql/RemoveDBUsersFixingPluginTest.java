@@ -49,7 +49,7 @@ class RemoveDBUsersFixingPluginTest {
         Collection<String> ruleUsers = List.of("iac2-admin");
         String dbComponent = "iac2db";
         RemoveDBUsersFixingPlugin plugin = new RemoveDBUsersFixingPlugin(new RemoveDBUsersFixingPluginDescriptor());
-        ProductionSystem productionSystem = new ProductionSystem("any", "any", new HashMap<>());
+        ProductionSystem productionSystem = new ProductionSystem("dummy", "any", "any", new HashMap<>());
         InstanceModel instanceModel = createInstanceModel(instanceModelUsers, "edmm/self_instance_model.yaml", dbComponent);
         final String connectionString = "jdbc:mysql://localhost:3306/iac2?user=root&password=rootpassword";
 
@@ -151,7 +151,7 @@ class RemoveDBUsersFixingPluginTest {
     @Test
     void testValidation() {
         RemoveDBUsersFixingPlugin plugin = new RemoveDBUsersFixingPlugin(new RemoveDBUsersFixingPluginDescriptor());
-        ProductionSystem productionSystem = new ProductionSystem("blabla", "", new HashMap<>());
+        ProductionSystem productionSystem = new ProductionSystem("dummy", "blabla", "", new HashMap<>());
         final ComplianceIssue issue = createComplianceIssue(null, null);
         Assertions.assertDoesNotThrow(() -> plugin.validateInputs(issue, productionSystem));
         issue.setType("oops will not work");

@@ -177,6 +177,7 @@ class DockerIssueFixingPluginTest {
 
         SimpleIssueFixingPluginFactory instance = SimpleIssueFixingPluginFactory.getInstance();
         ProductionSystem productionSystem = new ProductionSystem(
+                "dummy",
                 "opentoscacontainer",
                 "bla bla",
                 new HashMap<>());

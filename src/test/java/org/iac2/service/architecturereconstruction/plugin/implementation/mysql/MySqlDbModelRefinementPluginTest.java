@@ -52,7 +52,7 @@ class MySqlDbModelRefinementPluginTest {
         MySqlDbModelRefinementPlugin plugin = new MySqlDbModelRefinementPlugin(new MySqlDbModelRefinementPluginDescriptor());
         plugin.setConfigurationEntry(MySqlDbModelRefinementPluginDescriptor.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES, String.valueOf(false));
         InstanceModel result =
-                plugin.refineModel(new InstanceModel(model), new ProductionSystem("", "", new HashMap<>()));
+                plugin.refineModel(new InstanceModel(model), new ProductionSystem("dummy", "", "", new HashMap<>()));
         Assertions.assertNotNull(result);
         Assertions.assertEquals(4, result.getDeploymentModel().getComponents().size());
         Assertions.assertTrue(result.getDeploymentModel().getComponent("iac2db").isPresent());
@@ -76,7 +76,7 @@ class MySqlDbModelRefinementPluginTest {
             MySqlDbModelRefinementPlugin plugin = new MySqlDbModelRefinementPlugin(new MySqlDbModelRefinementPluginDescriptor());
             plugin.setConfigurationEntry(MySqlDbModelRefinementPluginDescriptor.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES, String.valueOf(false));
             InstanceModel result =
-                    plugin.refineModel(new InstanceModel(model), new ProductionSystem("", "", new HashMap<>()));
+                    plugin.refineModel(new InstanceModel(model), new ProductionSystem("dummy", "", "", new HashMap<>()));
             Assertions.assertNotNull(result);
             Assertions.assertEquals(4, result.getDeploymentModel().getComponents().size());
             Assertions.assertTrue(result.getDeploymentModel().getComponent("iac2db").isPresent());

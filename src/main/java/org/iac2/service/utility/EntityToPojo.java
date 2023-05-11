@@ -69,7 +69,7 @@ public class EntityToPojo {
     public static ProductionSystem transformProductionSystemEntity(ProductionSystemEntity productionSystemEntity) {
         Map<String, String> properties = new HashMap<>();
         productionSystemEntity.getProperties().forEach(kvPair -> properties.put(kvPair.getKey(), kvPair.getValue()));
-        return new ProductionSystem(productionSystemEntity.getIacTechnologyName(),
+        return new ProductionSystem(productionSystemEntity.getName(), productionSystemEntity.getIacTechnologyName(),
                 productionSystemEntity.getDescription(), properties);
     }
 

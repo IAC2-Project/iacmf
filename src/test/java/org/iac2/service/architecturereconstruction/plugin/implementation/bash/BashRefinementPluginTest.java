@@ -59,7 +59,7 @@ class BashRefinementPluginTest {
     }
 
     private static ProductionSystem createDummyProductionSystem(Map<String, String> props) {
-        return new ProductionSystem("dummy", "dummy", props);
+        return new ProductionSystem("dummy", "dummy", "dummy", props);
     }
 
     private static InstanceModel createDummyInstanceModel(int numNodes, int numCompute, int numbUbuntu, int numMissingAddress, int numMissingPKey) throws IllegalAccessException {

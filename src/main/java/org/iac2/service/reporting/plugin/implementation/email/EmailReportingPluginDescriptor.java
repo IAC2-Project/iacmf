@@ -33,8 +33,8 @@ public class EmailReportingPluginDescriptor implements ReportingPluginDescriptor
                 new PluginConfigurationEntryDescriptor(HOST, PluginConfigurationEntryType.URL, true, "The host address of the SMTP server used for sending the email."),
                 //  PluginConfigurationEntryDescriptor(SSL_PORT, PluginConfigurationEntryType.NUMBER, true, "The SSL port of the SMTP server used for sending the email."),
                 new PluginConfigurationEntryDescriptor(TLS_STARTTLS_PORT, PluginConfigurationEntryType.NUMBER, true, "The TLS/STARTTLS port of the SMTP server used for sending the email."),
-                new PluginConfigurationEntryDescriptor("username", PluginConfigurationEntryType.STRING, true, "The username to access the SMTP server."),
-                new PluginConfigurationEntryDescriptor("password", PluginConfigurationEntryType.STRING, true, "The password to access the SMTP server.")
+                new PluginConfigurationEntryDescriptor(USERNAME, PluginConfigurationEntryType.STRING, true, "The username to access the SMTP server."),
+                new PluginConfigurationEntryDescriptor(PASSWORD, PluginConfigurationEntryType.STRING, true, "The password to access the SMTP server.")
         );
     }
 

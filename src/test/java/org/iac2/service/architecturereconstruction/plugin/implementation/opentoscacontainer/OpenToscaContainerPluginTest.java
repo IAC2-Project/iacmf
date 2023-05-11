@@ -84,7 +84,7 @@ public class OpenToscaContainerPluginTest {
         prodProps.put("opentoscacontainer_port", port);
         prodProps.put("opentoscacontainer_appId", appName);
         prodProps.put("opentoscacontainer_instanceId", instanceId);
-        ProductionSystem productionSystem = new ProductionSystem("opentoscacontainer", "realworldapp-test", prodProps);
+        ProductionSystem productionSystem = new ProductionSystem("dummy", "opentoscacontainer", "realworldapp-test", prodProps);
 
         InstanceModel instanceModel = plugin.reconstructInstanceModel(productionSystem);
         LOGGER.info("Reconstructed edmm instance model:");

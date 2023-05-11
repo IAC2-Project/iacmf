@@ -124,7 +124,7 @@ public class EmailReportingPlugin implements ReportingPlugin {
 
         builder.append("\n");
         builder.append("Production System:")
-                .append(report.getProductionSystem().getDescription())
+                .append(report.getProductionSystem().getName())
                 .append("\n");
         builder.append("Started: ").append(report.getExecution().getStartTime()).append("\n")
                 .append("Ended: ").append(report.getExecution().getEndTime()).append("\n");
