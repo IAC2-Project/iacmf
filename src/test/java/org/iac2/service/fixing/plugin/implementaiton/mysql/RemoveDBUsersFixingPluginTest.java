@@ -111,7 +111,7 @@ class RemoveDBUsersFixingPluginTest {
         Assertions.assertNotNull(info.port);
         Assertions.assertNotNull(info.password);
         Assertions.assertEquals("root", info.userName);
-        Assertions.assertEquals("172.17.0.1", info.ip);
+        Assertions.assertEquals("localhost", info.ip);
         Assertions.assertEquals("realWorld", info.dbName);
         Assertions.assertEquals("3306", info.port);
         Assertions.assertEquals("root", info.password);

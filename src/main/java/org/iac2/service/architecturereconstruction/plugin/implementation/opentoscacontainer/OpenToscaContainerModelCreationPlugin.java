@@ -69,8 +69,8 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
 
     private static Class<? extends RootComponent> getClassForTemplateId(String templateType) {
         return switch (QName.valueOf(templateType).getLocalPart()) {
-            case "MySQL-DBMS_8.0-w1" -> MySqlDbms.class;
-            case "MySQL-DB_w1" -> MySqlDb.class;
+            case "MySQL-DBMS_8.0-w1", "MySQL-DBMS_8.0-w1_0" -> MySqlDbms.class;
+            case "MySQL-DB_w1", "MySQL-DB_w1_0" -> MySqlDb.class;
             case "RealWorld-Application-Backend_Java11-Spring-w1" -> RealWorldApplicationBackendJava11Spring.class;
             case "Java_11-w1" -> Java11.class;
             case "RealWorld-Application_Angular-w1" -> RealWorldAngularApp.class;

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.command.WaitContainerResultCallback;
 import com.github.dockerjava.api.model.Container;
 import com.google.common.collect.Maps;
 import io.github.edmm.model.DeploymentModel;
@@ -108,9 +110,11 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
                         String containerId = d.getProperties().get("ContainerID").getValue();
                         Container container = dockerClient.listContainersCmd().exec().stream().filter(c -> c.getId().equals(containerId)).findFirst().get();
                         dockerClient.stopContainerCmd(container.getId()).exec();
-                        dockerClient.removeContainerCmd(container.getId()).exec();
 
-                        // remove from model
+                        if (dockerClient.listContainersCmd().exec().stream().anyMatch(c -> c.getId().equals(containerId))) {
+                            dockerClient.removeContainerCmd(container.getId()).exec();
+                        }
+
                         Edmm.removeComponents(instanceModel.getDeploymentModel().getGraph(), List.of(d));
                         instanceModel.setDeploymentModel(new DeploymentModel(instanceModel.getDeploymentModel().getName(), instanceModel.getDeploymentModel().getGraph()));
                         strB.append("Removed Container ").append(containerId).append(" from DockerEngine ").append(dockerEngine.getId()).append("\n");

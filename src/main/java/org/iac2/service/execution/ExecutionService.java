@@ -82,8 +82,12 @@ public class ExecutionService {
         try {
             ProductionSystemEntity productionSystem = execution.getComplianceJob().getProductionSystem();
             InstanceModel result = this.architectureReconstructionService.crteateInstanceModel(productionSystem, execution);
-            this.architectureReconstructionService.refineInstanceModel(execution, result);
             String base64 = Edmm.getAsBase64(result.getDeploymentModel().getGraph());
+            execution.setInstanceModel(base64);
+            execution.setStatus(ExecutionStatus.IDLE);
+            executionRepository.save(execution);
+            this.architectureReconstructionService.refineInstanceModel(execution, result);
+            base64 = Edmm.getAsBase64(result.getDeploymentModel().getGraph());
             execution.setInstanceModel(base64);
             execution.setStatus(ExecutionStatus.IDLE);
             executionRepository.save(execution);

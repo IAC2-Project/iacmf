@@ -29,6 +29,7 @@ import io.github.edmm.model.relation.RootRelation;
 import io.github.edmm.model.support.Attribute;
 import io.github.edmm.model.support.BaseElement;
 import io.github.edmm.model.support.ModelEntity;
+import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.DockerContainer;
 
 public class Edmm {
 
@@ -253,7 +254,21 @@ public class Edmm {
                 .toList();
     }
 
-    public static String findHostIp(RootComponent component, DeploymentModel deploymentModel) {
+    private static boolean isHostedOnDocker(RootComponent component, DeploymentModel deploymentModel) {
+        if (component instanceof DockerContainer) {
+            return true;
+        }
+
+        Collection<RootComponent> hosts = findTargetComponents(deploymentModel, component, HostedOn.class);
+
+        if (hosts.isEmpty()) {
+            return false;
+        }
+
+        return isHostedOnDocker(hosts.stream().findFirst().get(), deploymentModel);
+    }
+
+    public static String doFindHostIp(RootComponent component, DeploymentModel deploymentModel) {
         Map<String, Property> currentProps = component.getProperties();
         String ip;
 
@@ -271,7 +286,15 @@ public class Edmm {
             return null;
         }
 
-        return findHostIp(hosts.stream().findFirst().get(), deploymentModel);
+        return doFindHostIp(hosts.stream().findFirst().get(), deploymentModel);
+    }
+
+    public static String findHostIp(RootComponent component, DeploymentModel deploymentModel) {
+        if (isHostedOnDocker(component, deploymentModel)) {
+            return "localhost";
+        }
+
+        return doFindHostIp(component, deploymentModel);
     }
 
     private static void addPropertyDefinition(Attribute<?> attribute, Entity propertiesEntity) {
