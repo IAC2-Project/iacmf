@@ -175,7 +175,7 @@ class RemoveDBUsersFixingPluginTest {
         ComplianceRule complianceRule = new ComplianceRule(1L, "blabla", "somewhere", RemoveDBUsersFixingPluginDescriptor.SUPPORTED_ISSUE_TYPES[0]);
         complianceRule.addStringCollectionParameter(RemoveDBUsersFixingPluginDescriptor.EXPECTED_COMPLIANCE_RULE_PARAMETERS[0], expectedUsers);
         Map<String, String> issueProps = new HashMap<>();
-        issueProps.put("CHECKER_COMPONENT_ID", dbComponent);
+        issueProps.put("INSTANCE_MODEL_COMPONENT_ID", dbComponent);
         return new ComplianceIssue("some issue", complianceRule, RemoveDBUsersFixingPluginDescriptor.SUPPORTED_ISSUE_TYPES[0],
                 issueProps);
     }
