@@ -112,7 +112,7 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
         // Validate some inputs
         validateInputs(issue, productionSystem);
 
-        String modelComponentName = issue.getProperties().get("CHECKER_COMPONENT_ID");
+        String modelComponentName = issue.getProperties().get("INSTANCE_MODEL_COMPONENT_ID");
         RootComponent db = model.getDeploymentModel()
                 .getComponent(modelComponentName)
                 .orElse(null);

@@ -12,8 +12,11 @@ public class SimpleProperty {
     private String value;
 
     public SimpleProperty(Property property) {
-        name = property.getName();
-        type = property.getType();
-        value = property.getValue();
+        try {
+            name = property.getName();
+            value = property.getValue();
+            type = property.getType();
+        } catch (Exception ignored) {
+        }
     }
 }

@@ -51,7 +51,7 @@ class RemoveDBUsersFixingPluginTest {
         RemoveDBUsersFixingPlugin plugin = new RemoveDBUsersFixingPlugin(new RemoveDBUsersFixingPluginDescriptor());
         ProductionSystem productionSystem = new ProductionSystem("dummy", "any", "any", new HashMap<>());
         InstanceModel instanceModel = createInstanceModel(instanceModelUsers, "edmm/self_instance_model.yaml", dbComponent);
-        final String connectionString = "jdbc:mysql://localhost:3306/iac2?user=root&password=rootpassword";
+        final String connectionString = "jdbc:mysql://localhost:4406/iac2?user=root&password=rootpassword";
 
         try (Connection conn = DriverManager.getConnection(connectionString)) {
             // add an un-expected user
@@ -113,7 +113,7 @@ class RemoveDBUsersFixingPluginTest {
         Assertions.assertEquals("root", info.userName);
         Assertions.assertEquals("localhost", info.ip);
         Assertions.assertEquals("realWorld", info.dbName);
-        Assertions.assertEquals("3306", info.port);
+        Assertions.assertEquals("4406", info.port);
         Assertions.assertEquals("root", info.password);
 
         Edmm.removeComponents(instanceModel.getDeploymentModel().getGraph(), List.of(info.dbms));
