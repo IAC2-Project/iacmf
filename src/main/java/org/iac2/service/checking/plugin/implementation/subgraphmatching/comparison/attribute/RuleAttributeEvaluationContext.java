@@ -1,6 +1,7 @@
 package org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.attribute;
 
 import io.github.edmm.model.Property;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.model.SimpleProperty;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +13,7 @@ public class RuleAttributeEvaluationContext<T> {
         this.value = propertyValue;
     }
 
-    public static RuleAttributeEvaluationContext<?> forProperty(Property property) {
+    public static RuleAttributeEvaluationContext<?> forProperty(SimpleProperty property) {
         switch (property.getType()) {
             default:
                 return new RuleAttributeEvaluationContext<>(property.getValue());

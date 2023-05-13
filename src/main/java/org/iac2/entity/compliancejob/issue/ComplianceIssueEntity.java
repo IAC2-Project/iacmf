@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.LazyCollection;
@@ -31,7 +31,7 @@ public class ComplianceIssueEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @JsonIgnore
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @ManyToOne
     @JoinColumn(name = "execution_id", nullable = false)
     private ExecutionEntity execution;
@@ -43,10 +43,12 @@ public class ComplianceIssueEntity {
 
     // multiple fixing reports per issue only make sense if the client can attempt to
     // fix an issue multiple times (potentially using multiple plugins
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToMany(mappedBy = "complianceIssue")
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<IssueFixingReportEntity> fixingReports;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToMany(mappedBy = "complianceIssue", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<KVEntity> properties;

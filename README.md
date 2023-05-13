@@ -220,3 +220,12 @@ sudo sed -i -e 's/\s*nullok\s*/ /g' /etc/pam.d/common-password
 ```
 
 This removes the occurrences of the `nullok` option in the configuration file.
+
+Developers
+--
+
+## OpenAPI Support
+
+To generate an openapi v3 documentation for the RESTful API exposed by this framework, please access the following URL while
+the framework is running:
+http://localhost:9091/api/v3/api-docs

@@ -4,7 +4,7 @@ import io.github.edmm.model.component.RootComponent;
 import io.github.edmm.model.relation.RootRelation;
 import lombok.Getter;
 import lombok.Setter;
-import org.iac2.service.checking.common.interfaces.RuleValidationResult;
+import org.iac2.service.checking.common.model.RuleValidationResult;
 import org.jgrapht.GraphMapping;
 
 @Getter

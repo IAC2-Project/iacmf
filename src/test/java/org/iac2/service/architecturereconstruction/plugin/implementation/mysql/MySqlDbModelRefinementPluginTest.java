@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 class MySqlDbModelRefinementPluginTest {
-    final static String connectionString = "jdbc:mysql://localhost:3306/iac2?user=root&password=rootpassword";
+    final static String connectionString = "jdbc:mysql://localhost:4406/iac2?user=root&password=rootpassword";
     private static final Logger LOGGER = LoggerFactory.getLogger(MySqlDbModelRefinementPluginTest.class);
 
     @BeforeEach
@@ -34,7 +34,7 @@ class MySqlDbModelRefinementPluginTest {
     @Test
     void getUsersOfDatabase() throws SQLException {
         String ip = "localhost";
-        String port = "3306";
+        String port = "4406";
         String user = "root";
         String pass = "rootpassword";
         String db = "iac2";
@@ -52,7 +52,7 @@ class MySqlDbModelRefinementPluginTest {
         MySqlDbModelRefinementPlugin plugin = new MySqlDbModelRefinementPlugin(new MySqlDbModelRefinementPluginDescriptor());
         plugin.setConfigurationEntry(MySqlDbModelRefinementPluginDescriptor.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES, String.valueOf(false));
         InstanceModel result =
-                plugin.refineModel(new InstanceModel(model), new ProductionSystem("", "", new HashMap<>()));
+                plugin.refineModel(new InstanceModel(model), new ProductionSystem("dummy", "", "", new HashMap<>()));
         Assertions.assertNotNull(result);
         Assertions.assertEquals(4, result.getDeploymentModel().getComponents().size());
         Assertions.assertTrue(result.getDeploymentModel().getComponent("iac2db").isPresent());
@@ -76,7 +76,7 @@ class MySqlDbModelRefinementPluginTest {
             MySqlDbModelRefinementPlugin plugin = new MySqlDbModelRefinementPlugin(new MySqlDbModelRefinementPluginDescriptor());
             plugin.setConfigurationEntry(MySqlDbModelRefinementPluginDescriptor.CONFIG_ENTRY_IGNORE_MISSING_PROPERTIES, String.valueOf(false));
             InstanceModel result =
-                    plugin.refineModel(new InstanceModel(model), new ProductionSystem("", "", new HashMap<>()));
+                    plugin.refineModel(new InstanceModel(model), new ProductionSystem("dummy", "", "", new HashMap<>()));
             Assertions.assertNotNull(result);
             Assertions.assertEquals(4, result.getDeploymentModel().getComponents().size());
             Assertions.assertTrue(result.getDeploymentModel().getComponent("iac2db").isPresent());

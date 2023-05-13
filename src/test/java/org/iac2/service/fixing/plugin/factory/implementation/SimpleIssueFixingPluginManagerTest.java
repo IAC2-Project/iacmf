@@ -29,6 +29,7 @@ class SimpleIssueFixingPluginManagerTest {
         SimpleIssueFixingPluginFactory instance = SimpleIssueFixingPluginFactory.getInstance();
         String issueType = DockerContainerIssueFixingPluginDescriptor.SUPPORTED_ISSUE_TYPES[0];
         ProductionSystem productionSystem = new ProductionSystem(
+                "dummy",
                 "opentoscacontainer",
                 "bla bla",
                 new HashMap<>());

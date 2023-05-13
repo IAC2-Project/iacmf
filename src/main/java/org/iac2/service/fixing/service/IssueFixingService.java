@@ -11,12 +11,13 @@ import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.entity.compliancejob.ComplianceJobEntity;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
 import org.iac2.entity.compliancejob.issue.ComplianceIssueEntity;
+import org.iac2.entity.compliancejob.issue.IssueFixingConfigurationEntity;
 import org.iac2.entity.compliancejob.issue.IssueFixingReportEntity;
 import org.iac2.entity.plugin.PluginUsageEntity;
 import org.iac2.repository.compliancejob.IssueFixingConfigurationRepository;
 import org.iac2.repository.compliancejob.IssueFixingReportRepository;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
-import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.common.model.compliancejob.issue.IssueFixingReport;
 import org.iac2.service.fixing.plugin.factory.IssueFixingPluginFactory;
 import org.iac2.service.utility.EntityToPojo;
 import org.iac2.service.utility.PluginConfigurationHelperService;
@@ -44,22 +45,30 @@ public class IssueFixingService {
     }
 
     private IssueFixingReportEntity fixSingleIssue(ExecutionEntity execution, InstanceModel instanceModel, IssueFixingPlugin plugin, ComplianceIssueEntity issueE) {
-        try {
-            ComplianceIssue issue = EntityToPojo.transformIssue(issueE);
-            ProductionSystem productionSystem =
-                    EntityToPojo.transformProductionSystemEntity(execution.getComplianceJob().getProductionSystem());
-            IssueFixingReport report = plugin.fixIssue(issue, instanceModel, productionSystem);
-            IssueFixingReportEntity reportEntity = PojoToEntity.transformFixingReport(report, issueE);
+        IssueFixingReportEntity reportEntity;
 
-            return issueFixingReportRepository.save(reportEntity);
-        } catch (Exception e) {
-            IssueFixingReportEntity report = new IssueFixingReportEntity();
-            report.setComplianceIssue(issueE);
-            report.setDescription("Fixing the issue failed. Reason: %s".formatted(e.getMessage()));
-            report.setIsSuccessful(false);
-
-            return report;
+        if (plugin == null) {
+            reportEntity = new IssueFixingReportEntity();
+            reportEntity.setComplianceIssue(issueE);
+            reportEntity.setDescription("The following issue type is not mapped to a fixing plugin: %s".formatted(issueE.getType()));
+            reportEntity.setIsSuccessful(false);
+        } else {
+            try {
+                ComplianceIssue issue = EntityToPojo.transformIssue(issueE);
+                ProductionSystem productionSystem =
+                        EntityToPojo.transformProductionSystemEntity(execution.getComplianceJob().getProductionSystem());
+                IssueFixingReport report = plugin.fixIssue(issue, instanceModel, productionSystem);
+                reportEntity = PojoToEntity.transformFixingReport(report, issueE);
+            } catch (Exception e) {
+                reportEntity = new IssueFixingReportEntity();
+                reportEntity.setComplianceIssue(issueE);
+                reportEntity.setDescription("Fixing the issue failed. Reason: %s".formatted(e.getMessage()));
+                reportEntity.setIsSuccessful(false);
+            }
         }
+
+        return issueFixingReportRepository.save(reportEntity);
+
     }
 
     /**
@@ -110,13 +119,16 @@ public class IssueFixingService {
     private IssueFixingPlugin instantiatePlugin(ComplianceIssueEntity entity) throws IssueTypeNotMappedException {
         final String issueType = entity.getType();
         ComplianceJobEntity complianceJob = entity.getExecution().getComplianceJob();
-        PluginUsageEntity usageEntity = this.issueFixingConfigurationRepository.findByComplianceJob(complianceJob)
+        IssueFixingConfigurationEntity confEntity = this.issueFixingConfigurationRepository.findByComplianceJob(complianceJob)
                 .stream()
                 .filter(c -> c.getIssueType().equals(issueType))
                 .findFirst()
-                .orElseThrow(() -> new IssueTypeNotMappedException(issueType))
-                .getPluginUsage();
+                .orElse(null);
 
-        return (IssueFixingPlugin) helperService.instantiatePlugin(usageEntity, entity.getExecution(), this.pluginManager);
+        if (confEntity == null) {
+            return null;
+        }
+
+        return (IssueFixingPlugin) helperService.instantiatePlugin(confEntity.getPluginUsage(), entity.getExecution(), this.pluginManager);
     }
 }

@@ -15,7 +15,7 @@ public class KubernetesTestUtil {
         prodProps.put("kubeConfigPath", kubeConfigPath);
         prodProps.put("namespace", namespace);
 
-        ProductionSystem productionSystem = new ProductionSystem("kubernetes", "petclinic-test", prodProps);
+        ProductionSystem productionSystem = new ProductionSystem("dummy", "kubernetes", "petclinic-test", prodProps);
         return productionSystem;
     }
 

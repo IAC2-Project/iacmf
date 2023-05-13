@@ -10,7 +10,7 @@ import org.iac2.common.model.compliancejob.issue.ComplianceIssue;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupportedException;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
-import org.iac2.service.checking.common.interfaces.RuleValidationResult;
+import org.iac2.service.checking.common.model.RuleValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

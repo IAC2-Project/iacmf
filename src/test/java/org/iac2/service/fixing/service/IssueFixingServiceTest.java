@@ -77,6 +77,8 @@ class IssueFixingServiceTest {
         complianceRuleRepository.save(complianceRule);
         PluginUsageEntity usageEntity = new PluginUsageEntity("opentosca-container-model-creation-plugin");
         PluginUsageEntity checkingEntity = new PluginUsageEntity("checking");
+        PluginUsageEntity reporting = new PluginUsageEntity("reporting");
+        pluginUsageRepository.save(reporting);
         pluginUsageRepository.save(usageEntity);
         pluginUsageRepository.save(checkingEntity);
         ProductionSystemEntity productionSystem = new ProductionSystemEntity(
@@ -86,7 +88,7 @@ class IssueFixingServiceTest {
                 usageEntity);
         productionSystemRepository.save(productionSystem);
         ComplianceJobEntity complianceJob = new ComplianceJobEntity("job1",
-                "my super job", productionSystem, checkingEntity);
+                "my super job", productionSystem, checkingEntity, reporting);
         complianceJobRepository.save(complianceJob);
         ComplianceRuleConfigurationEntity crConfigEntity = new ComplianceRuleConfigurationEntity(complianceRule, complianceJob, "wrong-property-value");
         complianceRuleConfigurationRepository.save(crConfigEntity);

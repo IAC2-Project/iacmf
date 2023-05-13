@@ -22,6 +22,7 @@ import org.iac2.repository.compliancejob.IssueFixingReportRepository;
 import org.iac2.service.architecturereconstruction.service.ArchitectureReconstructionService;
 import org.iac2.service.checking.service.ComplianceRuleCheckingService;
 import org.iac2.service.fixing.service.IssueFixingService;
+import org.iac2.service.reporting.service.ExecutionReportingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -32,6 +33,7 @@ public class ExecutionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionService.class);
     private final ArchitectureReconstructionService architectureReconstructionService;
     private final ComplianceRuleCheckingService checkingService;
+    private final ExecutionReportingService reportingService;
     private final IssueFixingService fixingService;
     private final ExecutionRepository executionRepository;
     private final IssueFixingReportRepository issueFixingReportRepository;
@@ -40,12 +42,14 @@ public class ExecutionService {
                             ArchitectureReconstructionService architectureReconstructionService,
                             ComplianceRuleCheckingService checkingService,
                             IssueFixingService fixingService,
-                            IssueFixingReportRepository issueFixingReportRepository) {
+                            IssueFixingReportRepository issueFixingReportRepository,
+                            ExecutionReportingService reportingService) {
         this.executionRepository = executionRepository;
         this.architectureReconstructionService = architectureReconstructionService;
         this.checkingService = checkingService;
         this.fixingService = fixingService;
         this.issueFixingReportRepository = issueFixingReportRepository;
+        this.reportingService = reportingService;
     }
 
     @Async
@@ -54,10 +58,11 @@ public class ExecutionService {
         Map<ComplianceRuleConfigurationEntity, Collection<ComplianceIssueEntity>> issues = this.checkCompliance(execution, instanceModel);
 
         if (!issues.isEmpty()) {
-            Map<ComplianceIssueEntity, IssueFixingReportEntity> reports =
-                    this.fixIssues(execution, instanceModel, isBatchFixing);
+            Map<ComplianceIssueEntity, IssueFixingReportEntity> reports = this.fixIssues(execution, instanceModel, isBatchFixing);
         }
-        // todo extend with validation and reporting
+
+        // this.reportExecution(execution, reports);
+        // todo extend with validation
     }
 
     public ExecutionEntity createNewExecution(@NotNull ComplianceJobEntity complianceJob) {
@@ -77,8 +82,12 @@ public class ExecutionService {
         try {
             ProductionSystemEntity productionSystem = execution.getComplianceJob().getProductionSystem();
             InstanceModel result = this.architectureReconstructionService.crteateInstanceModel(productionSystem, execution);
-            this.architectureReconstructionService.refineInstanceModel(execution, result);
             String base64 = Edmm.getAsBase64(result.getDeploymentModel().getGraph());
+            execution.setInstanceModel(base64);
+            execution.setStatus(ExecutionStatus.IDLE);
+            executionRepository.save(execution);
+            this.architectureReconstructionService.refineInstanceModel(execution, result);
+            base64 = Edmm.getAsBase64(result.getDeploymentModel().getGraph());
             execution.setInstanceModel(base64);
             execution.setStatus(ExecutionStatus.IDLE);
             executionRepository.save(execution);
@@ -103,7 +112,7 @@ public class ExecutionService {
 
             if (issues.isEmpty()) {
                 this.endExecution(execution, false,
-                        "The compliance job execution finished without errors. No compliance issues were detected.");
+                        "The compliance job execution finished without errors. No compliance issues were detected.", new HashMap<>());
             } else {
                 execution.setViolationsDetected(true);
                 execution.setStatus(ExecutionStatus.IDLE);
@@ -136,9 +145,9 @@ public class ExecutionService {
             LOGGER.info("Finished fixing the detected compliance rule violations (execution id: {}, job id: {}).",
                     execution.getId(), execution.getComplianceJob().getId());
 
-            // todo change when additional steps are implemented
+            // todo change when validation is implemented
             this.endExecution(execution, false,
-                    "The compliance job execution finished without errors . Issues were found and attempted to be fixed.");
+                    "The compliance job execution finished without errors . Issues were found and attempted to be fixed.", result);
 
             return result;
         } catch (RuntimeException e) {
@@ -146,17 +155,41 @@ public class ExecutionService {
         }
     }
 
+    public void reportExecution(ExecutionEntity execution, Map<ComplianceIssueEntity, IssueFixingReportEntity> issues) throws RuntimeException{
+        execution.setCurrentStep(ExecutionStep.REPORTING);
+        executionRepository.save(execution);
+        LOGGER.info("Reporting the compliance job execution (execution id: {}, job id: {})...",
+                execution.getId(), execution.getComplianceJob().getId());
+        ProductionSystemEntity productionSystem = execution.getComplianceJob().getProductionSystem();
+        this.reportingService.reportExecution(execution, productionSystem, issues);
+        LOGGER.info("Finished reporting the execution (execution id: {}, job id: {}).",
+                execution.getId(), execution.getComplianceJob().getId());
+    }
+
     private RuntimeException handleException(RuntimeException e, ExecutionEntity execution) {
         String message = String.format("The execution with id: (%s) has errored at step: (%s). Reason: %s",
                 execution.getId(), execution.getCurrentStep(), e.getMessage());
         LOGGER.error(message);
-        endExecution(execution, true, message);
+        endExecution(execution, true, message, new HashMap<>());
         return e;
     }
 
-    private void endExecution(ExecutionEntity execution, boolean isFailed, String description) {
+    private void endExecution(ExecutionEntity execution, boolean isFailed, String description, Map<ComplianceIssueEntity, IssueFixingReportEntity> issues) {
         execution.setStatus(isFailed ? ExecutionStatus.EXCEPTION : ExecutionStatus.SUCCESS);
         execution.setEndTime(new Date());
+        description = description.substring(0, Math.min(description.length(), 1000));
+        execution.setDescription(description);
+        try {
+            this.reportExecution(execution, issues);
+        } catch (Exception ignored) {
+            execution.setStatus(ExecutionStatus.EXCEPTION);
+            if (isFailed) {
+                description += " Reporting the execution also failed!";
+            } else {
+                description += " However, reporting the execution failed!";
+            }
+            isFailed = true;
+        }
         execution.setCurrentStep(ExecutionStep.END);
         description = description.substring(0, Math.min(description.length(), 1000));
         execution.setDescription(description);

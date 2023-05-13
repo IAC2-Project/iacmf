@@ -65,7 +65,7 @@ components:
         value: root
       DBMSPort:
         type: string
-        value: '3306'
+        value: '4406'
       DBMSPassword:
         type: string
         value: rootpassword

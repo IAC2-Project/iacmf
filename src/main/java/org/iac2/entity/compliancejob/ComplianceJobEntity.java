@@ -16,6 +16,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.iac2.entity.compliancejob.execution.ExecutionEntity;
@@ -44,19 +48,28 @@ public class ComplianceJobEntity {
             inverseJoinColumns = @JoinColumn(name = "trigger_id"))
     private List<TriggerEntity> triggers;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToMany(mappedBy = "complianceJob")
     private List<ComplianceRuleConfigurationEntity> complianceRuleConfigurations;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToMany(mappedBy = "complianceJob")
     private List<ExecutionEntity> executions;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToMany(mappedBy = "complianceJobRefinement")
     @OrderBy("refinementPluginIndexInComplianceJob")
     private List<PluginUsageEntity> modelRefinementStrategy;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToOne
     @JoinColumn(name = "checking_plugin_usage_id", nullable = false)
     private PluginUsageEntity checkingPluginUsage;
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @OneToOne
+    @JoinColumn(name = "reporting_plugin_usage_id", nullable = false)
+    private PluginUsageEntity reportingPluginUsage;
 
     // unidirectional
     @ManyToOne
@@ -66,10 +79,12 @@ public class ComplianceJobEntity {
     public ComplianceJobEntity(String name,
                                String description,
                                @NotNull ProductionSystemEntity productionSystem,
-                               @NotNull PluginUsageEntity checkingPluginUsage) {
+                               @NotNull PluginUsageEntity checkingPluginUsage,
+                               @NotNull PluginUsageEntity reportingPluginUsage) {
         this.name = name;
         this.productionSystem = productionSystem;
         this.checkingPluginUsage = checkingPluginUsage;
+        this.reportingPluginUsage = reportingPluginUsage;
         this.checkingPluginUsage.setComplianceJobChecking(this);
         this.description = description;
         this.executions = new ArrayList<>();

@@ -9,7 +9,7 @@ services:
       MYSQL_PASSWORD: rootpassword
       MYSQL_USER: iac2-admin
     ports:
-      - '3306:3306'
+      - '4406:3306'
     volumes:
       - mysql_db_data_container:/var/lib/mysql
   winery-cr-modeling:

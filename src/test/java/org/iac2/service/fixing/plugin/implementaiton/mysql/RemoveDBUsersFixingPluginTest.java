@@ -25,7 +25,7 @@ import org.iac2.common.utility.EdmmTypeResolver;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDb;
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
 import org.iac2.service.fixing.common.exception.ComplianceRuleMissingRequiredParameterException;
-import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.common.model.compliancejob.issue.IssueFixingReport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,9 +49,9 @@ class RemoveDBUsersFixingPluginTest {
         Collection<String> ruleUsers = List.of("iac2-admin");
         String dbComponent = "iac2db";
         RemoveDBUsersFixingPlugin plugin = new RemoveDBUsersFixingPlugin(new RemoveDBUsersFixingPluginDescriptor());
-        ProductionSystem productionSystem = new ProductionSystem("any", "any", new HashMap<>());
+        ProductionSystem productionSystem = new ProductionSystem("dummy", "any", "any", new HashMap<>());
         InstanceModel instanceModel = createInstanceModel(instanceModelUsers, "edmm/self_instance_model.yaml", dbComponent);
-        final String connectionString = "jdbc:mysql://localhost:3306/iac2?user=root&password=rootpassword";
+        final String connectionString = "jdbc:mysql://localhost:4406/iac2?user=root&password=rootpassword";
 
         try (Connection conn = DriverManager.getConnection(connectionString)) {
             // add an un-expected user
@@ -111,9 +111,9 @@ class RemoveDBUsersFixingPluginTest {
         Assertions.assertNotNull(info.port);
         Assertions.assertNotNull(info.password);
         Assertions.assertEquals("root", info.userName);
-        Assertions.assertEquals("172.17.0.1", info.ip);
+        Assertions.assertEquals("localhost", info.ip);
         Assertions.assertEquals("realWorld", info.dbName);
-        Assertions.assertEquals("3306", info.port);
+        Assertions.assertEquals("4406", info.port);
         Assertions.assertEquals("root", info.password);
 
         Edmm.removeComponents(instanceModel.getDeploymentModel().getGraph(), List.of(info.dbms));
@@ -151,7 +151,7 @@ class RemoveDBUsersFixingPluginTest {
     @Test
     void testValidation() {
         RemoveDBUsersFixingPlugin plugin = new RemoveDBUsersFixingPlugin(new RemoveDBUsersFixingPluginDescriptor());
-        ProductionSystem productionSystem = new ProductionSystem("blabla", "", new HashMap<>());
+        ProductionSystem productionSystem = new ProductionSystem("dummy", "blabla", "", new HashMap<>());
         final ComplianceIssue issue = createComplianceIssue(null, null);
         Assertions.assertDoesNotThrow(() -> plugin.validateInputs(issue, productionSystem));
         issue.setType("oops will not work");
@@ -175,7 +175,7 @@ class RemoveDBUsersFixingPluginTest {
         ComplianceRule complianceRule = new ComplianceRule(1L, "blabla", "somewhere", RemoveDBUsersFixingPluginDescriptor.SUPPORTED_ISSUE_TYPES[0]);
         complianceRule.addStringCollectionParameter(RemoveDBUsersFixingPluginDescriptor.EXPECTED_COMPLIANCE_RULE_PARAMETERS[0], expectedUsers);
         Map<String, String> issueProps = new HashMap<>();
-        issueProps.put("CHECKER_COMPONENT_ID", dbComponent);
+        issueProps.put("INSTANCE_MODEL_COMPONENT_ID", dbComponent);
         return new ComplianceIssue("some issue", complianceRule, RemoveDBUsersFixingPluginDescriptor.SUPPORTED_ISSUE_TYPES[0],
                 issueProps);
     }

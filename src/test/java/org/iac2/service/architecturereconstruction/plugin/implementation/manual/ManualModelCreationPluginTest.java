@@ -17,7 +17,7 @@ class ManualModelCreationPluginTest {
         ManualModelCreationPlugin plugin = new ManualModelCreationPlugin(new ManualModelCreationPluginDescriptor());
         plugin.setConfigurationEntry(ManualModelCreationPluginDescriptor.CONFIG_ENTRY_MODEL_PATH, path);
         InstanceModel result = plugin.reconstructInstanceModel(
-                new ProductionSystem("none of your business", "saaa", new HashMap<>()));
+                new ProductionSystem("dummy", "none of your business", "saaa", new HashMap<>()));
         Assertions.assertNotNull(result);
         Assertions.assertNotNull(result.getDeploymentModel());
         Assertions.assertEquals(3, result.getDeploymentModel().getComponents().size());
@@ -31,10 +31,10 @@ class ManualModelCreationPluginTest {
         Assertions.assertEquals(0, ((ManualModelCreationPluginDescriptor) plugin.getDescriptor()).getRequiredProductionSystemPropertyNames().size());
         Assertions.assertEquals(1, plugin.getDescriptor().getConfigurationEntryDescriptors().size());
         Assertions.assertThrows(MissingConfigurationEntryException.class, () ->
-                plugin.reconstructInstanceModel(new ProductionSystem("", "", new HashMap<>())));
+                plugin.reconstructInstanceModel(new ProductionSystem("dummy", "", "", new HashMap<>())));
         plugin.setConfigurationEntry(ManualModelCreationPluginDescriptor.CONFIG_ENTRY_MODEL_PATH, "random path!");
         Assertions.assertThrows(RuntimeException.class, () ->
-                plugin.reconstructInstanceModel(new ProductionSystem("", "", new HashMap<>())));
+                plugin.reconstructInstanceModel(new ProductionSystem("dummy", "", "", new HashMap<>())));
     }
 
     @Test
