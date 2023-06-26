@@ -17,7 +17,6 @@ import io.github.edmm.model.relation.ConnectsTo;
 import io.github.edmm.model.relation.DependsOn;
 import io.github.edmm.model.relation.HostedOn;
 import io.github.edmm.model.relation.RootRelation;
-import io.swagger.client.model.RelationshipTemplateInstanceDTO;
 import org.assertj.core.util.Sets;
 import org.iac2.common.PluginDescriptor;
 import org.iac2.common.exception.IaCTechnologyNotSupportedException;
@@ -179,10 +178,7 @@ public class OpenToscaContainerModelCreationPlugin implements ModelCreationPlugi
             compIds.add(currentId);
         }
 
-        Collection<RelationInstance> allRelations = applicationInstance.getRelationInstances().stream()
-                .filter(r->r.getState() == RelationshipTemplateInstanceDTO.StateEnum.CREATED).toList();
-
-        for (RelationInstance relationInstance : allRelations) {
+        for (RelationInstance relationInstance : applicationInstance.getRelationInstances()) {
             NodeInstance sourceInstance = findNodeInstanceByNodeInstanceId(applicationInstance, relationInstance.getSourceId());
             NodeInstance targetInstance = findNodeInstanceByNodeInstanceId(applicationInstance, relationInstance.getTargetId());
             EntityId sourceEntityId = getEntityId(compIds, sourceInstance);
