@@ -3,6 +3,7 @@ package org.iac2.service.checking.plugin.implementation.subgraphmatching.compari
 import io.github.edmm.model.Property;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.common.model.compliancerule.parameter.*;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.model.SimpleProperty;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 public class AttributeComparator {
 
-    public static boolean evaluateAttribute(String expressionS, Property property, ComplianceRule rule) throws EvaluationException {
+    public static boolean evaluateAttribute(String expressionS, SimpleProperty property, ComplianceRule rule) throws EvaluationException {
         ExpressionParser parser = new SpelExpressionParser();
         StandardEvaluationContext context = new StandardEvaluationContext();
         Map<String, Object> assignments = prepareAssignments(rule.getParameterAssignments());
@@ -26,6 +27,10 @@ public class AttributeComparator {
 
         // the following statement might throw EvaluationException if the evaluation result is not a boolean value
         return Boolean.TRUE.equals(expression.getValue(context, Boolean.class));
+    }
+
+    public static boolean evaluateAttribute(String expressionS, Property property, ComplianceRule rule) throws EvaluationException {
+        return evaluateAttribute(expressionS, new SimpleProperty(property), rule);
     }
 
     private static Map<String, Object> prepareAssignments(Collection<ComplianceRuleParameter> parameters) {

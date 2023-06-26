@@ -35,6 +35,8 @@ import org.iac2.repository.productionsystem.ProductionSystemRepository;
 import org.iac2.service.architecturereconstruction.service.ArchitectureReconstructionService;
 import org.iac2.service.checking.service.ComplianceRuleCheckingService;
 import org.iac2.service.fixing.service.IssueFixingService;
+import org.iac2.service.reporting.common.interfaces.ReportingPlugin;
+import org.iac2.service.reporting.service.ExecutionReportingService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,6 +64,8 @@ class ExecutionServiceTest {
     private ComplianceRuleCheckingService checkingService;
     @MockBean
     private IssueFixingService fixingService;
+    @MockBean
+    private ExecutionReportingService reportingService;
 
     @Autowired
     private ExecutionService service;
@@ -127,6 +131,7 @@ class ExecutionServiceTest {
 
         // no violations
         Mockito.when(checkingService.findViolationsOfAllComplianceRules(any(), any())).thenReturn(new HashMap<>());
+        //Mockito.when(reportingService.reportExecution(any(), any(), any())).thenReturn(any());
         ExecutionEntity execution = this.service.createNewExecution(job);
         Map<ComplianceRuleConfigurationEntity, Collection<ComplianceIssueEntity>> issues = this.service.checkCompliance(execution, instanceModel);
         execution = executionRepository.findById(execution.getId()).orElseThrow();
@@ -250,6 +255,8 @@ class ExecutionServiceTest {
         ComplianceRuleEntity rule = new ComplianceRuleEntity("cr1", "test", "test", "test");
         PluginUsageEntity checking = new PluginUsageEntity("checker1");
         pluginUsageRepository.save(checking);
+        PluginUsageEntity reporting = new PluginUsageEntity("reporting");
+        pluginUsageRepository.save(reporting);
         PluginUsageEntity modelCreation = new PluginUsageEntity("creator1");
         pluginUsageRepository.save(modelCreation);
         ProductionSystemEntity productionSystem = new ProductionSystemEntity("abc", "test", "opentoscacontainer", modelCreation);
@@ -257,7 +264,7 @@ class ExecutionServiceTest {
         productionSystemRepository.save(productionSystem);
         complianceRuleRepository.save(rule);
         triggerRepository.save(trigger);
-        ComplianceJobEntity job = new ComplianceJobEntity("job1", "test", productionSystem, checking);
+        ComplianceJobEntity job = new ComplianceJobEntity("job1", "test", productionSystem, checking, reporting);
         job.addTrigger(trigger);
         complianceJobRepository.save(job);
         PluginUsageEntity fixer = new PluginUsageEntity("fixer1");

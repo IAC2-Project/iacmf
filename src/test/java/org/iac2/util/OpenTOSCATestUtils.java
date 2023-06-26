@@ -28,10 +28,10 @@ public class OpenTOSCATestUtils {
         prodProps.put("dockerContainerFilter_engineBpel", "opentosca/ode:latest");
         prodProps.put("dockerContainerFilter_engineJava8", "opentosca/engine-ia:latest-jdk8");
         prodProps.put("dockerContainerFilter_engineJava17", "opentosca/engine-ia:latest-jdk17");
-        prodProps.put("dockerContainerFilter_winery", "opentosca/winery:iac-compliance");
+        prodProps.put("dockerContainerFilter_winery", "opentosca/winery");
         // we should really watch out whether this filters something from the use case....
         prodProps.put("dockerContainerFilter_mysql", "mysql");
-        ProductionSystem productionSystem = new ProductionSystem("opentoscacontainer", "realworldapp-test", prodProps);
+        ProductionSystem productionSystem = new ProductionSystem("dummy", "opentoscacontainer", "realworldapp-test", prodProps);
         return productionSystem;
     }
 

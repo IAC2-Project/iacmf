@@ -27,7 +27,7 @@ services:
       MYSQL_PASSWORD: rootpassword
       MYSQL_USER: iac2-admin
     ports:
-      - '3306:3306'
+      - '4406:3306'
     volumes:
       - mysql_db_data_container:/var/lib/mysql
   container:
@@ -48,7 +48,7 @@ services:
       ENGINE_PLAN_BPMN_PORT: 8092
       CONTAINER_DEPLOYMENT_TESTS: 'false'
   winery:
-    image: opentosca/winery:iac-compliance
+    image: opentosca/winery
     environment:
       WINERY_HOSTNAME: 172.17.0.1
       TOPOLOGYMODELER_HOSTNAME: 172.17.0.1

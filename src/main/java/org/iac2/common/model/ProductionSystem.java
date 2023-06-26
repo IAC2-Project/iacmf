@@ -9,6 +9,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 public class ProductionSystem {
+    private String name;
     private String iacTechnologyName;
     private String description;
     private Map<String, String> properties;

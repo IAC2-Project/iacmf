@@ -29,6 +29,8 @@ import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPluginD
 import org.iac2.service.checking.plugin.factory.ComplianceRuleCheckingPluginFactory;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPluginDescriptor;
 import org.iac2.service.fixing.plugin.factory.IssueFixingPluginFactory;
+import org.iac2.service.reporting.common.interfaces.ReportingPluginDescriptor;
+import org.iac2.service.reporting.plugin.factory.ReportingPluginFactory;
 import org.iac2.service.utility.EntityToPojo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,9 +45,11 @@ public class PluginController {
     private final IssueFixingPluginFactory fixingPluginManager;
     private final ComplianceRuleRepository complianceRuleRepository;
     private final ComplianceIssueRepository complianceIssueRepository;
+    private final ReportingPluginFactory reportingPluginManager;
 
     public PluginController(ArchitectureReconstructionPluginFactory arPluginManager,
                             ComplianceRuleCheckingPluginFactory checkingPluginManager,
+                            ReportingPluginFactory reportingPluginFactory,
                             IssueFixingPluginFactory issueFixingPluginManager,
                             ComplianceRuleRepository complianceRuleRepository,
                             ComplianceIssueRepository complianceIssueRepository) {
@@ -54,6 +58,7 @@ public class PluginController {
         this.fixingPluginManager = issueFixingPluginManager;
         this.complianceRuleRepository = complianceRuleRepository;
         this.complianceIssueRepository = complianceIssueRepository;
+        this.reportingPluginManager = reportingPluginFactory;
     }
 
     private static PluginPojo createPluginPojo(PluginDescriptor pluginDescriptor) {
@@ -66,6 +71,8 @@ public class PluginController {
             type = PluginType.MODEL_REFINEMENT;
         } else if (pluginDescriptor instanceof ComplianceRuleCheckingPluginDescriptor) {
             type = PluginType.ISSUE_CHECKING;
+        } else if (pluginDescriptor instanceof ReportingPluginDescriptor) {
+            type = PluginType.REPORTING;
         } else {
             type = PluginType.ISSUE_FIXING;
         }
@@ -138,6 +145,12 @@ public class PluginController {
                         .stream()
                         .map(this.checkingPluginManager::describePlugin)
                         .filter(p -> complianceRuleId == null || ((ComplianceRuleCheckingPluginDescriptor) p).isSuitableForComplianceRule(getComplianceRule(complianceRuleId)))
+                        .forEach(p -> result.add(createPluginPojo(p)));
+
+                case REPORTING -> this.reportingPluginManager
+                        .getAllPluginIdentifiers()
+                        .stream()
+                        .map(this.reportingPluginManager::describePlugin)
                         .forEach(p -> result.add(createPluginPojo(p)));
 
                 case ISSUE_FIXING -> this.fixingPluginManager

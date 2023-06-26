@@ -13,7 +13,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +33,7 @@ public class ComplianceRuleConfigurationEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToMany(mappedBy = "complianceRuleConfiguration")
     private List<ComplianceRuleParameterAssignmentEntity> complianceRuleParameterAssignments;
 
@@ -38,7 +42,7 @@ public class ComplianceRuleConfigurationEntity {
     @JoinColumn(name = "compliance_rule_id")
     private ComplianceRuleEntity complianceRule;
 
-    @JsonIgnore
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @ManyToOne
     @JoinColumn(name = "compliance_job_id")
     private ComplianceJobEntity complianceJob;

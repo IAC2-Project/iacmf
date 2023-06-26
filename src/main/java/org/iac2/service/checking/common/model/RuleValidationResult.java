@@ -1,4 +1,4 @@
-package org.iac2.service.checking.common.interfaces;
+package org.iac2.service.checking.common.model;
 
 import lombok.Getter;
 

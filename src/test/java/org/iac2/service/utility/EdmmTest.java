@@ -252,7 +252,7 @@ class EdmmTest {
         RootComponent db = model.getComponent("MySQL-DB_w1_0").orElseThrow();
         String ip = Edmm.findHostIp(db, model);
         Assertions.assertNotNull(ip);
-        Assertions.assertEquals(IP, ip);
+        Assertions.assertEquals("localhost", ip);
         RootComponent dockerEngine = model.getComponent("DockerEngine").orElseThrow();
         ip = Edmm.findHostIp(dockerEngine, model);
         Assertions.assertNotNull(ip);

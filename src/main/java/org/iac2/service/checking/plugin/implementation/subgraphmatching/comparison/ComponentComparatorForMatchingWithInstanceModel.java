@@ -10,6 +10,7 @@ import lombok.Getter;
 import org.apache.commons.text.CaseUtils;
 import org.iac2.common.model.compliancerule.ComplianceRule;
 import org.iac2.service.checking.plugin.implementation.subgraphmatching.comparison.attribute.AttributeComparator;
+import org.iac2.service.checking.plugin.implementation.subgraphmatching.model.SimpleProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.expression.ExpressionException;
@@ -48,7 +49,13 @@ public class ComponentComparatorForMatchingWithInstanceModel implements Semantic
         String expression;
         String name;
         boolean isFound;
-        Collection<Property> instanceModelComponentProps = instanceModelComponent.getProperties().values();
+        List<SimpleProperty> instanceModelComponentProps = new ArrayList<>(instanceModelComponent
+                .getProperties()
+                .values()
+                .stream()
+                .map(SimpleProperty::new)
+                .toList());
+        instanceModelComponentProps.add(new SimpleProperty("componentName", "string", instanceModelComponent.getName()));
 
         // iterate over all properties of the compliance rule
         for (Property property : ruleComponent.getProperties().values()) {
@@ -60,7 +67,7 @@ public class ComponentComparatorForMatchingWithInstanceModel implements Semantic
             if (expression != null && !expression.isEmpty() && !PROPERTIES_TO_IGNORE.contains(name)) {
                 isFound = false;
                 // iterate over all properties that are assigned values in the instance model
-                for (Property instanceProperty : instanceModelComponentProps) {
+                for (SimpleProperty instanceProperty : instanceModelComponentProps) {
                     // find a property with a suitable name!
                     if (areEqualPropertyNames(name, instanceProperty.getName())) {
                         isFound = true;

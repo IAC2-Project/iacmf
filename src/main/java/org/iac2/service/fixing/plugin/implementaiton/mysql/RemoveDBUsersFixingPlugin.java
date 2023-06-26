@@ -24,7 +24,7 @@ import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlD
 import org.iac2.service.architecturereconstruction.common.model.EdmmTypes.MySqlDbms;
 import org.iac2.service.fixing.common.exception.ComplianceRuleMissingRequiredParameterException;
 import org.iac2.service.fixing.common.interfaces.IssueFixingPlugin;
-import org.iac2.service.fixing.common.model.IssueFixingReport;
+import org.iac2.common.model.compliancejob.issue.IssueFixingReport;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveDBUsersFixingPlugin.class);
     private static final String MODEL_PROPERTY_NAME_USERS = "users";
+    private static final String ISSUE_PROPERTY_FOR_COMPONENT_WITH_CURRENT_USERS = "INSTANCE_MODEL_COMPONENT_ID";
 
     private final RemoveDBUsersFixingPluginDescriptor descriptor;
 
@@ -112,7 +113,7 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
         // Validate some inputs
         validateInputs(issue, productionSystem);
 
-        String modelComponentName = issue.getProperties().get("CHECKER_COMPONENT_ID");
+        String modelComponentName = issue.getProperties().get("INSTANCE_MODEL_COMPONENT_ID");
         RootComponent db = model.getDeploymentModel()
                 .getComponent(modelComponentName)
                 .orElse(null);
@@ -167,9 +168,9 @@ public class RemoveDBUsersFixingPlugin implements IssueFixingPlugin {
             throw new IssueNotSupportedException(issue.getType());
         }
 
-        if (!issue.getProperties().containsKey("CHECKER_COMPONENT_ID")) {
+        if (!issue.getProperties().containsKey(ISSUE_PROPERTY_FOR_COMPONENT_WITH_CURRENT_USERS)) {
             throw new IssueNotSupportedException(issue.getType(),
-                    "The issue is missing a required property: '%s'".formatted("CHECKER_COMPONENT_ID"));
+                    "The issue is missing a required property: '%s'".formatted(ISSUE_PROPERTY_FOR_COMPONENT_WITH_CURRENT_USERS));
         }
 
         if (!descriptor.isIaCTechnologySupported(productionSystem.getIacTechnologyName())) {

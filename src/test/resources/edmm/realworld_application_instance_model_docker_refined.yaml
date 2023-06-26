@@ -168,7 +168,7 @@ components:
       DBMSPort:
         computed: 'true'
         type: string
-        value: '3306'
+        value: '4406'
       DBMSPassword:
         computed: 'true'
         type: string

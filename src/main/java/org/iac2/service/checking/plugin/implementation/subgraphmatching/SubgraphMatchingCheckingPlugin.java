@@ -20,7 +20,7 @@ import org.iac2.common.utility.Utils;
 import org.iac2.service.checking.common.exception.ComplianceRuleMalformattedException;
 import org.iac2.service.checking.common.exception.ComplianceRuleTypeNotSupportedException;
 import org.iac2.service.checking.common.interfaces.ComplianceRuleCheckingPlugin;
-import org.iac2.service.checking.common.interfaces.RuleValidationResult;
+import org.iac2.service.checking.common.model.RuleValidationResult;
 import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
