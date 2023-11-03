@@ -86,12 +86,12 @@ public class DockerContainerRefinementPlugin implements ModelRefinementPlugin {
         for (DockerEngine d : dockerEngineComponents) {
             String dockerEngineUrl = d.getProperty("DockerEngineURL").orElseThrow().getValue();
 
-            if (dockerEngineUrl.contains("host.docker.internal")) {
+            /*if (dockerEngineUrl.contains("host.docker.internal")) {
                 // this is a little dirty, as we use such an URL in the test environment,
                 // we assume this URL is never like this but only a proper URL/IP
                 // => TODO: FIXME
                 dockerEngineUrl = dockerEngineUrl.replace("host.docker.internal", "localhost");
-            }
+            }*/
 
             try (DockerClient dockerClient = Utils.createDockerClient(dockerEngineUrl)) {
                 List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();

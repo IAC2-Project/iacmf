@@ -95,12 +95,12 @@ public class DockerContainerIssueFixingPlugin implements IssueFixingPlugin {
         for (DockerEngine dockerEngine : dockerEngineCollectionMap.keySet()) {
             String dockerEngineUrl = dockerEngine.getProperties().get("DockerEngineURL").getValue();
 
-            if (dockerEngineUrl.contains("host.docker.internal")) {
+            /*if (dockerEngineUrl.contains("host.docker.internal")) {
                 // this is a little dirty, as we use such an URL in the test environment,
                 // we assume this URL is never like this but only a proper URL/IP
                 // => TODO: FIXME
                 dockerEngineUrl = dockerEngineUrl.replace("host.docker.internal", "localhost");
-            }
+            }*/
 
             try (DockerClient dockerClient = Utils.createDockerClient(dockerEngineUrl)) {
 
